@@ -8,10 +8,10 @@ class Qubit:
     Retains a reference to a quantum system that can deal with multi-particle dynamics
     '''
 
-    def __init__(self, initialState=(1, 0)):
+    def __init__(self, initialState=np.array([1, 0])):
         self.initialState = initialState  # start off in the |0> state by default
         self.index = 0  # the index/qubit number in the quantum system object
-        self.qSystem = QSystem([self])  # the overall quantum state of the system of qubits
+        self.qSystem = QubitSystem([self])  # the overall quantum state of the system of qubits
 
     def entangle(self, qSystem):
         '''
@@ -40,7 +40,7 @@ class Qubit:
         self.qSystem.apply(operator, index=self.index)
 
 
-class QSystem:
+class QubitSystem:
     '''
     Maintains a multi-particle Hilbert space for several qubits
     '''

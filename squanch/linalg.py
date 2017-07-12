@@ -28,8 +28,7 @@ def tensors(operatorList):
 
 def tensorFillIdentity(singleQubitOperator, nQubits, qubitIndex):
     '''
-    Create the n-qubit operator I x I x ... Operator x I x I... with operator applied to a given
-    qubit index
+    Create the n-qubit operator I x I x ... Operator x I x I... with operator applied to a given qubit index
     :param singleQubitOperator: the operator in the computational basis (a 2x2 matrix)
     :param nQubits: the number of qubits in the system to fill
     :param qubitIndex: the zero-indexed qubit to apply this operator to
@@ -42,3 +41,5 @@ def tensorFillIdentity(singleQubitOperator, nQubits, qubitIndex):
         tensors([np.eye(2)] * (nQubits - (qubitIndex + 1)))
     ])
     return operator
+
+
