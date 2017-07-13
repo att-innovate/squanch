@@ -46,6 +46,12 @@ _twoQubitMeasure0q1 = np.dot(linalg.tensorFillIdentity(_M0, 2, 1).conj().T, lina
 _twoQubitMeasure1q0 = np.dot(linalg.tensorFillIdentity(_M1, 2, 0).conj().T, linalg.tensorFillIdentity(_M1, 2, 0))
 _twoQubitMeasure1q1 = np.dot(linalg.tensorFillIdentity(_M1, 2, 1).conj().T, linalg.tensorFillIdentity(_M1, 2, 1))
 
+# Non-projective form of these operators for <psi|0><0|psi> -> (<0|psi>)^2
+_bra0q0 = linalg.tensorProd([1, 0], [1, 1])
+_bra0q1 = linalg.tensorProd([1, 1], [1, 0])
+_bra1q0 = linalg.tensorProd([0, 1], [1, 1])
+_bra1q1 = linalg.tensorProd([1, 1], [0, 1])
+
 
 def _twoQubitCollapse(psi, qubitIndex):
     '''
@@ -55,9 +61,8 @@ def _twoQubitCollapse(psi, qubitIndex):
     :return: 0 or 1, with probability <psi|0><0|psi> and <psi|1><1|psi>, respectively, modifying |psi> in-place
     '''
     if qubitIndex == 0:
-        prob0 = np.linalg.multi_dot([psi.conj().T,
-                                     _twoQubitMeasure0q0,
-                                     psi])
+        dot = np.dot(_bra0q0, psi)
+        prob0 = dot.real ** 2 + dot.imag ** 2
         if np.random.rand() <= prob0:
             # qubit collapses to |0>
             psi[...] = np.dot(_twoQubitMeasure0q0, psi) / np.sqrt(prob0)
@@ -68,9 +73,8 @@ def _twoQubitCollapse(psi, qubitIndex):
             return 1
 
     else:
-        prob0 = np.linalg.multi_dot([psi.conj().T,
-                                     _twoQubitMeasure0q1,
-                                     psi])
+        dot = np.dot(_bra0q1, psi)
+        prob0 = dot.real ** 2 + dot.imag ** 2
         if np.random.rand() <= prob0:
             # qubit collapses to |0>
             psi[...] = np.dot(_twoQubitMeasure0q1, psi) / np.sqrt(prob0)
@@ -79,3 +83,36 @@ def _twoQubitCollapse(psi, qubitIndex):
             # qubit collapses to |1>
             psi[...] = np.dot(_twoQubitMeasure1q1, psi) / np.sqrt(1 - prob0)
             return 1
+
+# def _twoQubitCollapse(psi, qubitIndex):
+#     '''
+#     Optimized version of collapse() for the 2-qubit case
+#     :param psi: 2^n dimensional state vector as a numpy array
+#     :param qubitIndex: index of qubit to project onto the computational basis
+#     :return: 0 or 1, with probability <psi|0><0|psi> and <psi|1><1|psi>, respectively, modifying |psi> in-place
+#     '''
+#     if qubitIndex == 0:
+#         prob0 = np.linalg.multi_dot([psi.conj().T,
+#                                      _twoQubitMeasure0q0,
+#                                      psi])
+#         if np.random.rand() <= prob0:
+#             # qubit collapses to |0>
+#             psi[...] = np.dot(_twoQubitMeasure0q0, psi) / np.sqrt(prob0)
+#             return 0
+#         else:
+#             # qubit collapses to |1>
+#             psi[...] = np.dot(_twoQubitMeasure1q0, psi) / np.sqrt(1 - prob0)
+#             return 1
+#
+#     else:
+#         prob0 = np.linalg.multi_dot([psi.conj().T,
+#                                      _twoQubitMeasure0q1,
+#                                      psi])
+#         if np.random.rand() <= prob0:
+#             # qubit collapses to |0>
+#             psi[...] = np.dot(_twoQubitMeasure0q1, psi) / np.sqrt(prob0)
+#             return 0
+#         else:
+#             # qubit collapses to |1>
+#             psi[...] = np.dot(_twoQubitMeasure1q1, psi) / np.sqrt(1 - prob0)
+#             return 1
