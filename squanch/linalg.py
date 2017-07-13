@@ -34,7 +34,7 @@ def tensorFillIdentity(singleQubitOperator, nQubits, qubitIndex):
     :param qubitIndex: the zero-indexed qubit to apply this operator to
     :return: the n-qubit operator
     '''
-    assert 0 <= qubitIndex <= nQubits - 1, "qubit Index is out of range"
+    # assert 0 <= qubitIndex <= nQubits - 1, "qubit Index is out of range"
     operator = tensors([
         tensors([np.eye(2)] * qubitIndex),
         singleQubitOperator,
