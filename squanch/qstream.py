@@ -94,3 +94,5 @@ class Qubit:
 
     def measure(self):
         return self.qSystem.measureQubit(self.index)
+
+# Testing new email config
