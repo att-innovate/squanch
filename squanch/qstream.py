@@ -18,7 +18,7 @@ class QStream:
         initialQubitState = np.array([1, 0], dtype=np.complex64)  # each qubit is initialized to the |0> state
         initialSystemState = np.array([], dtype=np.complex64)
         # Generate the matrix representation of the initial state of the n-qubit system
-        for _ in range(2):
+        for _ in range(systemSize):
             initialSystemState = linalg.tensorProd(initialSystemState, initialQubitState)
 
         # Generate the matrix representation of the overall state of the quantum stream
@@ -95,4 +95,3 @@ class Qubit:
     def measure(self):
         return self.qSystem.measureQubit(self.index)
 
-# Testing new email config
