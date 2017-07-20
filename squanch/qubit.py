@@ -22,6 +22,7 @@ class QSystem:
         :param state: density matrix representing the quantum state. If none is provided, |000...><...000| is used
         '''
         self.numQubits = numQubits
+        self.qubits = [Qubit(self, i) for i in range(numQubits)]
         # Register the state or generate a new one
         if state is not None:
             self.state = state  # density matrix should be passed by reference and will modiy the QStream.state
@@ -33,12 +34,12 @@ class QSystem:
             for _ in range(self.numQubits):
                 initialSystemState = linalg.tensorProd(initialSystemState, initialQubitState)
 
-    def qubits(self):
-        '''
-        Return a tuple of qubit objects for indices ranging from 1 to numQubits
-        :return: tuple of qubits in the quantum system
-        '''
-        return (Qubit(self, i) for i in range(self.numQubits))
+    # def qubits(self):
+    #     '''
+    #     Return a tuple of qubit objects for indices ranging from 1 to numQubits
+    #     :return: tuple of qubits in the quantum system
+    #     '''
+    #     return (Qubit(self, i) for i in range(self.numQubits))
 
     def measureQubit(self, qubitIndex):
         '''
@@ -91,8 +92,7 @@ class Qubit:
         '''
         pass
 
-#
-#
+
 # class Qubit:
 #     '''
 #     Simple qubit implementation.

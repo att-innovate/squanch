@@ -81,3 +81,6 @@ def expandGate(operator, index, nQubits, cacheID=None):
         return _expandedGateCache[key]
     else:
         return linalg.tensorFillIdentity(operator, nQubits, index)
+
+
+# TODO: gates.module to represent a series of transformations as a single operator
