@@ -1,8 +1,9 @@
 import numpy as np
 import channels
 
+
 def connectAgents(alice, bob, length = 1.0):
-    #classicalAliceToBob = thing
+    # classicalAliceToBob = thing
     # Instantiate quantum channels between Alice and Bob
     quantumAliceToBob = channels.QChannel(length)
     quantumBobToAlice = channels.QChannel(length)
@@ -13,6 +14,7 @@ def connectAgents(alice, bob, length = 1.0):
     # Make a section of Alice's/Bob's quantum memory for Bob/Alice
     alice.qmem[bob] = []
     bob.qmem[alice] = []
+
 
 class Agent:
     '''
@@ -41,8 +43,8 @@ class Agent:
         # Quantum memory is an array of "blocks". Each element in a block holds a qubit
         qBlockSize = 256
         numQBlocks = 64
-        self.qmem = {} # ((None,) * qBlockSize,) * numQBlocks
-        self.qDecayTimescale = 100.0 # Coherence timescale for qubits in quantum memory
+        self.qmem = {}  # ((None,) * qBlockSize,) * numQBlocks
+        self.qDecayTimescale = 100.0  # Coherence timescale for qubits in quantum memory
 
     def __hash__(self):
         return hash(self.name)
@@ -51,7 +53,7 @@ class Agent:
         return self.name == other.name
 
     def __ne__(self, other):
-        return not(self == other)
+        return not (self == other)
 
     def qsend(self, target, qubit):
         self.qChannelsOut[target].put(qubit)
