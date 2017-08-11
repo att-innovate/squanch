@@ -92,3 +92,12 @@ class Qubit:
         '''
         # TODO: partial trace in numpy?
         pass
+
+    def apply(self, operator, cacheID = None):
+        '''
+        Apply a single-qubit operator to this qubit, tensoring with I and passing to the qSystem.apply() method
+        :param operator: a single qubit (2x2) complex-valued matrix
+        :param cacheID: a character or string to cache the expanded operator by (e.g. Hadamard qubit 2 -> "IHIII...")
+        :return: nothing
+        '''
+        self.qSystem.apply(gates.expandGate(operator, self.index, self.qSystem.numQubits, cacheID))

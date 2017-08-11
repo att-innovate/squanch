@@ -64,6 +64,7 @@ class Agent:
     def qrecv(self, origin):
         qubit, recvTime = self.qChannelsIn[origin].get()
         self.qmem[origin].append(qubit)
+        return qubit
 
     def crecv(self, origin):
         pass
