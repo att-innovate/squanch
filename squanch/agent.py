@@ -1,12 +1,13 @@
 import numpy as np
-import channels
+import multiprocessing
+import channels, qstream
 
 
 def connectAgents(alice, bob, length = 1.0):
     # classicalAliceToBob = thing
     # Instantiate quantum channels between Alice and Bob
-    quantumAliceToBob = channels.QChannel(length)
-    quantumBobToAlice = channels.QChannel(length)
+    quantumAliceToBob = channels.QChannel(length, alice, bob)
+    quantumBobToAlice = channels.QChannel(length, bob, alice)
     alice.qChannelsOut[bob] = quantumAliceToBob
     alice.qChannelsIn[bob] = quantumBobToAlice
     bob.qChannelsOut[alice] = quantumBobToAlice
@@ -16,7 +17,7 @@ def connectAgents(alice, bob, length = 1.0):
     bob.qmem[alice] = []
 
 
-class Agent:
+class Agent(multiprocessing.Process):
     '''
     Represents an entity (Alice, Bob, etc.) that can send messages over classical and quantum communication channels.
     Agents have the following properties:
@@ -26,9 +27,14 @@ class Agent:
     - Quantum memory with some characteristic corruption timescale
     '''
 
-    def __init__(self, name):
+    def __init__(self, name, hilbertSpace, outDict = None):
+        multiprocessing.Process.__init__(self)
         # Name of the agent, e.g. "Alice"
         self.name = name
+        self.stream = qstream.QStream.fromArray(hilbertSpace)
+        if outDict is not None:
+            outDict[self.name] = None
+        self.outDict = outDict
 
         # Communication channels are dicts; keys: agent objects, values: channel objects
         self.cChannelsIn = {}
@@ -55,6 +61,10 @@ class Agent:
     def __ne__(self, other):
         return not (self == other)
 
+    @staticmethod
+    def generateOutputDict():
+        return multiprocessing.Manager().dict()
+
     def qsend(self, target, qubit):
         self.qChannelsOut[target].put(qubit)
 
@@ -68,3 +78,10 @@ class Agent:
 
     def crecv(self, origin):
         pass
+
+    def run(self):
+        '''This method should be overridden in extended class instances'''
+        pass
+
+    def output(self, thing):
+        self.outDict[self.name] = thing

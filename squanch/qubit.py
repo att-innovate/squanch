@@ -15,14 +15,15 @@ class QSystem:
     Designed to have similar syntax to QubitSytem, but instantiation is much faster
     '''
 
-    def __init__(self, numQubits, state = None):
+    def __init__(self, numQubits, index = None, state = None):
         '''
         Instatiate the quantum state for an n-qubit system
         :param numQubits: number of qubits in the system, treated as maximally entangled
         :param state: density matrix representing the quantum state. If none is provided, |000...><...000| is used
         '''
         self.numQubits = numQubits
-        self.qubits = (Qubit(self, i) for i in range(numQubits))
+        self.qubits = (Qubit(self, i) for i in range(numQubits)) # this is a generator, not a list
+        self.index = index
         # Register the state or generate a new one
         if state is not None:
             self.state = state  # density matrix should be passed by reference and will modiy the QStream.state
@@ -35,6 +36,19 @@ class QSystem:
                 initialSystemState = linalg.tensorProd(initialSystemState, initialQubitState)
             # Assign the state
             self.state = initialSystemState
+
+    @classmethod
+    def fromStream(cls, qStream, systemIndex):
+        return cls(qStream.systemSize, index = systemIndex, state = qStream.state[systemIndex])
+
+    def qubit(self, qubitIndex):
+        '''
+        Access a qubit by index; self.qubits does not instantiate all qubits unless casted to a list. Use this
+        function to access a single qubit of a given index.
+        :param index: qubit index to generate a qubit instance for
+        :return: the qubit instance
+        '''
+        return Qubit(self, qubitIndex)
 
     def measureQubit(self, qubitIndex):
         '''
@@ -82,6 +96,10 @@ class Qubit:
         self.index = index
         self.qSystem = qSystem
 
+    @classmethod
+    def fromStream(cls, qStream, systemIndex, qubitIndex):
+        return qStream.system(systemIndex).qubit(qubitIndex)
+
     def measure(self):
         return self.qSystem.measureQubit(self.index)
 
@@ -101,3 +119,10 @@ class Qubit:
         :return: nothing
         '''
         self.qSystem.apply(gates.expandGate(operator, self.index, self.qSystem.numQubits, cacheID))
+
+    def serialize(self):
+        '''
+        Generate a reference to reconstruct this qubit from shared memory
+        :return: qubit reference as (systemIndex, qubitIndex)
+        '''
+        return (self.qSystem.index, self.index)
