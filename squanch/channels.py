@@ -9,6 +9,7 @@ class QChannel:
 
     def __init__(self, length, fromAgent, toAgent):
         self.length = length # Physical length of the channel in km
+        self.signalSpeed = 2.998 * 10**5 # Speed of light in km/s
         self.fromAgent = fromAgent
         self.toAgent = toAgent
         fiberOpticAttenuation = -0.16  # dB/km, from Yin, et al, Satellite-based entanglement
@@ -19,11 +20,12 @@ class QChannel:
         self.queue = multiprocessing.Queue()
 
     def put(self, qubit):
-        # retrievalTime = self.length / lightspeed # When the qubit will arrive at the receiver
+        # Calculate the time of arrival
+        timeOfArrival = self.fromAgent.time + self.fromAgent.pulseLength + (self.length / self.signalSpeed)
         if qubit is not None:
-            self.queue.put((qubit.serialize(), None))
+            self.queue.put((qubit.serialize(), timeOfArrival))
         else:
-            self.queue.put((None, None))
+            self.queue.put((None, timeOfArrival))
 
     def get(self):
         # Don't give the qubit until the required time

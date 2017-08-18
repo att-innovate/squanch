@@ -27,14 +27,22 @@ class Agent(multiprocessing.Process):
     - Quantum memory with some characteristic corruption timescale
     '''
 
-    def __init__(self, name, hilbertSpace, outDict = None):
+    def __init__(self, name, hilbertSpace, data = None, out = None):
         multiprocessing.Process.__init__(self)
         # Name of the agent, e.g. "Alice"
         self.name = name
         self.stream = qstream.QStream.fromArray(hilbertSpace)
-        if outDict is not None:
-            outDict[self.name] = None
-        self.outDict = outDict
+
+        # Agent's clock
+        self.time = 0.0
+        # self.retardedTime = 0.0
+        self.pulseLength = 10 * 10 ** -12  # 10ps photon pulse size
+
+        # Register input data and output structure
+        self.data = data
+        if out is not None:
+            out[self.name] = None
+        self.out = out
 
         # Communication channels are dicts; keys: agent objects, values: channel objects
         self.cChannelsIn = {}
@@ -67,12 +75,16 @@ class Agent(multiprocessing.Process):
 
     def qsend(self, target, qubit):
         self.qChannelsOut[target].put(qubit)
+        self.time += self.pulseLength
 
     def csend(self, target, bit):
         pass
 
     def qrecv(self, origin):
         qubit, recvTime = self.qChannelsIn[origin].get()
+        # Update agent clock
+        self.time = max(self.time, recvTime)
+        # Add qubit to quantum memory
         self.qmem[origin].append(qubit)
         return qubit
 
@@ -84,4 +96,4 @@ class Agent(multiprocessing.Process):
         pass
 
     def output(self, thing):
-        self.outDict[self.name] = thing
+        self.out[self.name] = thing
