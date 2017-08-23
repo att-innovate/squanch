@@ -39,13 +39,21 @@ class QSystem:
 
     @classmethod
     def fromStream(cls, qStream, systemIndex):
+        '''
+        Instantiate a QSystem from a given point in a parent QStream
+
+        :param QStream qStream: the parent stream
+        :param int systemIndex: the index in the parent stream corresponding to this system
+        :return: the QSystem object
+        '''
         return cls(qStream.systemSize, index = systemIndex, state = qStream.state[systemIndex])
 
     def qubit(self, qubitIndex):
         '''
         Access a qubit by index; self.qubits does not instantiate all qubits unless casted to a list. Use this
         function to access a single qubit of a given index.
-        :param index: qubit index to generate a qubit instance for
+
+        :param int index: qubit index to generate a qubit instance for
         :return: the qubit instance
         '''
         return Qubit(self, qubitIndex)
@@ -53,8 +61,9 @@ class QSystem:
     def measureQubit(self, qubitIndex):
         '''
         Measure the qubit at a given index, partially collapsing the state based on the observed qubit value.
-        The state vector is modified in-place by this function
-        :param qubitIndex: the qubit to measure
+        The state vector is modified in-place by this function.
+
+        :param int qubitIndex: the qubit to measure
         :return: the measured qubit value
         '''
         measure0 = gates.expandGate(_M0, qubitIndex, self.numQubits, "0")
@@ -73,7 +82,8 @@ class QSystem:
     def apply(self, operator):
         '''
         Apply an n-qubit operator to this system's n-qubit quantum state: U|psi><psi|U^+ (U^+ = U for Hermitian)
-        :param operator: the *Hermitian* n-qubit operator to apply
+
+        :param np.array operator: the *Hermitian* n-qubit operator to apply
         :return: nothing, the qSystem state is mutated
         '''
         # Apply the operator
@@ -98,14 +108,28 @@ class Qubit:
 
     @classmethod
     def fromStream(cls, qStream, systemIndex, qubitIndex):
+        '''
+        Instantiate a qubit from a parent stream (via a QSystem call)
+
+        :param QStream qStream: the parent stream
+        :param int systemIndex: the index corresponding to the parent QSystem
+        :param qubitIndex: the index of the qubit to be recalled
+        :return: the qubit
+        '''
         return qStream.system(systemIndex).qubit(qubitIndex)
 
     def measure(self):
+        '''
+        Measure a qubit, mutating its state in-place
+
+        :return: the measured value
+        '''
         return self.qSystem.measureQubit(self.index)
 
     def getState(self):
         '''
         Traces over the remaining portions of the qSystem to return this qubit's state expressed as a density matrix.
+
         :return: The (mixed) density matrix describing this qubit's state
         '''
         # TODO: partial trace in numpy?
@@ -114,15 +138,16 @@ class Qubit:
     def apply(self, operator, cacheID = None):
         '''
         Apply a single-qubit operator to this qubit, tensoring with I and passing to the qSystem.apply() method
-        :param operator: a single qubit (2x2) complex-valued matrix
-        :param cacheID: a character or string to cache the expanded operator by (e.g. Hadamard qubit 2 -> "IHIII...")
-        :return: nothing
+
+        :param np.array operator: a single qubit (2x2) complex-valued matrix
+        :param str cacheID: a character or string to cache the expanded operator by (e.g. Hadamard qubit 2 -> "IHII...")
         '''
         self.qSystem.apply(gates.expandGate(operator, self.index, self.qSystem.numQubits, cacheID))
 
     def serialize(self):
         '''
         Generate a reference to reconstruct this qubit from shared memory
+
         :return: qubit reference as (systemIndex, qubitIndex)
         '''
         return (self.qSystem.index, self.index)

@@ -1,0 +1,7 @@
+``Qubit`` -- Qubits and quantum systems
+---------------------------------------
+.. automodule:: squanch.qubit
+    :members:
+    :undoc-members:
+    :special-members:
+    :show-inheritance:

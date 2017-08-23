@@ -1,0 +1,7 @@
+``QStream`` -- Working with quantum datastreams
+-----------------------------------------------
+.. automodule:: squanch.qstream
+    :members:
+    :undoc-members:
+    :special-members:
+    :show-inheritance:

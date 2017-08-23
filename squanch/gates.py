@@ -31,36 +31,76 @@ _Z = np.array([[1, 0],
 # Single qubit gates
 def H(qubit):
     '''
-    Implements the Hadamard transform on a given qubit, updating the qSystem
-    :param qubit: the qubit to apply the operator to
-    :return: nothing - the qSystem is mutated by this function
+    Applies the Hadamard transform to the specified qubit, updating the qSystem state.
+    cacheID: ``H``
+
+    :param Qubit qubit: the qubit to apply the operator to
     '''
     qubit.qSystem.apply(expandGate(_H, qubit.index, qubit.qSystem.numQubits, "H"))
 
 
 def X(qubit):
+    '''
+    Applies the Pauli-X (NOT) operation to the specified qubit, updating the qSystem state
+    cacheID: ``X``
+
+    :param Qubit qubit: the qubit to apply the operator to
+    '''
     qubit.qSystem.apply(expandGate(_X, qubit.index, qubit.qSystem.numQubits, "X"))
 
 
 def Y(qubit):
+    '''
+    Applies the Pauli-Y operation to the specified qubit, updating the qSystem state
+    cacheID: ``Y``
+
+    :param Qubit qubit: the qubit to apply the operator to
+    '''
     qubit.qSystem.apply(expandGate(_Y, qubit.index, qubit.qSystem.numQubits, "Y"))
 
 
 def Z(qubit):
+    '''
+    Applies the Pauli-Z operation to the specified qubit, updating the qSystem state
+    cacheID: ``Z``
+
+    :param Qubit qubit: the qubit to apply the operator to
+    '''
     qubit.qSystem.apply(expandGate(_Z, qubit.index, qubit.qSystem.numQubits, "Z"))
 
 
 def RX(qubit, angle):
+    '''
+    Applies the single qubit X-rotation operator to the specified qubit, updating the qSystem state
+    cacheID: ``Rx*``, where * is angle/pi
+
+    :param Qubit qubit: the qubit to apply the operator to
+    :param float angle: the angle by which to rotate
+    '''
     gate = np.cos(angle / 2.0) * _I - 1j * np.sin(angle / 2.0) * _X
     qubit.qSystem.apply(expandGate(gate, qubit.index, qubit.qSystem.numQubits, "Rx" + str(angle / np.pi)))
 
 
 def RY(qubit, angle):
+    '''
+    Applies the single qubit Y-rotation operator to the specified qubit, updating the qSystem state
+    cacheID: ``Ry*``, where * is angle/pi
+
+    :param Qubit qubit: the qubit to apply the operator to
+    :param float angle: the angle by which to rotate
+    '''
     gate = np.cos(angle / 2.0) * _I - 1j * np.sin(angle / 2.0) * _Y
     qubit.qSystem.apply(expandGate(gate, qubit.index, qubit.qSystem.numQubits, "Ry" + str(angle / np.pi)))
 
 
 def RZ(qubit, angle):
+    '''
+    Applies the single qubit Z-rotation operator to the specified qubit, updating the qSystem state
+    cacheID: ``Rz*``, where * is angle/pi
+
+    :param Qubit qubit: the qubit to apply the operator to
+    :param float angle: the angle by which to rotate
+    '''
     gate = np.cos(angle / 2.0) * _I - 1j * np.sin(angle / 2.0) * _Z
     qubit.qSystem.apply(expandGate(gate, qubit.index, qubit.qSystem.numQubits, "Rz" + str(angle / np.pi)))
 
@@ -68,7 +108,15 @@ def RZ(qubit, angle):
 # Controlled-not gate
 
 def CNOT(control, target):
-    key = "CNOT" + str(control) + "," + str(target)
+    '''
+    Applies the controlled-NOT operation from control on target. This gate takes two qubit arguments to
+    construct an arbitrary CNOT matrix.
+    cacheID: ``CNOTij``, where i and j are control and target indices
+
+    :param Qubit control: the control qubit
+    :param Qubit target: the target qubit, with Pauli-X applied according to the control qubit
+    '''
+    key = "CNOT" + str(control.index) + "," + str(target.index)
     # Generate the gate if needed
     if key not in _expandedGateCache:
         # Represent CNOT(i,j) as |0i><0i| x I x ... x I + |1i><1i| x I x ... x Xtarg x I x ...
@@ -104,11 +152,12 @@ _expandedGateCache = {}
 def expandGate(operator, index, nQubits, cacheID = None):
     '''
     Apply a k-qubit quantum gate to act on n-qubits by filling the rest of the spaces with identity operators
-    :param operator: the single- or n-qubit operator to apply
-    :param index: if specified, the index of the qubit to perform the operation on
-    :param nQubits: the number of qubits in the system
-    :param cacheID: a character identifier to cache common gates in memory to avoid having to call tensorFillIdentity
-    :return: nothing, the qSystem state is mutated
+
+    :param np.array operator: the single- or n-qubit operator to apply
+    :param int index: if specified, the index of the qubit to perform the operation on
+    :param int nQubits: the number of qubits in the system
+    :param str cacheID: a character identifier to cache common gates in memory to avoid having to call tensorFillIdentity
+    :return: the expanded n-qubit operator
     '''
 
     if cacheID is not None:

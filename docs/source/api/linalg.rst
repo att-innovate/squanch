@@ -1,0 +1,6 @@
+``Linalg`` -- Useful linear algebra functions for QM
+----------------------------------------------------
+.. automodule:: squanch.linalg
+    :members:
+    :undoc-members:
+    :show-inheritance:
