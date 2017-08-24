@@ -18,11 +18,12 @@ class QSystem:
     def __init__(self, numQubits, index = None, state = None):
         '''
         Instatiate the quantum state for an n-qubit system
-        :param numQubits: number of qubits in the system, treated as maximally entangled
-        :param state: density matrix representing the quantum state. If none is provided, |000...><...000| is used
+
+        :param int numQubits: number of qubits in the system, treated as maximally entangled
+        :param np.array state: density matrix representing the quantum state. By default, |000...><...000| is used
         '''
         self.numQubits = numQubits
-        self.qubits = (Qubit(self, i) for i in range(numQubits)) # this is a generator, not a list
+        self.qubits = (Qubit(self, i) for i in range(numQubits))  # this is a generator, not a list
         self.index = index
         # Register the state or generate a new one
         if state is not None:
@@ -53,7 +54,7 @@ class QSystem:
         Access a qubit by index; self.qubits does not instantiate all qubits unless casted to a list. Use this
         function to access a single qubit of a given index.
 
-        :param int index: qubit index to generate a qubit instance for
+        :param int qubitIndex: qubit index to generate a qubit instance for
         :return: the qubit instance
         '''
         return Qubit(self, qubitIndex)
@@ -100,8 +101,9 @@ class Qubit:
     def __init__(self, qSystem, index):
         '''
         Instantiate the qubit from an existing QSystem and index
-        :param qSystem: n-qubit quantum system that this qubit points to
-        :param index: particle index in the quantum system, ranging from 0 to n-1
+
+        :param QSystem qSystem: n-qubit quantum system that this qubit points to
+        :param int index: particle index in the quantum system, ranging from 0 to n-1
         '''
         self.index = index
         self.qSystem = qSystem
@@ -113,7 +115,7 @@ class Qubit:
 
         :param QStream qStream: the parent stream
         :param int systemIndex: the index corresponding to the parent QSystem
-        :param qubitIndex: the index of the qubit to be recalled
+        :param int qubitIndex: the index of the qubit to be recalled
         :return: the qubit
         '''
         return qStream.system(systemIndex).qubit(qubitIndex)

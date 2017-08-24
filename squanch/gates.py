@@ -41,7 +41,7 @@ def H(qubit):
 
 def X(qubit):
     '''
-    Applies the Pauli-X (NOT) operation to the specified qubit, updating the qSystem state
+    Applies the Pauli-X (NOT) operation to the specified qubit, updating the qSystem state.
     cacheID: ``X``
 
     :param Qubit qubit: the qubit to apply the operator to
@@ -51,7 +51,7 @@ def X(qubit):
 
 def Y(qubit):
     '''
-    Applies the Pauli-Y operation to the specified qubit, updating the qSystem state
+    Applies the Pauli-Y operation to the specified qubit, updating the qSystem state.
     cacheID: ``Y``
 
     :param Qubit qubit: the qubit to apply the operator to
@@ -61,7 +61,7 @@ def Y(qubit):
 
 def Z(qubit):
     '''
-    Applies the Pauli-Z operation to the specified qubit, updating the qSystem state
+    Applies the Pauli-Z operation to the specified qubit, updating the qSystem state.
     cacheID: ``Z``
 
     :param Qubit qubit: the qubit to apply the operator to
@@ -71,7 +71,7 @@ def Z(qubit):
 
 def RX(qubit, angle):
     '''
-    Applies the single qubit X-rotation operator to the specified qubit, updating the qSystem state
+    Applies the single qubit X-rotation operator to the specified qubit, updating the qSystem state.
     cacheID: ``Rx*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
@@ -83,7 +83,7 @@ def RX(qubit, angle):
 
 def RY(qubit, angle):
     '''
-    Applies the single qubit Y-rotation operator to the specified qubit, updating the qSystem state
+    Applies the single qubit Y-rotation operator to the specified qubit, updating the qSystem state.
     cacheID: ``Ry*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
@@ -95,7 +95,7 @@ def RY(qubit, angle):
 
 def RZ(qubit, angle):
     '''
-    Applies the single qubit Z-rotation operator to the specified qubit, updating the qSystem state
+    Applies the single qubit Z-rotation operator to the specified qubit, updating the qSystem state.
     cacheID: ``Rz*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to

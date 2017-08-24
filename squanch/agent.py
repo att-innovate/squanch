@@ -23,6 +23,13 @@ def connectAgents(alice, bob, length = 1.0):
     alice.qmem[bob] = []
     bob.qmem[alice] = []
 
+def sharedOutputDict():
+    '''
+    Generate a shared output dictionary to distribute among agents in separate processes
+
+    :return: an empty multiprocessed Manager.dict()
+    '''
+    return multiprocessing.Manager().dict()
 
 class Agent(multiprocessing.Process):
     '''
@@ -37,9 +44,11 @@ class Agent(multiprocessing.Process):
 
     def __init__(self, name, hilbertSpace, data = None, out = None):
         '''
+        Instantiate an Agent from a unique identifier and a shared memory pool
+
         :param str name: the unique identifier for the Agent
         :param np.array hilbertSpace: the shared memory pool representing the Hilbert space of the qstream
-        :param any data: data to pass to the Agent's process
+        :param any data: data to pass to the Agent's process, stored in ``self.data``
         :param dict out: shared output dictionary to pass to Agent processes to allow for return-like operations
         '''
         multiprocessing.Process.__init__(self)
@@ -82,21 +91,15 @@ class Agent(multiprocessing.Process):
 
     def __eq__(self, other):
         '''
-        Agents are compared for equality by their names
+        Agents are compared for equality by their names.
         '''
         return self.name == other.name
 
     def __ne__(self, other):
+        '''
+        Overridden inequality operator, for good practice.
+        '''
         return not (self == other)
-
-    @staticmethod
-    def generateOutputDict():
-        '''
-        Generate a shared output dictionary to distribute among agents in separate processes
-
-        :return: an empty multiprocessed Manager.dict()
-        '''
-        return multiprocessing.Manager().dict()
 
     def qsend(self, target, qubit):
         '''

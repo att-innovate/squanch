@@ -21,6 +21,19 @@ def allZeroState(systemSize, numSystems):
     # The Hilbert space of QSys0 x QSys1 x ... x QSysN is represented as an n-dimensional array of state vectors
     return np.repeat([initialSystemState], numSystems, axis = 0)  # repeat state into vertical axis
 
+def sharedHilbertSpace(systemSize, numSystems):
+    '''
+    Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
+
+    :param int systemSize: number of entangled qubits in each quantum system; each system has dimension 2^systemSize
+    :param int numSystems: number of small quantum systems in the data stream
+    :return: a blank, sharable, numSystems x 2^systemSize x 2^systemSize array of np.complex64 values
+    '''
+    dim = 2 ** systemSize
+    mallocMem = sharedctypes.RawArray(ctypes.c_double, numSystems * dim * dim)
+    array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((numSystems, dim, dim))
+    QStream.reformatArray(array)
+    return array
 
 class QStream:
     '''
@@ -36,8 +49,8 @@ class QStream:
         :param int numSystems: number of small quantum systems in the data stream
         :param np.array array: pre-allocated array in memory for purposes of sharing QStreams in multiprocessed environments
         '''
-        self.systemSize = systemSize  # number of qubits per system
-
+        self.systemSize = systemSize # number of qubits per system
+        self.numSystems = numSystems # number of disjoint quantum subsystems
         # Generate the matrix representation of the overall state of the quantum stream
         if array is not None:
             self.state = array
@@ -73,21 +86,6 @@ class QStream:
         numSystems = array.shape[0]
         systemSize = int(np.log2(array.shape[1]))
         array[...] = allZeroState(systemSize, numSystems)
-
-    @staticmethod
-    def generateSharedHilbertSpace(systemSize, numSystems):
-        '''
-        Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
-
-        :param int systemSize: number of entangled qubits in each quantum system; each system has dimension 2^systemSize
-        :param int numSystems: number of small quantum systems in the data stream
-        :return: a blank, sharable, numSystems x 2^systemSize x 2^systemSize array of np.complex64 values
-        '''
-        dim = 2 ** systemSize
-        mallocMem = sharedctypes.RawArray(ctypes.c_double, numSystems * dim * dim)
-        array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((numSystems, dim, dim))
-        QStream.reformatArray(array)
-        return array
 
     def system(self, index):
         '''
