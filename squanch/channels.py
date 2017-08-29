@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import multiprocessing
 from qubit import Qubit
@@ -31,7 +32,6 @@ class QChannel:
         Serialize and push qubit into the channel queue
 
         :param Qubit qubit: the qubit to send
-        :return: nothing
         '''
         # Calculate the time of arrival
         timeOfArrival = self.fromAgent.time + self.fromAgent.pulseLength + (self.length / self.signalSpeed)
@@ -44,9 +44,8 @@ class QChannel:
         '''
         Retrieve a qubit by reference from the channel queue, applying errors upon retrieval
 
-        :return: the qubit with errors applied (possibly ``None``)
+        :return: tuple: (the qubit with errors applied (possibly ``None``), receival time)
         '''
-        # Don't give the qubit until the required time
         indices, receiveTime = self.queue.get()
         if indices is not None:
             systemIndex, qubitIndex = indices
@@ -62,3 +61,41 @@ class QChannel:
             return qubit, receiveTime
 
 
+class CChannel:
+    '''
+    Base class for a classical channel
+    '''
+
+    def __init__(self, length, fromAgent, toAgent):
+        '''
+        Instantiate the quantum channel
+
+        :param float length: length of fiber optic line
+        :param Agent fromAgent: sending agent
+        :param Agent toAgent: receiving agent
+        '''
+        self.length = length  # Physical length of the channel in km
+        self.signalSpeed = 2.998 * 10 ** 5  # Speed of light in km/s
+        self.fromAgent = fromAgent
+        self.toAgent = toAgent
+        self.queue = multiprocessing.Queue()
+
+    def put(self, thing):
+        '''
+        Serialize and push a serializable object into the channel queue
+
+        :param any thing: the qubit to send
+        '''
+        # Calculate the time of arrival
+        pulseTime = sys.getsizeof(thing) * 8 * self.fromAgent.pulseLength
+        timeOfArrival = self.fromAgent.time + pulseTime + (self.length / self.signalSpeed)
+        self.queue.put((thing, timeOfArrival))
+
+    def get(self):
+        '''
+        Retrieve a classical object form the queue
+
+        :return: tuple: (the object, receival time)
+        '''
+        thing, receiveTime = self.queue.get()
+        return thing, receiveTime

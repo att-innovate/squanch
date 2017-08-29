@@ -1,0 +1,410 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>squanch.agent &mdash; SQUANCH 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="SQUANCH 0.0.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demonstrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">SQUANCH API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>squanch.agent</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for squanch.agent</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">import</span> <span class="nn">channels</span><span class="o">,</span> <span class="nn">qstream</span>
+
+
+<div class="viewcode-block" id="connectAgents"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.connectAgents">[docs]</a><span class="k">def</span> <span class="nf">connectAgents</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Connect Alice and Bob bidirectionally via a simulated fiber optic line</span>
+
+<span class="sd">    :param Agent alice: the first Agent</span>
+<span class="sd">    :param Agent bob: the second Agent</span>
+<span class="sd">    :param length: the length of the simulated cable</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># classicalAliceToBob = thing</span>
+    <span class="c1"># Instantiate quantum channels between Alice and Bob</span>
+    <span class="n">quantumAliceToBob</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">QChannel</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span>
+    <span class="n">quantumBobToAlice</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">QChannel</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">alice</span><span class="p">)</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">qChannelsOut</span><span class="p">[</span><span class="n">bob</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantumAliceToBob</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">qChannelsIn</span><span class="p">[</span><span class="n">bob</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantumBobToAlice</span>
+    <span class="n">bob</span><span class="o">.</span><span class="n">qChannelsOut</span><span class="p">[</span><span class="n">alice</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantumBobToAlice</span>
+    <span class="n">bob</span><span class="o">.</span><span class="n">qChannelsIn</span><span class="p">[</span><span class="n">alice</span><span class="p">]</span> <span class="o">=</span> <span class="n">quantumAliceToBob</span>
+    <span class="c1"># Instantiate classical channels between Alice and Bob</span>
+    <span class="n">classicalAliceToBob</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">CChannel</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span>
+    <span class="n">classicalBobToAlice</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">CChannel</span><span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">alice</span><span class="p">)</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">cChannelsOut</span><span class="p">[</span><span class="n">bob</span><span class="p">]</span> <span class="o">=</span> <span class="n">classicalAliceToBob</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">cChannelsIn</span><span class="p">[</span><span class="n">bob</span><span class="p">]</span> <span class="o">=</span> <span class="n">classicalBobToAlice</span>
+    <span class="n">bob</span><span class="o">.</span><span class="n">cChannelsOut</span><span class="p">[</span><span class="n">alice</span><span class="p">]</span> <span class="o">=</span> <span class="n">classicalBobToAlice</span>
+    <span class="n">bob</span><span class="o">.</span><span class="n">cChannelsIn</span><span class="p">[</span><span class="n">alice</span><span class="p">]</span> <span class="o">=</span> <span class="n">classicalAliceToBob</span>
+    <span class="c1"># Make a section of Alice&#39;s/Bob&#39;s quantum memory for Bob/Alice</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">qmem</span><span class="p">[</span><span class="n">bob</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bob</span><span class="o">.</span><span class="n">qmem</span><span class="p">[</span><span class="n">alice</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Make a section of Alice&#39;s/Bob&#39;s classical memory for Bob/Alice</span>
+    <span class="n">alice</span><span class="o">.</span><span class="n">cmem</span><span class="p">[</span><span class="n">bob</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">bob</span><span class="o">.</span><span class="n">cmem</span><span class="p">[</span><span class="n">alice</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="sharedOutputDict"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.sharedOutputDict">[docs]</a><span class="k">def</span> <span class="nf">sharedOutputDict</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generate a shared output dictionary to distribute among agents in separate processes</span>
+
+<span class="sd">    :return: an empty multiprocessed Manager.dict()</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Agent"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent">[docs]</a><span class="k">class</span> <span class="nc">Agent</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Represents an entity (Alice, Bob, etc.) that can send messages over classical and quantum communication channels.</span>
+<span class="sd">    Agents have the following properties:</span>
+
+<span class="sd">    * Incoming and outgoing classical communciation lines to other agents</span>
+<span class="sd">    * Incoming and outgoing quantum channels to other agents through which entangled pairs may be distributed</span>
+<span class="sd">    * Ideal classical memory</span>
+<span class="sd">    * Quantum memory with some characteristic corruption timescale</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="Agent.__init__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">hilbertSpace</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate an Agent from a unique identifier and a shared memory pool</span>
+
+<span class="sd">        :param str name: the unique identifier for the Agent</span>
+<span class="sd">        :param np.array hilbertSpace: the shared memory pool representing the Hilbert space of the qstream</span>
+<span class="sd">        :param any data: data to pass to the Agent&#39;s process, stored in ``self.data``</span>
+<span class="sd">        :param dict out: shared output dictionary to pass to Agent processes to allow for return-like operations</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Process</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="c1"># Name of the agent, e.g. &quot;Alice&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">qstream</span><span class="o">.</span><span class="n">QStream</span><span class="o">.</span><span class="n">fromArray</span><span class="p">(</span><span class="n">hilbertSpace</span><span class="p">)</span>
+
+        <span class="c1"># Agent&#39;s clock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="c1"># self.retardedTime = 0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pulseLength</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">12</span>  <span class="c1"># 10ps photon pulse size</span>
+
+        <span class="c1"># Register input data and output structure</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">if</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">out</span>
+
+        <span class="c1"># Communication channels are dicts; keys: agent objects, values: channel objects</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cChannelsIn</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cChannelsOut</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qChannelsIn</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qChannelsOut</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Classical memory is a large 1D array</span>
+        <span class="n">classicalMemorySize</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">16</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmem</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#np.zeros(classicalMemorySize)</span>
+
+        <span class="c1"># Quantum memory is an array of &quot;blocks&quot;. Each element in a block holds a qubit</span>
+        <span class="n">qBlockSize</span> <span class="o">=</span> <span class="mi">256</span>
+        <span class="n">numQBlocks</span> <span class="o">=</span> <span class="mi">64</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qmem</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># ((None,) * qBlockSize,) * numQBlocks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qDecayTimescale</span> <span class="o">=</span> <span class="mf">100.0</span>  <span class="c1"># Coherence timescale for qubits in quantum memory</span></div>
+
+<div class="viewcode-block" id="Agent.__hash__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__hash__">[docs]</a>    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Agents are hashed by their names, which is why they must be unique.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.__eq__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__eq__">[docs]</a>    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Agents are compared for equality by their names.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">name</span></div>
+
+<div class="viewcode-block" id="Agent.__ne__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__ne__">[docs]</a>    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Overridden inequality operator, for good practice.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.qsend"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.qsend">[docs]</a>    <span class="k">def</span> <span class="nf">qsend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Send a qubit to another agent. The qubit is serialized and passed through a QChannel to the</span>
+<span class="sd">        targeted agent, which can retrieve the qubit with Agent.qrecv(). ``self.time`` is updated upon</span>
+<span class="sd">        calling this method.</span>
+
+<span class="sd">        :param Agent target: the agent to send the qubit to</span>
+<span class="sd">        :param Qubit qubit: the qubit to send</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qChannelsOut</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pulseLength</span></div>
+
+<div class="viewcode-block" id="Agent.csend"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.csend">[docs]</a>    <span class="k">def</span> <span class="nf">csend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">thing</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Send a serializable object to another agent. The transmission time is updated by (number of bits) pulse lengths.</span>
+
+<span class="sd">        :param Agent target: the agent to send the transmission to</span>
+<span class="sd">        :param any thing: the object to send</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cChannelsOut</span><span class="p">[</span><span class="n">target</span><span class="p">]</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">+=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">pulseLength</span></div>
+
+<div class="viewcode-block" id="Agent.qrecv"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.qrecv">[docs]</a>    <span class="k">def</span> <span class="nf">qrecv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Receive a qubit from another connected agent. ``self.time`` is updated upon calling this method.</span>
+
+<span class="sd">        :param Agent origin: The agent that previously sent the qubit</span>
+<span class="sd">        :return: the retrieved qubit, which is also stored in ``self.qmem``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">qubit</span><span class="p">,</span> <span class="n">recvTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qChannelsIn</span><span class="p">[</span><span class="n">origin</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="c1"># Update agent clock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">recvTime</span><span class="p">)</span>
+        <span class="c1"># Add qubit to quantum memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qmem</span><span class="p">[</span><span class="n">origin</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qubit</span></div>
+
+<div class="viewcode-block" id="Agent.qstore"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.qstore">[docs]</a>    <span class="k">def</span> <span class="nf">qstore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Store a qubit in quantum memory. Equivalent to ``self.qmem[self].append(qubit)``.</span>
+
+<span class="sd">        :param Qubit qubit: the qubit to store</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qmem</span><span class="p">[</span><span class="bp">self</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Agent.crecv"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.crecv">[docs]</a>    <span class="k">def</span> <span class="nf">crecv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">origin</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Receive a serializable object from another connected agent. ``self.time`` is updated upon calling this method.</span>
+
+<span class="sd">        :param Agent origin: The agent that previously sent the qubit</span>
+<span class="sd">        :return: the retrieved object, which is also stored in ``self.cmem``</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">thing</span><span class="p">,</span> <span class="n">recvTime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cChannelsIn</span><span class="p">[</span><span class="n">origin</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="c1"># Update agent clock</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">recvTime</span><span class="p">)</span>
+        <span class="c1"># Add qubit to quantum memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmem</span><span class="p">[</span><span class="n">origin</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">thing</span></div>
+
+<div class="viewcode-block" id="Agent.run"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This method should be overridden in extended class instances, and cannot take any arguments or</span>
+<span class="sd">        return any values.&#39;&#39;&#39;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Agent.output"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thing</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Output something to ``self.out[self.name]``</span>
+
+<span class="sd">        :param any thing: the thing to put in the dictionary</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">thing</span></div></div>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, Ben Bartlett.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

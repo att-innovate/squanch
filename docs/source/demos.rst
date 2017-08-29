@@ -1,0 +1,5 @@
+Demonstrations
+==============
+
+.. toctree::
+   demos/teleportation

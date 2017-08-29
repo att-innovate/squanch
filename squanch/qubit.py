@@ -67,16 +67,16 @@ class QSystem:
         :param int qubitIndex: the qubit to measure
         :return: the measured qubit value
         '''
-        measure0 = gates.expandGate(_M0, qubitIndex, self.numQubits, "0")
+        measure0 = gates.expandGate(_M0, qubitIndex, self.numQubits, "0" + str(qubitIndex) + str(self.numQubits))
         prob0 = np.trace(np.dot(measure0, self.state))
         # Determine if qubit collapses to |0> or |1>
         if np.random.rand() <= prob0:
             # qubit collapses to |0>
-            self.state[...] = np.linalg.multi_dot([measure0, self.state, measure0]) / prob0
+            self.state[...] = np.linalg.multi_dot([measure0, self.state, measure0.conj().T]) / prob0
             return 0
         else:
             # qubit collapses to |1>
-            measure1 = gates.expandGate(_M1, qubitIndex, self.numQubits, "1")
+            measure1 = gates.expandGate(_M1, qubitIndex, self.numQubits, "1" + str(self.numQubits))
             self.state[...] = np.linalg.multi_dot([measure1, self.state, measure1]) / (1.0 - prob0)
             return 1
 
@@ -89,8 +89,8 @@ class QSystem:
         '''
         # Apply the operator
         # assert linalg.isHermitian(operator), "Qubit operators must be Hermitian"
-        # self.state[...] = np.linalg.multi_dot([operator, self.state, operator.conj().T]) TODO: non-Hermitian ops?
-        self.state[...] = np.linalg.multi_dot([operator, self.state, operator])
+        self.state[...] = np.linalg.multi_dot([operator, self.state, operator.conj().T])
+        # self.state[...] = np.linalg.multi_dot([operator, self.state, operator])
 
 
 class Qubit:

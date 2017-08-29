@@ -56,5 +56,3 @@ def tensorFillIdentity(singleQubitOperator, nQubits, qubitIndex):
         tensors([np.eye(2)] * (nQubits - (qubitIndex + 1)))
     ])
     return operator
-
-

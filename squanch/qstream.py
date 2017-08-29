@@ -7,6 +7,7 @@ from multiprocessing import sharedctypes
 def allZeroState(systemSize, numSystems):
     '''
     Generate an array representing the numSystems Hilbert spaces in the state ``|0>...|0><0|...<0|``
+
     :param int systemSize: maximum size of entangled subsystems
     :param int numSystems: number of disjoint quantum subsystems to allocate
     :return: the all-zero state array
@@ -20,6 +21,7 @@ def allZeroState(systemSize, numSystems):
         initialSystemState = linalg.tensorProd(initialSystemState, initialQubitState)
     # The Hilbert space of QSys0 x QSys1 x ... x QSysN is represented as an n-dimensional array of state vectors
     return np.repeat([initialSystemState], numSystems, axis = 0)  # repeat state into vertical axis
+
 
 def sharedHilbertSpace(systemSize, numSystems):
     '''
@@ -35,6 +37,7 @@ def sharedHilbertSpace(systemSize, numSystems):
     QStream.reformatArray(array)
     return array
 
+
 class QStream:
     '''
     Efficiently handle a large number of small entangled quantum systems to avoid having to perform many class
@@ -47,10 +50,10 @@ class QStream:
 
         :param int systemSize: number of entangled qubits in each quantum system; each system has dimension 2^systemSize
         :param int numSystems: number of small quantum systems in the data stream
-        :param np.array array: pre-allocated array in memory for purposes of sharing QStreams in multiprocessed environments
+        :param np.array array: pre-allocated array in memory for purposes of sharing QStreams in multiprocessing
         '''
-        self.systemSize = systemSize # number of qubits per system
-        self.numSystems = numSystems # number of disjoint quantum subsystems
+        self.systemSize = systemSize  # number of qubits per system
+        self.numSystems = numSystems  # number of disjoint quantum subsystems
         # Generate the matrix representation of the overall state of the quantum stream
         if array is not None:
             self.state = array

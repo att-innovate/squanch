@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import multiprocessing
 import channels, qstream
@@ -19,9 +20,19 @@ def connectAgents(alice, bob, length = 1.0):
     alice.qChannelsIn[bob] = quantumBobToAlice
     bob.qChannelsOut[alice] = quantumBobToAlice
     bob.qChannelsIn[alice] = quantumAliceToBob
+    # Instantiate classical channels between Alice and Bob
+    classicalAliceToBob = channels.CChannel(length, alice, bob)
+    classicalBobToAlice = channels.CChannel(length, bob, alice)
+    alice.cChannelsOut[bob] = classicalAliceToBob
+    alice.cChannelsIn[bob] = classicalBobToAlice
+    bob.cChannelsOut[alice] = classicalBobToAlice
+    bob.cChannelsIn[alice] = classicalAliceToBob
     # Make a section of Alice's/Bob's quantum memory for Bob/Alice
     alice.qmem[bob] = []
     bob.qmem[alice] = []
+    # Make a section of Alice's/Bob's classical memory for Bob/Alice
+    alice.cmem[bob] = []
+    bob.cmem[alice] = []
 
 def sharedOutputDict():
     '''
@@ -75,7 +86,7 @@ class Agent(multiprocessing.Process):
 
         # Classical memory is a large 1D array
         classicalMemorySize = 2 ** 16
-        self.cmem = np.zeros(classicalMemorySize)
+        self.cmem = {} #np.zeros(classicalMemorySize)
 
         # Quantum memory is an array of "blocks". Each element in a block holds a qubit
         qBlockSize = 256
@@ -113,8 +124,16 @@ class Agent(multiprocessing.Process):
         self.qChannelsOut[target].put(qubit)
         self.time += self.pulseLength
 
-    def csend(self, target, bit):
-        pass
+    def csend(self, target, thing):
+        '''
+        Send a serializable object to another agent. The transmission time is updated by (number of bits) pulse lengths.
+
+        :param Agent target: the agent to send the transmission to
+        :param any thing: the object to send
+        '''
+
+        self.cChannelsOut[target].put(thing)
+        self.time += sys.getsizeof(thing) * 8 * self.pulseLength
 
     def qrecv(self, origin):
         '''
@@ -130,8 +149,27 @@ class Agent(multiprocessing.Process):
         self.qmem[origin].append(qubit)
         return qubit
 
+    def qstore(self, qubit):
+        '''
+        Store a qubit in quantum memory. Equivalent to ``self.qmem[self].append(qubit)``.
+
+        :param Qubit qubit: the qubit to store
+        '''
+        self.qmem[self].append(qubit)
+
     def crecv(self, origin):
-        pass
+        '''
+        Receive a serializable object from another connected agent. ``self.time`` is updated upon calling this method.
+
+        :param Agent origin: The agent that previously sent the qubit
+        :return: the retrieved object, which is also stored in ``self.cmem``
+        '''
+        thing, recvTime = self.cChannelsIn[origin].get()
+        # Update agent clock
+        self.time = max(self.time, recvTime)
+        # Add qubit to quantum memory
+        self.cmem[origin].append(thing)
+        return thing
 
     def run(self):
         '''This method should be overridden in extended class instances, and cannot take any arguments or
