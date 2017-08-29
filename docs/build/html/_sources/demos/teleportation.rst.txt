@@ -1,7 +1,9 @@
+.. _teleportationDemo:
+
 Quantum Teleportation
 =====================
 
-Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, which will need to transfer fragile quantum states between distant nodes.
+Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, which will need to transfer fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
 
 The source code for this demo is included in the `demos` directory of the SQUANCH repository.
 
@@ -14,7 +16,7 @@ Below is a simple two-party quantum teleportation protocol. We'll be using the a
 
 	1. Alice generates an EPR pair; for this protocol, we'll use the state :math:`\lvert q_1 q_2 \rangle = \frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )`. She will keep one particle in the pair and send the other one to Bob.
 
-	2.	Alice entangles her qubit :math:`q_0` with her ancilla :math:`q_1` by applying controlled-not and Hadamard operators. 
+	2. Alice entangles her qubit :math:`q_0` with her ancilla :math:`q_1` by applying controlled-not and Hadamard operators. 
 
 	3. Alice measures both of her qubits and communicates the results (two bits) to Bob through a classical channel. Bob's qubit is now in one of four possible states, one of which is :math:`\lvert q_0 \rangle`. Bob will use Alice's two bits to determine what operations to apply to recover :math:`\lvert q_0 \rangle`.
 
@@ -168,4 +170,9 @@ We'll now try teleporting an ensemble of identical states :math:`R_{X}(\theta) \
 
 This gives us the following pretty plot.
 
-.. image:: ../img/teleportationRotation.png
+.. image:: ../img/teleportationRotation.png 
+
+Source code
+-----------
+
+The full source code for this demonstration is available in the demos directory of the SQUANCH repository.
