@@ -18,10 +18,12 @@ We'll be using the above circuit diagram to describe a three-party quantum super
 
 	3. Bob disentangles the X and Z components of the qubit by applying CNOT and H to Alice's qubit and Charlie's qubit. He then measures each of Alice's and Charlie's qubits to obtain :math:`b_1` and :math:`b_2`, respectively.
 
-Implementation in SQUANCH
--------------------------
+Implementation
+--------------
 
-Because superdense coding transmits classical information, it makes for a good protocol to visually demonstrate both the tranmission of the information and some of SQUANCH's simulated errors. (This also makes it a good demonstration for implementing classical and quantum error corrections, although we won't do that in this demo.)
+Because superdense coding transmits classical information, it makes for a good protocol to visually demonstrate both the tranmission of the information and some of SQUANCH's simulated errors. (This also makes it a good demonstration for implementing classical and quantum error corrections, although we won't do that in this demo.) The protocol we'll be implementing looks like this at a conceptual level:
+
+.. image:: ../img/superdenseABC.png
 
 First, let's import the modules we'll need.
 

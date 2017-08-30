@@ -23,8 +23,8 @@ Below is a simple two-party quantum teleportation protocol. We'll be using the a
 	4. Bob applies a Pauli-X operator to his qubit if Alice's ancilla collapsed to :math:`\lvert q_1 \rangle = \lvert 1 \rangle`, and he applies a Pauli-Z operator to his qubit if her qubit collapsed to :math:`\lvert q_0 \rangle = \lvert 1 \rangle`. 
 
 
-Implementation in SQUANCH
--------------------------
+Implementation
+--------------
 
 Quantum teleportation is a simple protocol to implement in any quantum computing simulation framework, but SQUANCH's :ref:`Agent <agent>` and :ref:`Channel <channels>` modules provide an intuitive way to work with sending and receiving qubits, and the :ref:`QStream <qstream>` module allows you to create performant simulations of teleporting a large number of states in succession. 
 

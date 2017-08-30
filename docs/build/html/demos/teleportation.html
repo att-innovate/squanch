@@ -37,7 +37,7 @@
         <link rel="search" title="Search" href="../search.html"/>
     <link rel="top" title="SQUANCH 0.0.0 documentation" href="../index.html"/>
         <link rel="up" title="Demonstrations" href="../demos.html"/>
-        <link rel="next" title="SQUANCH API reference" href="../api.html"/>
+        <link rel="next" title="Superdense Coding" href="superdenseCoding.html"/>
         <link rel="prev" title="Demonstrations" href="../demos.html"/> 
 
   
@@ -93,13 +93,15 @@
             
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../demos.html">Demonstrations</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Teleportation</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#protocol">Protocol</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#implementation-in-squanch">Implementation in SQUANCH</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#source-code">Source code</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="superdenseCoding.html">Superdense Coding</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">SQUANCH API reference</a></li>
@@ -185,8 +187,8 @@
 </ol>
 </div></blockquote>
 </div>
-<div class="section" id="implementation-in-squanch">
-<h2>Implementation in SQUANCH<a class="headerlink" href="#implementation-in-squanch" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
 <p>Quantum teleportation is a simple protocol to implement in any quantum computing simulation framework, but SQUANCH&#8217;s <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> and <a class="reference internal" href="../api/channels.html#channels"><span class="std std-ref">Channel</span></a> modules provide an intuitive way to work with sending and receiving qubits, and the <a class="reference internal" href="../api/qstream.html#qstream"><span class="std std-ref">QStream</span></a> module allows you to create performant simulations of teleporting a large number of states in succession.</p>
 <p>First, let&#8217;s import what we&#8217;ll need.</p>
 <div class="code python highlight-default"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -331,7 +333,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../api.html" class="btn btn-neutral float-right" title="SQUANCH API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="superdenseCoding.html" class="btn btn-neutral float-right" title="Superdense Coding" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="../demos.html" class="btn btn-neutral" title="Demonstrations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

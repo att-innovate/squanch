@@ -10,6 +10,7 @@ Welcome to the SQUANCH documentation!
    :maxdepth: 3
    :caption: Contents:
 
+   overview
    demos
    api
 
