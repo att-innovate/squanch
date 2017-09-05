@@ -6,7 +6,7 @@ from multiprocessing import sharedctypes
 
 def allZeroState(systemSize, numSystems):
     '''
-    Generate an array representing the numSystems Hilbert spaces in the state ``|0>...|0><0|...<0|``
+    Generate an array representing the numSystems Hilbert spaces in the state |0>...|0><0|...<0|
 
     :param int systemSize: maximum size of entangled subsystems
     :param int numSystems: number of disjoint quantum subsystems to allocate

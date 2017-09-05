@@ -1,4 +1,4 @@
-# SQUANCH
+![](img/squanchLogo.png)
 ### Simulator for QUAntum Networks and CHannels
 
 
