@@ -1,3 +1,5 @@
+.. _overview:
+
 Overview
 ========
 
@@ -18,9 +20,9 @@ Design Overview
 Information Representation and Processing
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The fundamental unit of information in SQUANCH is the :ref:`QSystem <qubit>`, which represents the quantum state of a multi-particle entangled system as a complex-valued density matrix. A :ref:`QStream <qstream>` represents a collection of disjoint (mutually unentangled) quantum systems, such as a collection of millions of EPR pairs. ``QSystem`` s are lightweight, and can be instantiated by reference from a portion of an existing array (typically from a ``QStream``), which vastly improves the cache locality and performance of operations on sequential quantum systems (such as encoding a stream of classical information on qubits using :ref:`superdense coding <superdenseCodingDemo>`).
+The fundamental unit of information in SQUANCH is the :ref:`QSystem <qubit>`, which represents the quantum state of a multi-particle entangled system as a complex-valued density matrix. It contains references to the ``Qubit`` s that it comprises. A :ref:`QStream <qstream>` represents a collection of disjoint (mutually unentangled) quantum systems, such as a collection of millions of EPR pairs. ``QSystem`` s are lightweight, and can be instantiated by reference from a portion of an existing array (typically from a ``QStream``), which vastly improves the cache locality and performance of operations on sequential quantum systems (such as encoding a stream of classical information on qubits using :ref:`superdense coding <superdenseCodingDemo>`).
 
-SQUANCH users will interact most frequently with the lightweight wrapper :ref:`Qubit <qubit>` class, which mirrors the methods of ``QSystem`` to more intuitively manipulate the states of quantum systems. ``Qubits`` have very little internal information, maintaining only a reference to their parent system and a qubit index.
+SQUANCH users will interact most frequently with the lightweight wrapper :ref:`Qubit <qubit>` class, which mirrors the methods of ``QSystem`` to more intuitively manipulate the states of quantum systems. ``Qubits`` have very little internal information, maintaining only a reference to their parent ``QSystem`` and a qubit index.
 
 The :ref:`Gates <gates>` module provides a number of built-in quantum gates to manipulate qubits. Under the hood, it has a number of caching functions that remember previously-used operators to avoid repeating expensive tensor calculations, and it is easily extensible to define custom operators. 
 

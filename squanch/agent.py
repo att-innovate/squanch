@@ -1,8 +1,38 @@
 import sys
 import numpy as np
 import multiprocessing
+from multiprocessing import sharedctypes
+import ctypes
 import channels, qstream
 
+
+# Shared memory structures
+
+def sharedOutputDict():
+    '''
+    Generate a shared output dictionary to distribute among agents in separate processes
+
+    :return: an empty multiprocessed Manager.dict()
+    '''
+    return multiprocessing.Manager().dict()
+
+
+def sharedHilbertSpace(systemSize, numSystems):
+    '''
+    Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
+
+    :param int systemSize: number of entangled qubits in each quantum system; each system has dimension 2^systemSize
+    :param int numSystems: number of small quantum systems in the data stream
+    :return: a blank, sharable, numSystems x 2^systemSize x 2^systemSize array of np.complex64 values
+    '''
+    dim = 2 ** systemSize
+    mallocMem = sharedctypes.RawArray(ctypes.c_double, numSystems * dim * dim)
+    array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((numSystems, dim, dim))
+    qstream.QStream.reformatArray(array)
+    return array
+
+
+# Connect agents
 
 def connectAgents(alice, bob, length = 0.0):
     '''
@@ -36,13 +66,6 @@ def connectAgents(alice, bob, length = 0.0):
     alice.cmem[bob] = []
     bob.cmem[alice] = []
 
-def sharedOutputDict():
-    '''
-    Generate a shared output dictionary to distribute among agents in separate processes
-
-    :return: an empty multiprocessed Manager.dict()
-    '''
-    return multiprocessing.Manager().dict()
 
 class Agent(multiprocessing.Process):
     '''
@@ -88,7 +111,7 @@ class Agent(multiprocessing.Process):
 
         # Classical memory is a large 1D array
         classicalMemorySize = 2 ** 16
-        self.cmem = {} #np.zeros(classicalMemorySize)
+        self.cmem = {}  # np.zeros(classicalMemorySize)
 
         # Quantum memory is an array of "blocks". Each element in a block holds a qubit
         qBlockSize = 256

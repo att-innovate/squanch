@@ -1,12 +1,11 @@
 import numpy as np
 import qubit, linalg
-import ctypes
-from multiprocessing import sharedctypes
+
 
 
 def allZeroState(systemSize, numSystems):
     '''
-    Generate an array representing the numSystems Hilbert spaces in the state |0>...|0><0|...<0|
+    Generate an array representing the numSystems Hilbert spaces in the state ``|0>...|0><0|...<0|``
 
     :param int systemSize: maximum size of entangled subsystems
     :param int numSystems: number of disjoint quantum subsystems to allocate
@@ -21,21 +20,6 @@ def allZeroState(systemSize, numSystems):
         initialSystemState = linalg.tensorProd(initialSystemState, initialQubitState)
     # The Hilbert space of QSys0 x QSys1 x ... x QSysN is represented as an n-dimensional array of state vectors
     return np.repeat([initialSystemState], numSystems, axis = 0)  # repeat state into vertical axis
-
-
-def sharedHilbertSpace(systemSize, numSystems):
-    '''
-    Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
-
-    :param int systemSize: number of entangled qubits in each quantum system; each system has dimension 2^systemSize
-    :param int numSystems: number of small quantum systems in the data stream
-    :return: a blank, sharable, numSystems x 2^systemSize x 2^systemSize array of np.complex64 values
-    '''
-    dim = 2 ** systemSize
-    mallocMem = sharedctypes.RawArray(ctypes.c_double, numSystems * dim * dim)
-    array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((numSystems, dim, dim))
-    QStream.reformatArray(array)
-    return array
 
 
 class QStream:
@@ -62,6 +46,15 @@ class QStream:
 
         # The "head" of the stream; what qSystem is being processed at the moment
         self.index = 0
+
+    def __iter__(self):
+        '''
+        Custom iterator method for streams
+
+        :return: each system in the stream
+        '''
+        for i in range(self.numSystems):
+            yield self.system(i)
 
     @classmethod
     def fromArray(cls, array, reformatArray = False):

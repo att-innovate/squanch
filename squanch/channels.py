@@ -17,7 +17,7 @@ class QChannel:
         :param Agent fromAgent: sending agent
         :param Agent toAgent: receiving agent
         :param float length: length of quantum channel in km; default: 0.0km
-        :param list(QError) errors: list of error models to apply to qubits in this channel; default: [] (no errors)
+        :param QError[] errors: list of error models to apply to qubits in this channel; default: [] (no errors)
         '''
         # Register agent connections
         self.fromAgent = fromAgent
