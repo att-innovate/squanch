@@ -1,10 +1,9 @@
 ![](img/squanchLogo.png)
-### Simulator for QUAntum Networks and CHannels
 
 
 ## Introduction 
 
-SQUANCH is a Python-based framework for creating performant simulations of distributed quantum information processing and transmission over networks.
+SQUANCH (Simulator for QUAntum Networks and CHannels) is a Python-based framework for creating performant simulations of distributed quantum information processing and transmission over networks.
 It is computationally optimized for dealing with a large number of disjoint entangled quantum systems, such as simulating 
 millions Bell pairs for the purpose of information transfer.
 
