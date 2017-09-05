@@ -2,30 +2,36 @@ import sys
 import numpy as np
 import multiprocessing
 from qubit import Qubit
+import errors
+
 
 class QChannel:
     '''
     Base class for a quantum channel
     '''
 
-    def __init__(self, length, fromAgent, toAgent):
+    def __init__(self, fromAgent, toAgent, length = 0.0, errors = []):
         '''
         Instantiate the quantum channel
 
-        :param float length: length of fiber optic line
         :param Agent fromAgent: sending agent
         :param Agent toAgent: receiving agent
+        :param float length: length of quantum channel in km; default: 0.0km
+        :param list(QError) errors: list of error models to apply to qubits in this channel; default: [] (no errors)
         '''
-        self.length = length # Physical length of the channel in km
-        self.signalSpeed = 2.998 * 10**5 # Speed of light in km/s
+        # Register agent connections
         self.fromAgent = fromAgent
         self.toAgent = toAgent
-        fiberOpticAttenuation = -0.16  # dB/km, from Yin, et al, Satellite-based entanglement
-        # Total attenuation along the fiber, equal to probability of receiving a photon
-        decibelLoss = self.length * fiberOpticAttenuation
-        self.attenuation = 10 ** (decibelLoss / 10)
+
+        # Signal propagation properties
+        self.length = length  # Physical length of the channel in km
+        self.signalSpeed = 2.998 * 10 ** 5  # Speed of light in km/s
+
         # A queue representing the qubits in transit along the channel
         self.queue = multiprocessing.Queue()
+
+        # Register error models
+        self.errors = errors
 
     def put(self, qubit):
         '''
@@ -52,13 +58,13 @@ class QChannel:
             qubit = Qubit.fromStream(self.toAgent.stream, systemIndex, qubitIndex)
         else:
             qubit = None
-        # Simulate corruption
-        if np.random.rand() > self.attenuation and qubit is not None:
-            # Photon was lost due to attenuation effects; collapse state and return nothing
-            qubit.measure()
-            return None, receiveTime
-        else:
-            return qubit, receiveTime
+
+        # Apply errors
+        for error in self.errors:
+            qubit = error.apply(qubit)
+
+        # Return modified qubit and return time
+        return qubit, receiveTime
 
 
 class CChannel:
@@ -66,18 +72,23 @@ class CChannel:
     Base class for a classical channel
     '''
 
-    def __init__(self, length, fromAgent, toAgent):
+    def __init__(self, fromAgent, toAgent, length = 0.0):
         '''
         Instantiate the quantum channel
 
-        :param float length: length of fiber optic line
         :param Agent fromAgent: sending agent
         :param Agent toAgent: receiving agent
+        :param float length: length of fiber optic line in km; default: 0.0km
         '''
-        self.length = length  # Physical length of the channel in km
-        self.signalSpeed = 2.998 * 10 ** 5  # Speed of light in km/s
+        # Register agent connections
         self.fromAgent = fromAgent
         self.toAgent = toAgent
+
+        # Signal propagation
+        self.length = length  # Physical length of the channel in km
+        self.signalSpeed = 2.998 * 10 ** 5  # Speed of light in km/s
+
+        # The channel queue
         self.queue = multiprocessing.Queue()
 
     def put(self, thing):
@@ -99,3 +110,26 @@ class CChannel:
         '''
         thing, receiveTime = self.queue.get()
         return thing, receiveTime
+
+
+class FiberOpticQChannel(QChannel):
+    '''
+    Represents a fiber optic line with attenuation errors
+    '''
+
+    def __init__(self, fromAgent, toAgent, length = 0.0):
+        '''
+        Instantiate the simulated fiber optic quantum channel
+
+        :param Agent fromAgent: sending agent
+        :param Agent toAgent: receiving agent
+        :param float length: length of fiber optic channel in km; default: 0.0km
+        '''
+        QChannel.__init__(self, fromAgent, toAgent, length = length)
+
+        # Register attenuation errors
+        self.errors = [
+            errors.AttenuationError(self),
+            # errors.RandomUnitaryError(self, 2*np.pi / 100),
+            # errors.SystematicUnitaryError(self, 2*np.pi / 10),
+        ]

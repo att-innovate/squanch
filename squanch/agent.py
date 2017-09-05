@@ -4,25 +4,27 @@ import multiprocessing
 import channels, qstream
 
 
-def connectAgents(alice, bob, length = 1.0):
+def connectAgents(alice, bob, length = 0.0):
     '''
     Connect Alice and Bob bidirectionally via a simulated fiber optic line
 
     :param Agent alice: the first Agent
     :param Agent bob: the second Agent
-    :param length: the length of the simulated cable
+    :param float length: the length of the simulated cable in km; default value: 0.0km
     '''
     # classicalAliceToBob = thing
     # Instantiate quantum channels between Alice and Bob
-    quantumAliceToBob = channels.QChannel(length, alice, bob)
-    quantumBobToAlice = channels.QChannel(length, bob, alice)
+    # quantumAliceToBob = channels.QChannel(alice, bob, length)
+    # quantumBobToAlice = channels.QChannel(bob, alice, length)
+    quantumAliceToBob = channels.FiberOpticQChannel(alice, bob, length)
+    quantumBobToAlice = channels.FiberOpticQChannel(bob, alice, length)
     alice.qChannelsOut[bob] = quantumAliceToBob
     alice.qChannelsIn[bob] = quantumBobToAlice
     bob.qChannelsOut[alice] = quantumBobToAlice
     bob.qChannelsIn[alice] = quantumAliceToBob
     # Instantiate classical channels between Alice and Bob
-    classicalAliceToBob = channels.CChannel(length, alice, bob)
-    classicalBobToAlice = channels.CChannel(length, bob, alice)
+    classicalAliceToBob = channels.CChannel(alice, bob, length)
+    classicalBobToAlice = channels.CChannel(bob, alice, length)
     alice.cChannelsOut[bob] = classicalAliceToBob
     alice.cChannelsIn[bob] = classicalBobToAlice
     bob.cChannelsOut[alice] = classicalBobToAlice
