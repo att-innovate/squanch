@@ -13,7 +13,7 @@ You can install SQUANCH directly using the Python package manager pip:
 
 .. code:: python
 
-	pip install pyquil
+	pip install squanch
 
 If you don't have pip, you can get it using ``easy_install pip``.
 
@@ -235,7 +235,7 @@ Here's a brief demonstration of how to use QStreams in your programs and an exam
 
 	numSystems = 100000
 
-	# Make a bunch of Bell pairs without using streams
+	# Without streams: make a bunch of Bell pairs
 	startNoStream = time.time()
 	for _ in range(numSystems):
 	    a, b = QSystem(2).qubits
@@ -243,11 +243,11 @@ Here's a brief demonstration of how to use QStreams in your programs and an exam
 	    CNOT(a, b)
 	print "Creating {} bell pairs without streams: {:.3f}s".format(numSystems, time.time() - startNoStream)
 
-	# Modify all systems in a stream to be Bell pairs
+	# With a stream: make a bunch of Bell pairs
 	startStream = time.time()
 	stream = QStream(2, numSystems)
-	for system in stream:
-	    a, b = system.qubits
+	for qSys in stream:
+	    a, b = qSys.qubits
 	    H(a)
 	    CNOT(a, b)
 	print "Creating {} bell pairs with streams:    {:.3f}s".format(numSystems, time.time() - startStream)
@@ -309,15 +309,15 @@ To program the agents themselves, we extend the Agent base class and overwrite t
 	            bits += str(q.measure())
 	        self.output(bits)
 
-Finally, to instantiate and run the agents, we need to make an appropriately sized ``sharedHilbertSpace`` and a ``sharedOutputDict`` to pass to the agents. We then connect the agents (using a channel length of 0 to ignore speed-of-light delays and attenuation errors) and run their processes:
+Finally, to instantiate and run the agents, we need to name them (if no name is provided in the class call, it defaults to the name of the class, e.g. ``Alice(...).name == "Alice"``) and we need to make an appropriately sized ``sharedHilbertSpace`` and a ``sharedOutputDict`` to pass to the agents. We then connect the agents (using a channel length of 0 to ignore speed-of-light delays and attenuation errors) and run their processes:
 
 .. code:: python 
 
 	mem = sharedHilbertSpace(1, len(msgBits))
 	out = sharedOutputDict()
 
-	alice = Alice("Alice", mem, data = msgBits)
-	bob = Bob("Bob", mem, out = out)
+	alice = Alice(mem, data = msgBits)
+	bob = Bob(mem, out = out)
 
 	connectAgents(alice, bob, length = 0.0)
 

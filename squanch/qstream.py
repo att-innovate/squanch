@@ -2,7 +2,6 @@ import numpy as np
 import qubit, linalg
 
 
-
 def allZeroState(systemSize, numSystems):
     '''
     Generate an array representing the numSystems Hilbert spaces in the state ``|0>...|0><0|...<0|``
@@ -55,6 +54,14 @@ class QStream:
         '''
         for i in range(self.numSystems):
             yield self.system(i)
+
+    def __len__(self):
+        '''
+        Custom length method for streams; equivalent to stream.numSystems
+
+        :return: stream.numSystems
+        '''
+        return self.numSystems
 
     @classmethod
     def fromArray(cls, array, reformatArray = False):

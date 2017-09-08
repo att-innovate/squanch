@@ -7,5 +7,6 @@ SQUANCH API reference
    api/errors
    api/gates
    api/linalg
+   api/simulate
    api/qstream
    api/qubit

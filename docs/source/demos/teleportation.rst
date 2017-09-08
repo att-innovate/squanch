@@ -45,23 +45,22 @@ Now, we'll want to define the behavior of Alice and Bob. We'll extend the :ref:`
 	class Alice(Agent):
 	    '''Alice sends qubits to Bob using a shared Bell pair'''
 
-	    def teleport(self):
+	    def teleport(self, qSystem):
 	        # Generate a Bell pair and send half of it to Bob
-	        q, a, b = self.stream.head().qubits
+	        q, a, b = qSystem.qubits
 	        H(a)
 	        CNOT(a, b)
 	        self.qsend(bob, b)
-
 	        # Perform the teleportation
 	        CNOT(q, a)
 	        H(q)
-	        bobZ = q.measure()
-	        bobX = a.measure()
+	        bobZ = q.measure() # If Bob should apply Z
+	        bobX = a.measure() # If Bob should apply X
 	        self.csend(bob, [bobX, bobZ])
 
 	    def run(self):
-	        for _ in range(self.stream.numSystems):
-	            self.teleport()
+	        for qSys in self.stream:
+	            self.teleport(qSys)
 
 Note that you can add arbitrary methods, such as `teleport()`, to agent child classes; just be careful not to overwrite any existing methods other than `run()`, which should always be overwritten. 
 
@@ -74,10 +73,10 @@ For Bob, we'll want to include the logic to receive the pair half from Alice and
 
 	    def run(self):
 	        measurementResults = []
-	        for _ in range(self.stream.numSystems):
+	        for _ in self.stream:
 	            b = self.qrecv(alice)
 	            doX, doZ = self.crecv(alice)
-	            if doX and b is not None: X(b) # if b is not lost to attenuation
+	            if doX and b is not None: X(b)
 	            if doZ and b is not None: Z(b)
 	            measurementResults.append(b.measure())
 	        self.output(measurementResults)
@@ -93,8 +92,8 @@ This logic will allow Alice and Bob to act on a common quantum stream to telepor
 	# Prepare the initial states
 	stream = QStream.fromArray(mem)
 	statesList = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-	for i, state in enumerate(statesList):
-	    q = stream.system(i).qubit(0)
+	for state, qSys in zip(statesList, stream):
+	    q = qSys.qubit(0)
 	    if state == 1: X(q)  # Flip the qubits corresponding to 1's
 
 Finally, let's create Alice and Bob instances, plug in the Hilbert space and output structures, and run the program. Explicitly allocating and passing memory to agents is necessary because each agent spawns and runs in a separate process, which (in general) have separate memory pools. You'll also need to call `agent.start()` for each agent to signal the process to start running, and `agent.join()` to wait for all agents to finish before proceeding in the program.
@@ -102,17 +101,15 @@ Finally, let's create Alice and Bob instances, plug in the Hilbert space and out
 .. code:: python 
 
 	# Make the agents
-	alice = Alice("Alice", mem)
-	bob = Bob("Bob", mem, out = out)
+	alice = Alice(mem)
+	bob = Bob(mem, out = out)
 
 	# Connect the agents
 	connectAgents(alice, bob, length = 0.0)
 
 	# Run everything
-	alice.start()
-	bob.start()
-	alice.join()
-	bob.join()
+	alice.start(); bob.start()
+	alice.join(); bob.join()
 
 	print "Teleported states {} \n" \
 	      "Received states   {}".format(statesList, out["Bob"])
@@ -146,17 +143,15 @@ We'll now try teleporting an ensemble of identical states :math:`R_{X}(\theta) \
 	stream.index = 0  # reset the head counter
 
 	# Make the agents
-	alice = Alice("Alice", mem)
-	bob = Bob("Bob", mem, out = out)
+	alice = Alice(mem)
+	bob = Bob(mem, out = out)
 
 	# Connect the agents
-	connectAgents(alice, bob, length = 0.0)  # Use zero length to ignore attenuation errors
+	connectAgents(alice, bob)
 
 	# Run everything
-	alice.start()
-	bob.start()
-	alice.join()
-	bob.join()
+	alice.start(); bob.start()
+	alice.join(); bob.join()
 
 	results = np.array(out["Bob"]).reshape((len(angles), numTrials))
 	meanResults = np.mean(results, axis = 1)

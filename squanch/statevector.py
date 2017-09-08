@@ -1,3 +1,5 @@
+# THIS MODULE IS DEPRECATED. ITS FUNCTIONALITY HAS BEEN MIGRATED TO QUBIT.PY.
+
 import numpy as np
 import linalg
 import gates

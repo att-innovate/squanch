@@ -44,8 +44,8 @@ Now, as usual, we'll want to define child `Agent` classes that implement the beh
 	class Charlie(Agent):
 	    '''Charlie distributes Bell pairs between Alice and Bob.'''
 	    def run(self):
-	        for i in range(self.stream.numSystems):
-	            a, b = self.stream.head().qubits
+	        for qSys in self.stream:
+	            a, b = qSys.qubits
 	            H(a)
 	            CNOT(a, b)
 	            self.qsend(alice, a)
@@ -58,13 +58,13 @@ For Alice, we'll want to include the transmission behavior. We'll pass in the da
 	class Alice(Agent):
 	    '''Alice sends information to Bob via superdense coding'''
 	    def run(self):
-	        for i in range(self.stream.numSystems):
+	        for i in range(len(self.stream)):
 	            bit1, bit2 = self.data[2 * i], self.data[2 * i + 1]
 	            q = self.qrecv(charlie)
 	            if q is not None:
 	                if bit2 == 1: X(q)
 	                if bit1 == 1: Z(q)
-	            self.qsend(bob, q) 
+	            self.qsend(bob, q)
 
 Finally, for Bob, we'll want to include the disentangling and measurement behavior, and we'll want to output his measured data using `self.output`, which passes it to the parent process through the `sharedOutputDict` that is provided to agents on instantiation.
 
@@ -73,8 +73,8 @@ Finally, for Bob, we'll want to include the disentangling and measurement behavi
 	class Bob(Agent):
 	    '''Bob receives Alice's transmissions and reconstructs her information'''
 	    def run(self):
-	        self.data = np.zeros(2 * self.stream.numSystems, dtype = np.uint8)
-	        for i in range(self.stream.numSystems):
+	        self.data = np.zeros(2 * len(self.stream), dtype = np.uint8)
+	        for i in range(len(self.stream)):
 	            a = self.qrecv(alice)
 	            c = self.qrecv(charlie)
 	            if a is not None and c is not None:
@@ -97,9 +97,9 @@ Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do
 	out = sharedOutputDict()
 
 	# Make agent instances
-	alice = Alice("Alice", mem, data = imgBitstream)
-	bob = Bob("Bob", mem, out = out)
-	charlie = Charlie("Charlie", mem)
+	alice = Alice(mem, data = imgBitstream)
+	bob = Bob(mem, out = out)
+	charlie = Charlie(mem)
 
 Let's connect the agents with some simulated length parameter (for time simulation purposes and for application of errors). Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each. Once we've connected the agents, we just need to run all of the agent processes with `start()` and wait for them to finish with `join()`.
 
@@ -109,6 +109,7 @@ Let's connect the agents with some simulated length parameter (for time simulati
 	connectAgents(alice, bob, length = 1.0)
 	connectAgents(alice, charlie, length = 0.5)
 	connectAgents(bob, charlie, length = 0.5)
+	
 	# Run the agents
 	start = time.time()
 	agents = [alice, bob, charlie]

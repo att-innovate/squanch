@@ -78,18 +78,21 @@ class Agent(multiprocessing.Process):
     * Quantum memory with some characteristic corruption timescale
     '''
 
-    def __init__(self, name, hilbertSpace, data = None, out = None):
+    def __init__(self, hilbertSpace, name = None, data = None, out = None):
         '''
         Instantiate an Agent from a unique identifier and a shared memory pool
 
-        :param str name: the unique identifier for the Agent
         :param np.array hilbertSpace: the shared memory pool representing the Hilbert space of the qstream
-        :param any data: data to pass to the Agent's process, stored in ``self.data``
-        :param dict out: shared output dictionary to pass to Agent processes to allow for return-like operations
+        :param str name: the unique identifier for the Agent. Default: class name
+        :param any data: data to pass to the Agent's process, stored in ``self.data``. Default: None
+        :param dict out: shared output dictionary to pass to Agent processes to allow for "returns". Default: None
         '''
         multiprocessing.Process.__init__(self)
-        # Name of the agent, e.g. "Alice"
-        self.name = name
+        # Name of the agent, e.g. "Alice". Defaults to the name of the class.
+        if name is not None:
+            self.name = name
+        else:
+            self.name = self.__class__.__name__
         self.stream = qstream.QStream.fromArray(hilbertSpace)
 
         # Agent's clock
@@ -101,6 +104,8 @@ class Agent(multiprocessing.Process):
         self.data = data
         if out is not None:
             out[self.name] = None
+            out[self.name + ":progress"] = 0
+            out[self.name + ":progressMax"] = len(self.stream)
         self.out = out
 
         # Communication channels are dicts; keys: agent objects, values: channel objects
@@ -208,3 +213,17 @@ class Agent(multiprocessing.Process):
         :param any thing: the thing to put in the dictionary
         '''
         self.out[self.name] = thing
+
+    def updateProgress(self, value):
+        '''
+        Update the progress of this agent in the shared output dictionary. Used in Simulation.progressMonitor().
+
+        :param value: the value to update the progress to (out of a max of len(self.stream))
+        '''
+        self.out[self.name + ":progress"] = value
+
+    def incrementProgress(self):
+        '''
+        Adds 1 to the current progress
+        '''
+        self.out[self.name + ":progress"] += 1
