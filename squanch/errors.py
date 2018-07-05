@@ -1,9 +1,11 @@
 import numpy as np
-import gates
+from squanch import gates
+
+__all__ = ["QError", "AttenuationError", "RandomUnitaryError", "SystematicUnitaryError"]
 
 
 class QError:
-    '''A generalized error model'''
+    '''A generalized quantum error model'''
 
     def __init__(self, qchannel):
         '''
@@ -29,16 +31,16 @@ class QError:
 class AttenuationError(QError):
     '''Simulate the possible loss of a qubit in a fiber optic channel due to attenuation effects'''
 
-    def __init__(self, qchannel, attenuationCoefficient = -0.16):
+    def __init__(self, qchannel, attenuation_coefficient = -0.16):
         '''
         Instatiate the error class
 
         :param QChannel qchannel: parent quantum channel
-        :param float attenuationCoefficient: attenuation of fiber in dB/km; default: -.16 dB/km, from Yin, et al
+        :param float attenuation_coefficient: attenuation of fiber in dB/km; default: -.16 dB/km, from Yin, et al
         '''
         QError.__init__(self, qchannel)
-        decibelLoss = qchannel.length * attenuationCoefficient
-        self.attenuation = 10 ** (decibelLoss / 10)  # Total attenuation along the fiber
+        decibel_loss = qchannel.length * attenuation_coefficient
+        self.attenuation = 10 ** (decibel_loss / 10)  # Total attenuation along the fiber
 
     def apply(self, qubit):
         '''
@@ -57,15 +59,15 @@ class AttenuationError(QError):
 class RandomUnitaryError(QError):
     '''Simualates a random rotation along X and Z with a Gaussian distribution of rotation angles'''
 
-    def __init__(self, qchannel, randomUnitarySigma):
+    def __init__(self, qchannel, variance):
         '''
         Instatiate the error class
 
         :param QChannel qchannel: parent quantum channel
-        :param float randomUnitarySigma: sigma to use in the Gaussian sampling of X and Z rotation angles
+        :param float variance: variance to use in the Gaussian sampling of X and Z rotation angles
         '''
         QError.__init__(self, qchannel)
-        self.sigma = randomUnitarySigma
+        self.variance = variance
 
     def apply(self, qubit):
         '''
@@ -75,33 +77,33 @@ class RandomUnitaryError(QError):
         :return: rotated qubit
         '''
         if qubit is not None:
-            xAngle, zAngle = np.random.normal(0, self.sigma, 2)
-            gates.RX(qubit, xAngle)
-            gates.RZ(qubit, zAngle)
+            x_angle, z_angle = np.random.normal(0, self.variance, 2)
+            gates.RX(qubit, x_angle)
+            gates.RZ(qubit, z_angle)
         return qubit
 
 
 class SystematicUnitaryError(QError):
     '''Simulates a random unitary error that is the same for each qubit'''
 
-    def __init__(self, qchannel, unitaryOperation = None, randomUnitarySigma = None):
+    def __init__(self, qchannel, operator = None, variance = None):
         '''
         Instantiate the systematic unitary error class
 
         :param QChannel qchannel: parent quantum channel
-        :param np.array unitaryOperation:
-        :param float randomUnitarySigma:
+        :param np.array operator:
+        :param float variance:
         '''
         QError.__init__(self, qchannel)
-        assert unitaryOperation is not None or randomUnitarySigma is not None, \
-            "Provide either a random operator or a sigma value to use for sampling."
+        assert operator is not None or variance is not None, \
+            "Provide either a random operator or a variance value to use for sampling."
 
-        if unitaryOperation is not None:
-            self.operator = unitaryOperation
-        elif randomUnitarySigma is not None:
-            xAngle, zAngle = np.random.normal(0, randomUnitarySigma, 2)
-            Rx = np.cos(xAngle / 2.0) * gates._I - 1j * np.sin(xAngle / 2.0) * gates._X
-            Rz = np.cos(zAngle / 2.0) * gates._I - 1j * np.sin(zAngle / 2.0) * gates._Z
+        if operator is not None:
+            self.operator = operator
+        elif variance is not None:
+            x_angle, z_angle = np.random.normal(0, variance, 2)
+            Rx = np.cos(x_angle / 2.0) * gates._I - 1j * np.sin(x_angle / 2.0) * gates._X
+            Rz = np.cos(z_angle / 2.0) * gates._I - 1j * np.sin(z_angle / 2.0) * gates._Z
             self.operator = np.dot(Rz, Rx)
 
     def apply(self, qubit):
@@ -112,5 +114,5 @@ class SystematicUnitaryError(QError):
         :return: rotated qubit
         '''
         if qubit is not None:
-            qubit.qSystem.apply(self.operator)
+            qubit.qsystem.apply(self.operator)
         return qubit

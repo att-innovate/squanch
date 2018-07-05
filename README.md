@@ -1,4 +1,4 @@
-![](img/squanchLogo.png)
+![](docs/img/squanchLogo.png)
 
 
 ## Introduction 
@@ -40,7 +40,7 @@ scenario, we have three agents, Alice, Bob, and Charlie. Charlie will distribute
 send data to Bob by encoding two bits in the Pauli-X and -Z operations for each of her photons. Bob receives Alice's photons and 
 disentangles them to reconstruct her information, as shown in the following diagram.
 
-![](img/superdenseABC.png)
+![](docs/img/superdenseABC.png)
 
 Simulating complex scenarios with multiple agents like this one is what SQUANCH is designed to do. The quantum states of large
 numbers of particles can be efficiently dealt with using `QStream` objects, and the behavior of each agent can be defined by 
@@ -50,8 +50,7 @@ extending the built-in `Agent` class. The code necessary to simulate this scenar
 import numpy as np
 import matplotlib.image as image
 import matplotlib.pyplot as plt
-from squanch.agent import *
-from squanch.gates import *
+from squanch import *
 
 # Alice sends information to Bob via superdense coding
 class Alice(Agent):
@@ -83,38 +82,38 @@ class Bob(Agent):
 # Charlie distributes Bell pairs between Alice and Bob
 class Charlie(Agent):
     def run(self):
-        for qSys in self.stream:
-            a, b = qSys.qubits
+        for qsys in self.stream:
+            a, b = qsys.qubits
             H(a)
             CNOT(a, b)
             self.qsend(alice, a)
             self.qsend(bob, b)
 
 # Load an image and serialize it to a bitstream
-imgArray = image.imread("img/foundryLogo.bmp")
-imgBitstream = list(np.unpackbits(imgArray))
+img = image.imread("img/foundryLogo.bmp")
+bits = list(np.unpackbits(img))
 
 # Allocate a shared Hilbert space and output object to pass to agents
-mem = sharedHilbertSpace(2, len(imgBitstream) / 2)
-out = sharedOutputDict()
+mem = Agent.shared_hilbert_space(2, int(len(bits) / 2))
+out = Agent.shared_output()
 
 # Make agent instances
-alice = Alice(mem, out = out, data = imgBitstream)
+alice = Alice(mem, out = out, data = bits)
 bob = Bob(mem, out = out)
 charlie = Charlie(mem, out = out)
 
 # Connect the agents over simulated fiber optic lines
-connectAgents(charlie, alice, length = 0.5)
-connectAgents(charlie, bob, length = 0.5)
-connectAgents(alice, bob, length = 1.0)
+alice.qconnect(bob, FiberOpticQChannel, length = 1.0)
+charlie.qconnect(alice, FiberOpticQChannel, length = 0.5)
+charlie.qconnect(bob, FiberOpticQChannel, length = 0.5)
 
 agents = [alice, bob, charlie]
 [agent.start() for agent in agents]
 [agent.join() for agent in agents]
 
 # Retrieve the transmitted data and reconstruct the original image
-receivedImg = np.reshape(np.packbits(out["Bob"]), imgArray.shape)
-plt.imshow(receivedImg)
+received_img = np.reshape(np.packbits(out["Bob"]), img.shape)
+plt.imshow(received_img)
 ``` 
 
-![Alice transmitting an image to Bob over 1km simulated fiber optic cable.](img/transmissionDemo.png)
+![Alice transmitting an image to Bob over 1km simulated fiber optic cable.](docs/img/transmissionDemo.png)

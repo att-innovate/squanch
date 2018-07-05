@@ -21,7 +21,7 @@ We'll be using the above circuit diagram to describe a three-party quantum super
 Implementation
 --------------
 
-Because superdense coding transmits classical information, it makes for a good protocol to visually demonstrate both the tranmission of the information and some of SQUANCH's simulated errors. (This also makes it a good demonstration for implementing classical and quantum error corrections, although we won't do that in this demo.) The protocol we'll be implementing looks like this at a conceptual level:
+Because superdense coding transmits classical information through quantum channels, it makes for a good protocol to visually demonstrate both the tranmission of the information and some of SQUANCH's simulated errors. (This also makes it a good demonstration for implementing classical and quantum error corrections, although we won't do that in this demo.) The protocol we'll be implementing looks like this at a conceptual level:
 
 .. image:: ../img/superdenseABC.png
 
@@ -33,83 +33,85 @@ First, let's import the modules we'll need.
 	import time 
 	import matplotlib.image as image
 	import matplotlib.pyplot as plt
-	from squanch.agent import *
-	from squanch.gates import *
-	from squanch.qstream import *
+	from squanch import *
 
 Now, as usual, we'll want to define child `Agent` classes that implement the behavior we want. For Charlie, we'll want to include the behavior to make an EPR pair and distribute it to Alice and Bob.
 
 .. code:: python
 
 	class Charlie(Agent):
-	    '''Charlie distributes Bell pairs between Alice and Bob.'''
-	    def run(self):
-	        for qSys in self.stream:
-	            a, b = qSys.qubits
-	            H(a)
-	            CNOT(a, b)
-	            self.qsend(alice, a)
-	            self.qsend(bob, b)
+		'''Charlie distributes Bell pairs between Alice and Bob.'''
+		def run(self):
+			for qsys in self.stream:
+				a, b = qsys.qubits
+				H(a)
+				CNOT(a, b)
+				self.qsend(alice, a)
+				self.qsend(bob, b)
 
 For Alice, we'll want to include the transmission behavior. We'll pass in the data that she wants to transmit as a 1D array in an input argument when we instantiate her, and it will be stored in `self.data`. 
 
 .. code:: python
 
 	class Alice(Agent):
-	    '''Alice sends information to Bob via superdense coding'''
-	    def run(self):
-	        for i in range(len(self.stream)):
-	            bit1, bit2 = self.data[2 * i], self.data[2 * i + 1]
-	            q = self.qrecv(charlie)
-	            if q is not None:
-	                if bit2 == 1: X(q)
-	                if bit1 == 1: Z(q)
-	            self.qsend(bob, q)
+		'''Alice sends information to Bob via superdense coding'''
+		def run(self):
+			for i in range(len(self.stream)):
+				bit1, bit2 = self.data[2 * i], self.data[2 * i + 1]
+				q = self.qrecv(charlie)
+				if q is not None:
+					if bit2 == 1: X(q)
+					if bit1 == 1: Z(q)
+				self.qsend(bob, q)
 
 Finally, for Bob, we'll want to include the disentangling and measurement behavior, and we'll want to output his measured data using `self.output`, which passes it to the parent process through the `sharedOutputDict` that is provided to agents on instantiation.
 
 .. code:: python
 
 	class Bob(Agent):
-	    '''Bob receives Alice's transmissions and reconstructs her information'''
-	    def run(self):
-	        self.data = np.zeros(2 * len(self.stream), dtype = np.uint8)
-	        for i in range(len(self.stream)):
-	            a = self.qrecv(alice)
-	            c = self.qrecv(charlie)
-	            if a is not None and c is not None:
-	                CNOT(a, c)
-	                H(a)
-	                self.data[2 * i] = a.measure()
-	                self.data[2 * i + 1] = c.measure()
-	        self.output(self.data)
+		'''Bob receives Alice's transmissions and reconstructs her information'''
+		def run(self):
+			self.data = np.zeros(2 * len(self.stream), dtype = np.uint8)
+			for i in range(len(self.stream)):
+				a = self.qrecv(alice)
+				c = self.qrecv(charlie)
+				if a is not None and c is not None:
+					CNOT(a, c)
+					H(a)
+					self.data[2 * i] = a.measure()
+					self.data[2 * i + 1] = c.measure()
+			self.output(self.data)
 
 Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we'll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we'll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)
 
 .. code:: python 
 
 	# Load an image and serialize it to a bitstream
-	imgArray = image.imread("img/foundryLogo.bmp")
-	imgBitstream = np.unpackbits(imgArray)
+	img = image.imread("img/foundryLogo.bmp")
+	bitstream = np.unpackbits(img)
 
 	# Allocate a shared Hilbert space and output object to pass to agents
-	mem = sharedHilbertSpace(2, len(imgBitstream) / 2)
-	out = sharedOutputDict()
+	mem = Agent.shared_hilbert_space(2, int(len(bitstream) / 2))
+	out = Agent.shared_output()
 
 	# Make agent instances
-	alice = Alice(mem, data = imgBitstream)
+	alice = Alice(mem, data = bitstream)
 	bob = Bob(mem, out = out)
 	charlie = Charlie(mem)
 
-Let's connect the agents with some simulated length parameter (for time simulation purposes and for application of errors). Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each. Once we've connected the agents, we just need to run all of the agent processes with `start()` and wait for them to finish with `join()`.
+For agents to communicate with each other, they must be connected via quantum or classical channels. The `Agent.qconnect` and `Agent.cconnect` methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.
 
 .. code:: python 
 
 	# Connect the agents over simulated fiber optic lines
-	connectAgents(alice, bob, length = 1.0)
-	connectAgents(alice, charlie, length = 0.5)
-	connectAgents(bob, charlie, length = 0.5)
-	
+	alice.qconnect(bob, FiberOpticQChannel, length = 1.0)
+	charlie.qconnect(alice, FiberOpticQChannel, length = 0.5)
+	charlie.qconnect(bob, FiberOpticQChannel, length = 0.5)
+
+Once we've connected the agents, we just need to run all of the agent processes with `start()` and wait for them to finish with `join()`.
+
+.. code:: python
+
 	# Run the agents
 	start = time.time()
 	agents = [alice, bob, charlie]

@@ -1,8 +1,10 @@
 import sys
 import numpy as np
 import multiprocessing
-from qubit import Qubit
-import errors
+from squanch.qubit import Qubit
+from squanch import errors
+
+__all__ = ["QChannel", "CChannel", "FiberOpticQChannel"]
 
 
 class QChannel:
@@ -10,22 +12,22 @@ class QChannel:
     Base class for a quantum channel
     '''
 
-    def __init__(self, fromAgent, toAgent, length = 0.0, errors = []):
+    def __init__(self, from_agent, to_agent, length = 0.0, errors = ()):
         '''
         Instantiate the quantum channel
 
-        :param Agent fromAgent: sending agent
-        :param Agent toAgent: receiving agent
+        :param Agent from_agent: sending agent
+        :param Agent to_agent: receiving agent
         :param float length: length of quantum channel in km; default: 0.0km
         :param QError[] errors: list of error models to apply to qubits in this channel; default: [] (no errors)
         '''
         # Register agent connections
-        self.fromAgent = fromAgent
-        self.toAgent = toAgent
+        self.from_agent = from_agent
+        self.to_agent = to_agent
 
         # Signal propagation properties
         self.length = length  # Physical length of the channel in km
-        self.signalSpeed = 2.998 * 10 ** 5  # Speed of light in km/s
+        self.signal_speed = 2.998 * 10 ** 5  # Speed of light in km/s
 
         # A queue representing the qubits in transit along the channel
         self.queue = multiprocessing.Queue()
@@ -40,11 +42,11 @@ class QChannel:
         :param Qubit qubit: the qubit to send
         '''
         # Calculate the time of arrival
-        timeOfArrival = self.fromAgent.time + self.fromAgent.pulseLength + (self.length / self.signalSpeed)
+        time_of_arrival = self.from_agent.time + self.from_agent.pulseLength + (self.length / self.signal_speed)
         if qubit is not None:
-            self.queue.put((qubit.serialize(), timeOfArrival))
+            self.queue.put((qubit.serialize(), time_of_arrival))
         else:
-            self.queue.put((None, timeOfArrival))
+            self.queue.put((None, time_of_arrival))
 
     def get(self):
         '''
@@ -52,10 +54,10 @@ class QChannel:
 
         :return: tuple: (the qubit with errors applied (possibly ``None``), receival time)
         '''
-        indices, receiveTime = self.queue.get()
+        indices, receive_time = self.queue.get()
         if indices is not None:
-            systemIndex, qubitIndex = indices
-            qubit = Qubit.fromStream(self.toAgent.stream, systemIndex, qubitIndex)
+            system_index, qubit_index = indices
+            qubit = Qubit.from_stream(self.to_agent.stream, system_index, qubit_index)
         else:
             qubit = None
 
@@ -64,7 +66,7 @@ class QChannel:
             qubit = error.apply(qubit)
 
         # Return modified qubit and return time
-        return qubit, receiveTime
+        return qubit, receive_time
 
 
 class CChannel:
@@ -72,21 +74,21 @@ class CChannel:
     Base class for a classical channel
     '''
 
-    def __init__(self, fromAgent, toAgent, length = 0.0):
+    def __init__(self, from_agent, to_agent, length = 0.0):
         '''
         Instantiate the quantum channel
 
-        :param Agent fromAgent: sending agent
-        :param Agent toAgent: receiving agent
+        :param Agent from_agent: sending agent
+        :param Agent to_agent: receiving agent
         :param float length: length of fiber optic line in km; default: 0.0km
         '''
         # Register agent connections
-        self.fromAgent = fromAgent
-        self.toAgent = toAgent
+        self.from_agent = from_agent
+        self.to_agent = to_agent
 
         # Signal propagation
         self.length = length  # Physical length of the channel in km
-        self.signalSpeed = 2.998 * 10 ** 5  # Speed of light in km/s
+        self.signal_speed = 2.998 * 10 ** 5  # Speed of light in km/s
 
         # The channel queue
         self.queue = multiprocessing.Queue()
@@ -98,9 +100,9 @@ class CChannel:
         :param any thing: the qubit to send
         '''
         # Calculate the time of arrival
-        pulseTime = sys.getsizeof(thing) * 8 * self.fromAgent.pulseLength
-        timeOfArrival = self.fromAgent.time + pulseTime + (self.length / self.signalSpeed)
-        self.queue.put((thing, timeOfArrival))
+        pulse_time = sys.getsizeof(thing) * 8 * self.from_agent.pulseLength
+        time_of_arrival = self.from_agent.time + pulse_time + (self.length / self.signal_speed)
+        self.queue.put((thing, time_of_arrival))
 
     def get(self):
         '''
@@ -108,8 +110,8 @@ class CChannel:
 
         :return: tuple: (the object, receival time)
         '''
-        thing, receiveTime = self.queue.get()
-        return thing, receiveTime
+        thing, receive_time = self.queue.get()
+        return thing, receive_time
 
 
 class FiberOpticQChannel(QChannel):
@@ -117,15 +119,15 @@ class FiberOpticQChannel(QChannel):
     Represents a fiber optic line with attenuation errors
     '''
 
-    def __init__(self, fromAgent, toAgent, length = 0.0):
+    def __init__(self, from_agent, to_agent, length = 0.0):
         '''
         Instantiate the simulated fiber optic quantum channel
 
-        :param Agent fromAgent: sending agent
-        :param Agent toAgent: receiving agent
+        :param Agent from_agent: sending agent
+        :param Agent to_agent: receiving agent
         :param float length: length of fiber optic channel in km; default: 0.0km
         '''
-        QChannel.__init__(self, fromAgent, toAgent, length = length)
+        QChannel.__init__(self, from_agent, to_agent, length = length)
 
         # Register attenuation errors
         self.errors = [

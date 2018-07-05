@@ -1,70 +1,11 @@
 import sys
 import numpy as np
 import multiprocessing
-from multiprocessing import sharedctypes
 import ctypes
-import channels, qstream
+from multiprocessing import sharedctypes
+from squanch import channels, qstream
 
-
-# Shared memory structures
-
-def sharedOutputDict():
-    '''
-    Generate a shared output dictionary to distribute among agents in separate processes
-
-    :return: an empty multiprocessed Manager.dict()
-    '''
-    return multiprocessing.Manager().dict()
-
-
-def sharedHilbertSpace(systemSize, numSystems):
-    '''
-    Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
-
-    :param int systemSize: number of entangled qubits in each quantum system; each system has dimension 2^systemSize
-    :param int numSystems: number of small quantum systems in the data stream
-    :return: a blank, sharable, numSystems x 2^systemSize x 2^systemSize array of np.complex64 values
-    '''
-    dim = 2 ** systemSize
-    mallocMem = sharedctypes.RawArray(ctypes.c_double, numSystems * dim * dim)
-    array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((numSystems, dim, dim))
-    qstream.QStream.reformatArray(array)
-    return array
-
-
-# Connect agents
-
-def connectAgents(alice, bob, length = 0.0):
-    '''
-    Connect Alice and Bob bidirectionally via a simulated fiber optic line
-
-    :param Agent alice: the first Agent
-    :param Agent bob: the second Agent
-    :param float length: the length of the simulated cable in km; default value: 0.0km
-    '''
-    # classicalAliceToBob = thing
-    # Instantiate quantum channels between Alice and Bob
-    # quantumAliceToBob = channels.QChannel(alice, bob, length)
-    # quantumBobToAlice = channels.QChannel(bob, alice, length)
-    quantumAliceToBob = channels.FiberOpticQChannel(alice, bob, length)
-    quantumBobToAlice = channels.FiberOpticQChannel(bob, alice, length)
-    alice.qChannelsOut[bob] = quantumAliceToBob
-    alice.qChannelsIn[bob] = quantumBobToAlice
-    bob.qChannelsOut[alice] = quantumBobToAlice
-    bob.qChannelsIn[alice] = quantumAliceToBob
-    # Instantiate classical channels between Alice and Bob
-    classicalAliceToBob = channels.CChannel(alice, bob, length)
-    classicalBobToAlice = channels.CChannel(bob, alice, length)
-    alice.cChannelsOut[bob] = classicalAliceToBob
-    alice.cChannelsIn[bob] = classicalBobToAlice
-    bob.cChannelsOut[alice] = classicalBobToAlice
-    bob.cChannelsIn[alice] = classicalAliceToBob
-    # Make a section of Alice's/Bob's quantum memory for Bob/Alice
-    alice.qmem[bob] = []
-    bob.qmem[alice] = []
-    # Make a section of Alice's/Bob's classical memory for Bob/Alice
-    alice.cmem[bob] = []
-    bob.cmem[alice] = []
+__all__ = ["Agent"]
 
 
 class Agent(multiprocessing.Process):
@@ -78,11 +19,11 @@ class Agent(multiprocessing.Process):
     * Quantum memory with some characteristic corruption timescale
     '''
 
-    def __init__(self, hilbertSpace, name = None, data = None, out = None):
+    def __init__(self, hilbert_space, name = None, data = None, out = None):
         '''
         Instantiate an Agent from a unique identifier and a shared memory pool
 
-        :param np.array hilbertSpace: the shared memory pool representing the Hilbert space of the qstream
+        :param np.array hilbert_space: the shared memory pool representing the Hilbert space of the qstream
         :param str name: the unique identifier for the Agent. Default: class name
         :param any data: data to pass to the Agent's process, stored in ``self.data``. Default: None
         :param dict out: shared output dictionary to pass to Agent processes to allow for "returns". Default: None
@@ -93,7 +34,7 @@ class Agent(multiprocessing.Process):
             self.name = name
         else:
             self.name = self.__class__.__name__
-        self.stream = qstream.QStream.fromArray(hilbertSpace)
+        self.stream = qstream.QStream.from_array(hilbert_space)
 
         # Agent's clock
         self.time = 0.0
@@ -109,20 +50,20 @@ class Agent(multiprocessing.Process):
         self.out = out
 
         # Communication channels are dicts; keys: agent objects, values: channel objects
-        self.cChannelsIn = {}
-        self.cChannelsOut = {}
-        self.qChannelsIn = {}
-        self.qChannelsOut = {}
+        self.cchannels_in = {}
+        self.cchannels_out = {}
+        self.qchannels_in = {}
+        self.qchannels_out = {}
 
         # Classical memory is a large 1D array
-        classicalMemorySize = 2 ** 16
+        # classicalMemorySize = 2 ** 16
         self.cmem = {}  # np.zeros(classicalMemorySize)
 
         # Quantum memory is an array of "blocks". Each element in a block holds a qubit
-        qBlockSize = 256
-        numQBlocks = 64
+        # qBlockSize = 256
+        # numQBlocks = 64
         self.qmem = {}  # ((None,) * qBlockSize,) * numQBlocks
-        self.qDecayTimescale = 100.0  # Coherence timescale for qubits in quantum memory
+        # self.qDecayTimescale = 100.0  # Coherence timescale for qubits in quantum memory
 
     def __hash__(self):
         '''
@@ -142,6 +83,49 @@ class Agent(multiprocessing.Process):
         '''
         return not (self == other)
 
+    @staticmethod
+    def shared_output():
+        '''
+        Generate a shared output dictionary to distribute among agents in separate processes
+
+        :return: an empty multiprocessed Manager.dict()
+        '''
+        return multiprocessing.Manager().dict()
+
+    @staticmethod
+    def shared_hilbert_space(system_size, num_systems):
+        '''
+        Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
+
+        :param int system_size: number of entangled qubits in each quantum system; each has dimension 2^system_size
+        :param int num_systems: number of small quantum systems in the data stream
+        :return: a blank, sharable, num_systems * 2^system_size * 2^system_size array of np.complex64 values
+        '''
+        dim = 2 ** system_size
+        mallocMem = sharedctypes.RawArray(ctypes.c_double, num_systems * dim * dim)
+        array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((num_systems, dim, dim))
+        qstream.QStream.reformat(array)
+        return array
+
+    def qconnect(self, other, channel = channels.QChannel, **kwargs):
+        '''
+        Connect Alice and Bob bidirectionally via a simulated quantum channel
+
+        :param Agent other: the other agent to connect to
+        :param QChannel channel: the quantum channel model to use
+        :param kwargs any: optional channel arguments
+        '''
+        # Instantiate quantum channels between Alice and Bob
+        qchannel_alice_to_bob = channel(self, other, **kwargs)
+        qchannel_bob_to_alice = channel(other, self, **kwargs)
+        self.qchannels_out[other] = qchannel_alice_to_bob
+        self.qchannels_in[other] = qchannel_bob_to_alice
+        other.qchannels_out[self] = qchannel_bob_to_alice
+        other.qchannels_in[self] = qchannel_alice_to_bob
+        # Make a section of Alice's/Bob's quantum memory for Bob/Alice
+        self.qmem[other] = []
+        other.qmem[self] = []
+
     def qsend(self, target, qubit):
         '''
         Send a qubit to another agent. The qubit is serialized and passed through a QChannel to the
@@ -151,19 +135,8 @@ class Agent(multiprocessing.Process):
         :param Agent target: the agent to send the qubit to
         :param Qubit qubit: the qubit to send
         '''
-        self.qChannelsOut[target].put(qubit)
+        self.qchannels_out[target].put(qubit)
         self.time += self.pulseLength
-
-    def csend(self, target, thing):
-        '''
-        Send a serializable object to another agent. The transmission time is updated by (number of bits) pulse lengths.
-
-        :param Agent target: the agent to send the transmission to
-        :param any thing: the object to send
-        '''
-
-        self.cChannelsOut[target].put(thing)
-        self.time += sys.getsizeof(thing) * 8 * self.pulseLength
 
     def qrecv(self, origin):
         '''
@@ -172,7 +145,7 @@ class Agent(multiprocessing.Process):
         :param Agent origin: The agent that previously sent the qubit
         :return: the retrieved qubit, which is also stored in ``self.qmem``
         '''
-        qubit, recvTime = self.qChannelsIn[origin].get()
+        qubit, recvTime = self.qchannels_in[origin].get()
         # Update agent clock
         self.time = max(self.time, recvTime)
         # Add qubit to quantum memory
@@ -187,6 +160,36 @@ class Agent(multiprocessing.Process):
         '''
         self.qmem[self].append(qubit)
 
+    def cconnect(self, other, channel = channels.CChannel, **kwargs):
+        '''
+        Connect Alice and Bob bidirectionally via a simulated classical channel
+
+        :param Agent other: the other agent to connect to
+        :param CChannel channel: the classical channel model to use
+        :param kwargs any: optional channel arguments
+        '''
+        # Instantiate classical channels between Alice and Bob
+        cchannel_alice_to_bob = channel(self, other, **kwargs)
+        cchannel_bob_to_alice = channel(other, self, **kwargs)
+        self.cchannels_out[other] = cchannel_alice_to_bob
+        self.cchannels_in[other] = cchannel_bob_to_alice
+        other.cchannels_out[self] = cchannel_bob_to_alice
+        other.cchannels_in[self] = cchannel_alice_to_bob
+        # Make a section of Alice's/Bob's classical memory for Bob/Alice
+        self.cmem[other] = []
+        other.cmem[self] = []
+
+    def csend(self, target, thing):
+        '''
+        Send a serializable object to another agent. The transmission time is updated by (number of bits) pulse lengths.
+
+        :param Agent target: the agent to send the transmission to
+        :param any thing: the object to send
+        '''
+
+        self.cchannels_out[target].put(thing)
+        self.time += sys.getsizeof(thing) * 8 * self.pulseLength
+
     def crecv(self, origin):
         '''
         Receive a serializable object from another connected agent. ``self.time`` is updated upon calling this method.
@@ -194,7 +197,7 @@ class Agent(multiprocessing.Process):
         :param Agent origin: The agent that previously sent the qubit
         :return: the retrieved object, which is also stored in ``self.cmem``
         '''
-        thing, recvTime = self.cChannelsIn[origin].get()
+        thing, recvTime = self.cchannels_in[origin].get()
         # Update agent clock
         self.time = max(self.time, recvTime)
         # Add qubit to quantum memory
@@ -214,15 +217,15 @@ class Agent(multiprocessing.Process):
         '''
         self.out[self.name] = thing
 
-    def updateProgress(self, value):
+    def update_progress(self, value):
         '''
-        Update the progress of this agent in the shared output dictionary. Used in Simulation.progressMonitor().
+        Update the progress of this agent in the shared output dictionary. Used in Simulation.progress_monitor().
 
         :param value: the value to update the progress to (out of a max of len(self.stream))
         '''
         self.out[self.name + ":progress"] = value
 
-    def incrementProgress(self):
+    def increment_progress(self):
         '''
         Adds 1 to the current progress
         '''

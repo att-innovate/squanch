@@ -1,5 +1,7 @@
 import numpy as np
-import linalg
+from squanch import linalg
+
+__all__ = ["H", "X", "Y", "Z", "RX", "RY", "RZ", "CNOT", "expand"]
 
 # Single qubit operators that can be applied with qubit.apply()
 
@@ -31,78 +33,78 @@ _Z = np.array([[1, 0],
 # Single qubit gates
 def H(qubit):
     '''
-    Applies the Hadamard transform to the specified qubit, updating the qSystem state.
+    Applies the Hadamard transform to the specified qubit, updating the qsystem state.
     cacheID: ``H``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
-    qubit.qSystem.apply(expandGate(_H, qubit.index, qubit.qSystem.numQubits, "H"))
+    qubit.qsystem.apply(expand(_H, qubit.index, qubit.qsystem.num_qubits, "H"))
 
 
 def X(qubit):
     '''
-    Applies the Pauli-X (NOT) operation to the specified qubit, updating the qSystem state.
+    Applies the Pauli-X (NOT) operation to the specified qubit, updating the qsystem state.
     cacheID: ``X``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
-    qubit.qSystem.apply(expandGate(_X, qubit.index, qubit.qSystem.numQubits, "X"))
+    qubit.qsystem.apply(expand(_X, qubit.index, qubit.qsystem.num_qubits, "X"))
 
 
 def Y(qubit):
     '''
-    Applies the Pauli-Y operation to the specified qubit, updating the qSystem state.
+    Applies the Pauli-Y operation to the specified qubit, updating the qsystem state.
     cacheID: ``Y``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
-    qubit.qSystem.apply(expandGate(_Y, qubit.index, qubit.qSystem.numQubits, "Y"))
+    qubit.qsystem.apply(expand(_Y, qubit.index, qubit.qsystem.num_qubits, "Y"))
 
 
 def Z(qubit):
     '''
-    Applies the Pauli-Z operation to the specified qubit, updating the qSystem state.
+    Applies the Pauli-Z operation to the specified qubit, updating the qsystem state.
     cacheID: ``Z``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
-    qubit.qSystem.apply(expandGate(_Z, qubit.index, qubit.qSystem.numQubits, "Z"))
+    qubit.qsystem.apply(expand(_Z, qubit.index, qubit.qsystem.num_qubits, "Z"))
 
 
 def RX(qubit, angle):
     '''
-    Applies the single qubit X-rotation operator to the specified qubit, updating the qSystem state.
+    Applies the single qubit X-rotation operator to the specified qubit, updating the qsystem state.
     cacheID: ``Rx*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
     :param float angle: the angle by which to rotate
     '''
     gate = np.cos(angle / 2.0) * _I - 1j * np.sin(angle / 2.0) * _X
-    qubit.qSystem.apply(expandGate(gate, qubit.index, qubit.qSystem.numQubits, "Rx" + str(angle / np.pi)))
+    qubit.qsystem.apply(expand(gate, qubit.index, qubit.qsystem.num_qubits, "Rx" + str(angle / np.pi)))
 
 
 def RY(qubit, angle):
     '''
-    Applies the single qubit Y-rotation operator to the specified qubit, updating the qSystem state.
+    Applies the single qubit Y-rotation operator to the specified qubit, updating the qsystem state.
     cacheID: ``Ry*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
     :param float angle: the angle by which to rotate
     '''
     gate = np.cos(angle / 2.0) * _I - 1j * np.sin(angle / 2.0) * _Y
-    qubit.qSystem.apply(expandGate(gate, qubit.index, qubit.qSystem.numQubits, "Ry" + str(angle / np.pi)))
+    qubit.qsystem.apply(expand(gate, qubit.index, qubit.qsystem.num_qubits, "Ry" + str(angle / np.pi)))
 
 
 def RZ(qubit, angle):
     '''
-    Applies the single qubit Z-rotation operator to the specified qubit, updating the qSystem state.
+    Applies the single qubit Z-rotation operator to the specified qubit, updating the qsystem state.
     cacheID: ``Rz*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
     :param float angle: the angle by which to rotate
     '''
     gate = np.cos(angle / 2.0) * _I - 1j * np.sin(angle / 2.0) * _Z
-    qubit.qSystem.apply(expandGate(gate, qubit.index, qubit.qSystem.numQubits, "Rz" + str(angle / np.pi)))
+    qubit.qsystem.apply(expand(gate, qubit.index, qubit.qsystem.num_qubits, "Rz" + str(angle / np.pi)))
 
 
 # Controlled-not gate
@@ -120,8 +122,8 @@ def CNOT(control, target):
     # Generate the gate if needed
     if key not in _expandedGateCache:
         # Represent CNOT(i,j) as |0i><0i| x I x ... x I + |1i><1i| x I x ... x Xtarg x I x ...
-        proj0 = linalg.tensorFillIdentity(_M0, control.qSystem.numQubits, control.index)
-        proj1gates = [_I for _ in range(control.qSystem.numQubits)]
+        proj0 = linalg.tensor_fill_identity(_M0, control.qsystem.num_qubits, control.index)
+        proj1gates = [_I for _ in range(control.qsystem.num_qubits)]
         proj1gates[control.index] = _M1
         proj1gates[target.index] = _X
         proj1 = linalg.tensors(proj1gates)
@@ -129,7 +131,7 @@ def CNOT(control, target):
         # Cache the gate
         _expandedGateCache[key] = CNOTij
     # Apply the gate
-    target.qSystem.apply(_expandedGateCache[key])
+    target.qsystem.apply(_expandedGateCache[key])
 
 
 _CNOT = np.array([
@@ -149,24 +151,22 @@ _SWAP = np.array([
 _expandedGateCache = {}
 
 
-def expandGate(operator, index, nQubits, cacheID = None):
+def expand(operator, index, num_qubits, cache_id = None):
     '''
     Apply a k-qubit quantum gate to act on n-qubits by filling the rest of the spaces with identity operators
 
     :param np.array operator: the single- or n-qubit operator to apply
     :param int index: if specified, the index of the qubit to perform the operation on
-    :param int nQubits: the number of qubits in the system
-    :param str cacheID: a character identifier to cache common gates in memory to avoid having to call tensorFillIdentity
+    :param int num_qubits: the number of qubits in the system
+    :param str cache_id: a character identifier to cache gates and their expansions in memory
     :return: the expanded n-qubit operator
     '''
 
-    if cacheID is not None:
-        key = "I" * index + cacheID + "I" * (nQubits - 1 - index)
+    if cache_id is not None:
+        key = "I" * index + cache_id + "I" * (num_qubits - 1 - index)
         if key not in _expandedGateCache:  # cache the expanded gate
-            expandedOperator = linalg.tensorFillIdentity(operator, nQubits, index)
+            expandedOperator = linalg.tensor_fill_identity(operator, num_qubits, index)
             _expandedGateCache[key] = expandedOperator
         return _expandedGateCache[key]
     else:
-        return linalg.tensorFillIdentity(operator, nQubits, index)
-
-# TODO: gates.module to represent a series of transformations as a single operator
+        return linalg.tensor_fill_identity(operator, num_qubits, index)
