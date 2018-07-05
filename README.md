@@ -1,4 +1,4 @@
-![](docs/img/squanchLogo.png)
+<img src="/docs/source/img/squanchLogo.png" width=400>
 
 
 ## Introduction 
@@ -40,7 +40,7 @@ scenario, we have three agents, Alice, Bob, and Charlie. Charlie will distribute
 send data to Bob by encoding two bits in the Pauli-X and -Z operations for each of her photons. Bob receives Alice's photons and 
 disentangles them to reconstruct her information, as shown in the following diagram.
 
-![](docs/img/superdenseABC.png)
+![](docs/source/img/superdenseABC.png)
 
 Simulating complex scenarios with multiple agents like this one is what SQUANCH is designed to do. The quantum states of large
 numbers of particles can be efficiently dealt with using `QStream` objects, and the behavior of each agent can be defined by 
@@ -116,4 +116,4 @@ received_img = np.reshape(np.packbits(out["Bob"]), img.shape)
 plt.imshow(received_img)
 ``` 
 
-![Alice transmitting an image to Bob over 1km simulated fiber optic cable.](docs/img/transmissionDemo.png)
+![Alice transmitting an image to Bob over 1km simulated fiber optic cable.](docs/source/img/transmissionDemo.png)
