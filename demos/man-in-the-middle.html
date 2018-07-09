@@ -1,0 +1,357 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Man-In-The-Middle Attack &mdash; SQUANCH 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SQUANCH API reference" href="../api.html" />
+    <link rel="prev" title="Superdense Coding" href="superdense-coding.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../demos.html">Demonstrations</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="quantum-teleportation.html">Quantum Teleportation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superdense-coding.html">Superdense Coding</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Man-In-The-Middle Attack</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#protocol">Protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-code">Source code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">SQUANCH API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../demos.html">Demonstrations</a> &raquo;</li>
+        
+      <li>Man-In-The-Middle Attack</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/demos/man-in-the-middle.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="man-in-the-middle-attack">
+<span id="maninthemiddledemo"></span><h1>Man-In-The-Middle Attack<a class="headerlink" href="#man-in-the-middle-attack" title="Permalink to this headline">¶</a></h1>
+<p>This demonstration is a modified version of the <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a> demonstration where we show how quantum networks can be resistant to interception attacks.</p>
+<div class="section" id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
+<p>As in the superdense coding demo, Charlie will distribute Bell pairs to Alice and Bob, and Alice will attempt to send a classical message to Bob. However, a fourth party, Eve, will try to naiively intercept the message Alice sends to Bob. Eve will measure each qubit from Alice, record the result, and send the qubit to Bob. This scenario is illustrated below.</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Charlie generates EPR pairs in the state <span class="math notranslate">\(\frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )\)</span>. He sends one particle to Alice and the other to Bob.</li>
+<li>Alice encodes her two bits of classical inforation in the relative sign and phase of her qubit by acting with the Pauli-X and -Z gates. Formally, if she has two bits, <span class="math notranslate">\(b_1 and b_2\)</span>, she applies X if <span class="math notranslate">\(b_2 = 1\)</span> and then applies Z if <span class="math notranslate">\(b_1 = 1\)</span>. She then sends the modified qubit to Bob, but it is intercepted by Eve first.</li>
+<li>Eve wants to know Alice’s message, so she naiively measures each qubit she intercepts from Alice and records the result. She then sends the qubits to Bob, hoping he won’t notice.</li>
+<li>Bob receives the qubit from Eve (who he thinks is Alice). He disentangles the X and Z components of the qubit by applying CNOT and H to Alice’s qubit and Charlie’s qubit. He then measures each of Alice’s and Charlie’s qubits to obtain <span class="math notranslate">\(b_1\)</span> and <span class="math notranslate">\(b_2\)</span>, respectively.</li>
+</ol>
+</div></blockquote>
+<img alt="../_images/man-in-the-middle-small.png" src="../_images/man-in-the-middle-small.png" />
+</div>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<p>First, let’s import the modules we’ll need.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.image</span> <span class="k">as</span> <span class="nn">image</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>As before, we’ll define the behavior of Alice, Bob, and Charlie. The only difference in their logic will be that Alice sends her qubit to Eve instead of Bob, and Bob receives his qubits from Eve instead of Alice.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Alice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Alice sends information to Bob via superdense coding&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="n">bit1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">bit2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">bit2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">X</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                                <span class="k">if</span> <span class="n">bit1</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Z</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">eve</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span> <span class="c1"># Alice unknowingly sends the qubit to Eve</span>
+
+<span class="k">class</span> <span class="nc">Bob</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Bob receives Alice&#39;s transmissions and reconstructs her information&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">eve</span><span class="p">)</span> <span class="c1"># Bob receives his qubit from Eve</span>
+                        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">CNOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+                                <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+                                <span class="n">bits</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">measure</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">measure</span><span class="p">()])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                                <span class="n">bits</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Charlie</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Charlie distributes Bell pairs between Alice and Bob.&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span>
+                        <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+                        <span class="n">CNOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we’ll add behavior for Eve to record and re-transmit Alice’s qubits:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Eve</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Eve naively tries to intercept Alice&#39;s message&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                                <span class="n">bits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+                        <span class="k">else</span><span class="p">:</span>
+                                <span class="n">bits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">increment_progress</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we’ll load an image and convert it to black and white and flatten it into a bitstream using some helper functions (see the corresponding Jupyter notebook in <cite>demos</cite> for details). We’ll allocate memory for an appropriately large <cite>QStream</cite> and make a shared output dictionary to allow the agents to return data.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load an image and serialize it to a bitstream</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">image_to_black_and_white</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/squanchLogo.jpg&quot;</span><span class="p">)</span>
+<span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
+
+<span class="c1"># Allocate a shared Hilbert space and output object to pass to agents</span>
+<span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+
+<span class="c1"># Make agent instances</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">eve</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Like in the superdense coding demonstration, we’ll connect the agents with fiber optic lines to simulate attenuation errors.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect the agents over simulated fiber optic lines</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">eve</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">charlie</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">bob</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">charlie</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">bob</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">eve</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, we just need to make a simulation, run it, and plot what each agent receives.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Simulation</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">eve</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">charlie</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">plot_alice_bob_eve_images</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Eve&quot;</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<img alt="../_images/man-in-the-middle-results.png" src="../_images/man-in-the-middle-results.png" />
+</div>
+<div class="section" id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<p>The full source code for this demonstration is available in the demos directory of the SQUANCH repository.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../api.html" class="btn btn-neutral float-right" title="SQUANCH API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="superdense-coding.html" class="btn btn-neutral" title="Superdense Coding" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AT&amp;T.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

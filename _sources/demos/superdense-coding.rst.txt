@@ -3,7 +3,7 @@
 Superdense Coding
 =================
 
-Superdense coding is a process whereby two parties sharing an entangled pair can send two classical bits with a single qubit. Conecptually, it is the inverse of :ref:`quantum teleportation <teleportationDemo>`.
+Superdense coding is a process whereby two parties sharing an entangled pair can send two classical bits using only a single qubit. Conecptually, it is the inverse of :ref:`quantum teleportation <teleportationDemo>`.
 
 Protocol
 --------
@@ -56,10 +56,11 @@ For Alice, we'll want to include the transmission behavior. We'll pass in the da
 	class Alice(Agent):
 		'''Alice sends information to Bob via superdense coding'''
 		def run(self):
-			for i in range(len(self.stream)):
-				bit1, bit2 = self.data[2 * i], self.data[2 * i + 1]
+			for _ in self.stream:
+				bit1 = self.data.pop(0)
+				bit2 = self.data.pop(0)
 				q = self.qrecv(charlie)
-				if q is not None:
+				if q is not None: # qubit could be lost due to attenuation errors
 					if bit2 == 1: X(q)
 					if bit1 == 1: Z(q)
 				self.qsend(bob, q)
@@ -71,42 +72,43 @@ Finally, for Bob, we'll want to include the disentangling and measurement behavi
 	class Bob(Agent):
 		'''Bob receives Alice's transmissions and reconstructs her information'''
 		def run(self):
-			self.data = np.zeros(2 * len(self.stream), dtype = np.uint8)
-			for i in range(len(self.stream)):
+			bits = []
+			for _ in self.stream:
 				a = self.qrecv(alice)
 				c = self.qrecv(charlie)
 				if a is not None and c is not None:
 					CNOT(a, c)
 					H(a)
-					self.data[2 * i] = a.measure()
-					self.data[2 * i + 1] = c.measure()
-			self.output(self.data)
+					bits.extend([a.measure(), c.measure()])
+				else:
+					bits.extend([0,0])
+			self.output(bits)
 
 Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we'll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we'll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)
 
 .. code:: python 
 
 	# Load an image and serialize it to a bitstream
-	img = image.imread("img/foundryLogo.bmp")
-	bitstream = np.unpackbits(img)
+	img = image.imread("../docs/source/img/foundryLogo.bmp")
+	bitstream = list(np.unpackbits(img))
 
 	# Allocate a shared Hilbert space and output object to pass to agents
 	mem = Agent.shared_hilbert_space(2, int(len(bitstream) / 2))
 	out = Agent.shared_output()
 
 	# Make agent instances
-	alice = Alice(mem, data = bitstream)
-	bob = Bob(mem, out = out)
-	charlie = Charlie(mem)
+	alice = Alice(mem, out, data = bitstream)
+	bob = Bob(mem, out)
+	charlie = Charlie(mem, out)
 
 For agents to communicate with each other, they must be connected via quantum or classical channels. The `Agent.qconnect` and `Agent.cconnect` methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.
 
 .. code:: python 
 
-	# Connect the agents over simulated fiber optic lines
-	alice.qconnect(bob, FiberOpticQChannel, length = 1.0)
-	charlie.qconnect(alice, FiberOpticQChannel, length = 0.5)
-	charlie.qconnect(bob, FiberOpticQChannel, length = 0.5)
+	# Connect the agents with simulated fiber optic lines; see squanch.channels module
+	alice.qconnect(bob, FiberOpticQChannel, length=1.0)
+	charlie.qconnect(alice, FiberOpticQChannel, length=0.5)
+	charlie.qconnect(bob, FiberOpticQChannel, length=0.5)
 
 Once we've connected the agents, we just need to run all of the agent processes with `start()` and wait for them to finish with `join()`.
 
@@ -114,21 +116,19 @@ Once we've connected the agents, we just need to run all of the agent processes 
 
 	# Run the agents
 	start = time.time()
-	agents = [alice, bob, charlie]
-	[agent.start() for agent in agents]
-	[agent.join() for agent in agents] 
-	print "Transmitted {} bits in {:.3f}s.".format(len(out["Bob"]), time.time() - start)
+	Simulation(alice, bob, charlie).run()
+	print("Transmitted {} bits in {:.3f}s.".format(len(out["Bob"]), time.time() - start))
 
 Finally, let's retrieve Bob's data and repackage it into an image array, then compare the results.
 
 .. code:: python
 
-	receivedArray = np.reshape(np.packbits(out["Bob"]), imgArray.shape)
+	received = np.reshape(np.packbits(out["Bob"]), img.shape)
 	f, ax = plt.subplots(1, 2, figsize = (8, 4))
-	ax[0].imshow(imgArray)
+	ax[0].imshow(received)
 	ax[0].axis('off')
 	ax[0].title.set_text("Alice's image")
-	ax[1].imshow(receivedArray)
+	ax[1].imshow(received)
 	ax[1].axis('off')
 	ax[1].title.set_text("Bob's image")
 	plt.tight_layout()

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Superdense Coding &mdash; SQUANCH 0.0.0 documentation</title>
+  <title>Superdense Coding &mdash; SQUANCH 1.0.0 documentation</title>
   
 
   
@@ -29,7 +29,7 @@
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="SQUANCH API reference" href="../api.html" />
+    <link rel="next" title="Man-In-The-Middle Attack" href="man-in-the-middle.html" />
     <link rel="prev" title="Quantum Teleportation" href="quantum-teleportation.html" /> 
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.0
+                1.0.0
               </div>
             
           
@@ -95,6 +95,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#source-code">Source code</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="man-in-the-middle.html">Man-In-The-Middle Attack</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">SQUANCH API reference</a></li>
@@ -166,7 +167,7 @@
             
   <div class="section" id="superdense-coding">
 <span id="superdensecodingdemo"></span><h1>Superdense Coding<a class="headerlink" href="#superdense-coding" title="Permalink to this headline">¶</a></h1>
-<p>Superdense coding is a process whereby two parties sharing an entangled pair can send two classical bits with a single qubit. Conecptually, it is the inverse of <a class="reference internal" href="quantum-teleportation.html#teleportationdemo"><span class="std std-ref">quantum teleportation</span></a>.</p>
+<p>Superdense coding is a process whereby two parties sharing an entangled pair can send two classical bits using only a single qubit. Conecptually, it is the inverse of <a class="reference internal" href="quantum-teleportation.html#teleportationdemo"><span class="std std-ref">quantum teleportation</span></a>.</p>
 <div class="section" id="protocol">
 <h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
 <img alt="https://upload.wikimedia.org/wikipedia/commons/b/b7/Superdense_coding.png" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Superdense_coding.png" />
@@ -207,10 +208,11 @@
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Alice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Alice sends information to Bob via superdense coding&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">)):</span>
-                        <span class="n">bit1</span><span class="p">,</span> <span class="n">bit2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="n">bit1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="n">bit2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">q</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> <span class="c1"># qubit could be lost due to attenuation errors</span>
                                 <span class="k">if</span> <span class="n">bit2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">X</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
                                 <span class="k">if</span> <span class="n">bit1</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Z</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
@@ -220,56 +222,55 @@
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bob</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Bob receives Alice&#39;s transmissions and reconstructs her information&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">)):</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
                         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
                         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                                 <span class="n">CNOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
                                 <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">2</span> <span class="o">*</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+                                <span class="n">bits</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">measure</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">measure</span><span class="p">()])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                                <span class="n">bits</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we’ll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we’ll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load an image and serialize it to a bitstream</span>
-<span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;img/foundryLogo.bmp&quot;</span><span class="p">)</span>
-<span class="n">bitstream</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/foundryLogo.bmp&quot;</span><span class="p">)</span>
+<span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
 
 <span class="c1"># Allocate a shared Hilbert space and output object to pass to agents</span>
 <span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
 <span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
 
 <span class="c1"># Make agent instances</span>
-<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
-<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
-<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For agents to communicate with each other, they must be connected via quantum or classical channels. The <cite>Agent.qconnect</cite> and <cite>Agent.cconnect</cite> methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let’s say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect the agents over simulated fiber optic lines</span>
-<span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">)</span>
-<span class="n">charlie</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
-<span class="n">charlie</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">)</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect the agents with simulated fiber optic lines; see squanch.channels module</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">charlie</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">charlie</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Once we’ve connected the agents, we just need to run all of the agent processes with <cite>start()</cite> and wait for them to finish with <cite>join()</cite>.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the agents</span>
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">agents</span> <span class="o">=</span> <span class="p">[</span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">charlie</span><span class="p">]</span>
-<span class="p">[</span><span class="n">agent</span><span class="o">.</span><span class="n">start</span><span class="p">()</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">]</span>
-<span class="p">[</span><span class="n">agent</span><span class="o">.</span><span class="n">join</span><span class="p">()</span> <span class="k">for</span> <span class="n">agent</span> <span class="ow">in</span> <span class="n">agents</span><span class="p">]</span>
-<span class="nb">print</span> <span class="s2">&quot;Transmitted </span><span class="si">{}</span><span class="s2"> bits in </span><span class="si">{:.3f}</span><span class="s2">s.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]),</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+<span class="n">Simulation</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">charlie</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transmitted </span><span class="si">{}</span><span class="s2"> bits in </span><span class="si">{:.3f}</span><span class="s2">s.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]),</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Finally, let’s retrieve Bob’s data and repackage it into an image array, then compare the results.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">receivedArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">packbits</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]),</span> <span class="n">imgArray</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">received</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">packbits</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]),</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">imgArray</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">received</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;Alice&#39;s image&quot;</span><span class="p">)</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">receivedArray</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">received</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;Bob&#39;s image&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
@@ -292,7 +293,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../api.html" class="btn btn-neutral float-right" title="SQUANCH API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="man-in-the-middle.html" class="btn btn-neutral float-right" title="Man-In-The-Middle Attack" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="quantum-teleportation.html" class="btn btn-neutral" title="Quantum Teleportation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -326,7 +327,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'0.0.0',
+            VERSION:'1.0.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

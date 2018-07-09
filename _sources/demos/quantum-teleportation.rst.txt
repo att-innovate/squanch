@@ -3,7 +3,7 @@
 Quantum Teleportation
 =====================
 
-Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, which will need to transfer fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
+Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
 
 The source code for this demo is included in the `demos` directory of the SQUANCH repository.
 
@@ -43,26 +43,30 @@ Now, we'll want to define the behavior of Alice and Bob. We'll extend the :ref:`
 	class Alice(Agent):
 		'''Alice sends qubits to Bob using a shared Bell pair'''
 
-		def teleport(self, qsystem):
-			# Generate a Bell pair and send half of it to Bob
-			q, a, b = qsystem.qubits
+		def distribute_bell_pair(self, a, b):
+			# Create a Bell pair and send one particle to Bob
 			H(a)
 			CNOT(a, b)
 			self.qsend(bob, b)
+
+		def teleport(self, q, a):
 			# Perform the teleportation
 			CNOT(q, a)
 			H(q)
-			bobZ = q.measure() # If Bob should apply Z
-			bobX = a.measure() # If Bob should apply X
-			self.csend(bob, [bobX, bobZ])
+			# Tell Bob whether to apply Pauli-X and -Z over classical channel
+			bob_should_apply_x = a.measure() # if Bob should apply X
+			bob_should_apply_z = q.measure() # if Bob should apply Z
+			self.csend(bob, [bob_should_apply_x, bob_should_apply_z])
 
 		def run(self):
-			for qsys in self.stream:
-				self.teleport(qsys)
+			for qsystem in self.stream:
+				q, a, b = qsystem.qubits # q is state to teleport, a and b are Bell pair
+				self.distribute_bell_pair(a, b)
+				self.teleport(q, a)
 
-Note that you can add arbitrary methods, such as `teleport()`, to agent child classes; just be careful not to overwrite any existing methods other than `run()`, which should always be overwritten. 
+Note that you can add arbitrary methods, such as `distribute_bellPair()` and `teleport()`, to agent child classes; just be careful not to overwrite any existing class methods other than `run()`.
 
-For Bob, we'll want to include the logic to receive the pair half from Alice and act on it according to Alice's measurement results.
+For Bob, we'll want to include the logic to receive the particle from Alice and act on it according to Alice's measurement results.
 
 .. code:: python
 
@@ -72,42 +76,44 @@ For Bob, we'll want to include the logic to receive the pair half from Alice and
 		def run(self):
 			measurement_results = []
 			for _ in self.stream:
+				# Bob receives a qubit from Alice
 				b = self.qrecv(alice)
-				doX, doZ = self.crecv(alice)
-				if doX and b is not None: X(b)
-				if doZ and b is not None: Z(b)
+				# Bob receives classical instructions from alice
+				should_apply_x, should_apply_z = self.crecv(alice)
+				if should_apply_x: X(b)
+				if should_apply_z: Z(b)
+				# Measure the output state
 				measurement_results.append(b.measure())
+			# Put results in output object
 			self.output(measurement_results)
 
-This logic will allow Alice and Bob to act on a common quantum stream to teleport states to each other. Now we want to actually instantiate a quantum stream and manipulate the initial state of the first qubit (the one to be teleported) in each system of the stream so that we're not just teleporting the :math:`\lvert 0 \rangle` state over and over.
+Now we want to prepare a set of states for Alice to teleport to Bob. Since each trial requires a set of three qubits, we'll allocate space for a :math:`3 \times 10` `QStream`. We'll also create a shared output dictionary to allow agents to communicate between processes. Explicitly allocating and passing memory to agents is necessary because each agent spawns and runs in a separate process, which (generally) have separate memory pools. (See :ref:`Agent <agent>` API for more details.)
 
 .. code:: python
 
 	# Allocate memory and output structures
-	mem = Agent.shared_hilbert_space(3, 10)
+	mem = Agent.shared_hilbert_space(3, 10) # 3 qubits per trial, 10 trials
 	out = Agent.shared_output()
 
 	# Prepare the initial states
 	stream = QStream.from_array(mem)
-	statesList = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
-	for state, qsys in zip(statesList, stream):
-		q = qsys.qubit(0)
-		if state == 1: X(q)  # Flip the qubits corresponding to 1's
+	states_to_teleport = [1, 0, 1, 0, 1, 0, 1, 0, 1, 0]
+	for state, qsystem in zip(states_to_teleport, stream):
+		q = qsystem.qubit(0)
+		if state == 1: X(q) # flip the qubits corresponding to 1 states
 
 For agents to communicate with each other, they must be connected via quantum or classical channels. The `Agent.qconnect` and `Agent.cconnect` methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take a channel model and kwargs as optional arguments. In this example, we won't worry about a channel model and will just use the default QChannel and CChannel options. Let's create instances for Alice and Bob and connect them appropriately
 
 .. code:: python
 
-	# Make the agents
+	# Make and connect the agents
 	alice = Alice(mem)
-	bob = Bob(mem, out = out)
-
-	# Connect the agents
-	alice.cconnect(bob)
-	alice.qconnect(bob)
+	bob = Bob(mem, out)
+	alice.qconnect(bob) # add a quantum channel
+	alice.cconnect(bob) # add a classical channel
 
 
-Finally, let's create Alice and Bob instances, plug in the Hilbert space and output structures, and run the program. Explicitly allocating and passing memory to agents is necessary because each agent spawns and runs in a separate process, which (generally) have separate memory pools. You'll also need to call `agent.start()` for each agent to signal the process to start running, and `agent.join()` to wait for all agents to finish before proceeding in the program.
+Finally, we call `agent.start()` for each agent to signal the process to start running, and `agent.join()` to wait for all agents to finish before proceeding in the program.
 
 .. code:: python
 
@@ -115,8 +121,8 @@ Finally, let's create Alice and Bob instances, plug in the Hilbert space and out
 	alice.start(); bob.start()
 	alice.join(); bob.join()
 
-	print "Teleported states {} \n" \
-		  "Received states   {}".format(statesList, out["Bob"])
+	print("Teleported states {}".format(states_to_teleport))
+	print("Received states   {}".format(out["Bob"]))
 
 Running what we have so far produces the following output:
 
@@ -131,37 +137,35 @@ We'll now try teleporting an ensemble of identical states :math:`R_{X}(\theta) \
 
 .. code:: python
 
-	angles = np.linspace(0, 2 * np.pi, 30)  # RX angles to apply
-	numTrials = 250  # number of trials for each angle
+	angles = np.linspace(0, 2 * np.pi, 50)  # RX angles to apply
+	num_trials = 250  # number of trials for each angle
 
 	# Allocate memory and output structures
-	mem = Agent.shared_hilbert_space(3, len(angles) * numTrials)
+	mem = Agent.shared_hilbert_space(3, len(angles) * num_trials)
 	out = Agent.shared_output()
 
 	# Prepare the initial states in the stream
 	stream = QStream.from_array(mem)
 	for angle in angles:
-		for _ in range(numTrials):
-			q = stream.head().qubit(0)
+		for _ in range(num_trials):
+			q, _, _ = stream.next().qubits
 			RX(q, angle)
-	stream.index = 0  # reset the head counter
 
-	# Make the agents
-	alice = Alice(mem)
+	# Make the agents and connect with quantum and classical channels
+	alice = Alice(mem, out = out)
 	bob = Bob(mem, out = out)
+	alice.qconnect(bob)
+	alice.cconnect(bob)
 
-	# Connect the agents
-	alice.connect(bob)
+	# Run the simulation
+	Simulation(alice, bob).run()
 
-	# Run everything
-	alice.start(); bob.start()
-	alice.join(); bob.join()
-
-	results = np.array(out["Bob"]).reshape((len(angles), numTrials))
-	mean_results = np.mean(results, axis = 1)
-	expected_results = np.sin(angles / 2) ** 2
-	plt.plot(angles, mean_results, label = 'Observed')
-	plt.plot(angles, expected_results, label = 'Expected')
+	# Plot the results
+	results = np.array(out["Bob"]).reshape((len(angles), num_trials))
+	observed = np.mean(results, axis = 1)
+	expected = np.sin(angles / 2) ** 2
+	plt.plot(angles, observed, label = 'Observed')
+	plt.plot(angles, expected, label = 'Expected')
 	plt.legend()
 	plt.xlabel("$\Theta$ in $R_X(\Theta)$ applied to qubits")
 	plt.ylabel("Fractional $\left | 1 \\right >$ population")
