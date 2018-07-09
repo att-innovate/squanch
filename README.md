@@ -1,6 +1,6 @@
 # Simulator for quantum networks and channels
 
-<img align="right" src="/docs/source/img/superdenseAEB.png" width=350>
+<img align="right" src="/docs/source/img/superdenseAEB.png" width=400>
 
 SQUANCH (Simulator for QUAntum Networks and CHannels) is an open-source Python framework for creating performant and 
 parallelized simulations of distributed quantum information processing. Although it can be used as a general-purpose 
@@ -30,9 +30,9 @@ If you don't have pip, you can get it using `easy_install pip`.
 
 ## Demonstrations
 
-Demonstrations of SQUANCH's capabilities can be found in the [demos](/demos) folder and in the [documentation](https://att-innovate.github.io/squanch/demos.html).
+Demonstrations of the framework's capabilities can be found in the [demos](/demos) folder and in the [documentation](https://att-innovate.github.io/squanch/demos.html).
 
-As a simple demonstration to put in this readme, let's consider a simulation of
+As a simple example to put in this readme, let's consider a simulation of
 a transmission of classical data via [quantum superdense coding](https://en.wikipedia.org/wiki/Superdense_coding). In this
 scenario, we have three agents, Alice, Bob, and Charlie. Charlie will distribute Bell pairs between Alice and Bob, then Alice will 
 send data to Bob by encoding two bits in the Pauli-X and -Z operations for each of her photons. Bob receives Alice's photons and 
