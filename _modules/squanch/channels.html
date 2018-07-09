@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>squanch.channels &mdash; SQUANCH 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demonstrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">SQUANCH API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>squanch.channels</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for squanch.channels</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+<span class="kn">from</span> <span class="nn">squanch.qubit</span> <span class="k">import</span> <span class="n">Qubit</span>
+<span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="n">errors</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;QChannel&quot;</span><span class="p">,</span> <span class="s2">&quot;CChannel&quot;</span><span class="p">,</span> <span class="s2">&quot;FiberOpticQChannel&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="QChannel"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.QChannel">[docs]</a><span class="k">class</span> <span class="nc">QChannel</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for a quantum channel</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="QChannel.__init__"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.QChannel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_agent</span><span class="p">,</span> <span class="n">to_agent</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">errors</span> <span class="o">=</span> <span class="p">()):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate the quantum channel</span>
+
+<span class="sd">        :param Agent from_agent: sending agent</span>
+<span class="sd">        :param Agent to_agent: receiving agent</span>
+<span class="sd">        :param float length: length of quantum channel in km; default: 0.0km</span>
+<span class="sd">        :param QError[] errors: list of error models to apply to qubits in this channel; default: [] (no errors)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Register agent connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_agent</span> <span class="o">=</span> <span class="n">from_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_agent</span> <span class="o">=</span> <span class="n">to_agent</span>
+
+        <span class="c1"># Signal propagation properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>  <span class="c1"># Physical length of the channel in km</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_speed</span> <span class="o">=</span> <span class="mf">2.998</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">5</span>  <span class="c1"># Speed of light in km/s</span>
+
+        <span class="c1"># A queue representing the qubits in transit along the channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+
+        <span class="c1"># Register error models</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="n">errors</span></div>
+
+<div class="viewcode-block" id="QChannel.put"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.QChannel.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Serialize and push qubit into the channel queue</span>
+
+<span class="sd">        :param Qubit qubit: the qubit to send</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Calculate the time of arrival</span>
+        <span class="n">time_of_arrival</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_agent</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_agent</span><span class="o">.</span><span class="n">pulse_length</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_speed</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">qubit</span><span class="o">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">time_of_arrival</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="n">time_of_arrival</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="QChannel.get"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.QChannel.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Retrieve a qubit by reference from the channel queue, applying errors upon retrieval</span>
+
+<span class="sd">        :return: tuple: (the qubit with errors applied (possibly ``None``), receival time)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">indices</span><span class="p">,</span> <span class="n">receive_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">indices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">system_index</span><span class="p">,</span> <span class="n">qubit_index</span> <span class="o">=</span> <span class="n">indices</span>
+            <span class="n">qubit</span> <span class="o">=</span> <span class="n">Qubit</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">to_agent</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="n">system_index</span><span class="p">,</span> <span class="n">qubit_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">qubit</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Apply errors</span>
+        <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">errors</span><span class="p">:</span>
+            <span class="n">qubit</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+
+        <span class="c1"># Return modified qubit and return time</span>
+        <span class="k">return</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">receive_time</span></div></div>
+
+
+<div class="viewcode-block" id="CChannel"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.CChannel">[docs]</a><span class="k">class</span> <span class="nc">CChannel</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Base class for a classical channel</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="CChannel.__init__"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.CChannel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_agent</span><span class="p">,</span> <span class="n">to_agent</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate the quantum channel</span>
+
+<span class="sd">        :param Agent from_agent: sending agent</span>
+<span class="sd">        :param Agent to_agent: receiving agent</span>
+<span class="sd">        :param float length: length of fiber optic line in km; default: 0.0km</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Register agent connections</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">from_agent</span> <span class="o">=</span> <span class="n">from_agent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">to_agent</span> <span class="o">=</span> <span class="n">to_agent</span>
+
+        <span class="c1"># Signal propagation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">=</span> <span class="n">length</span>  <span class="c1"># Physical length of the channel in km</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signal_speed</span> <span class="o">=</span> <span class="mf">2.998</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="mi">5</span>  <span class="c1"># Speed of light in km/s</span>
+
+        <span class="c1"># The channel queue</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CChannel.put"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.CChannel.put">[docs]</a>    <span class="k">def</span> <span class="nf">put</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thing</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Serialize and push a serializable object into the channel queue</span>
+
+<span class="sd">        :param any thing: the qubit to send</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># Calculate the time of arrival</span>
+        <span class="n">pulse_time</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">getsizeof</span><span class="p">(</span><span class="n">thing</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_agent</span><span class="o">.</span><span class="n">pulseLength</span>
+        <span class="n">time_of_arrival</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_agent</span><span class="o">.</span><span class="n">time</span> <span class="o">+</span> <span class="n">pulse_time</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">signal_speed</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">thing</span><span class="p">,</span> <span class="n">time_of_arrival</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="CChannel.get"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.CChannel.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Retrieve a classical object form the queue</span>
+
+<span class="sd">        :return: tuple: (the object, receival time)</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">thing</span><span class="p">,</span> <span class="n">receive_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">thing</span><span class="p">,</span> <span class="n">receive_time</span></div></div>
+
+
+<div class="viewcode-block" id="FiberOpticQChannel"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.FiberOpticQChannel">[docs]</a><span class="k">class</span> <span class="nc">FiberOpticQChannel</span><span class="p">(</span><span class="n">QChannel</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Represents a fiber optic line with attenuation errors</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="FiberOpticQChannel.__init__"><a class="viewcode-back" href="../../api/channels.html#squanch.channels.FiberOpticQChannel.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_agent</span><span class="p">,</span> <span class="n">to_agent</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate the simulated fiber optic quantum channel</span>
+
+<span class="sd">        :param Agent from_agent: sending agent</span>
+<span class="sd">        :param Agent to_agent: receiving agent</span>
+<span class="sd">        :param float length: length of fiber optic channel in km; default: 0.0km</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QChannel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_agent</span><span class="p">,</span> <span class="n">to_agent</span><span class="p">,</span> <span class="n">length</span> <span class="o">=</span> <span class="n">length</span><span class="p">)</span>
+
+        <span class="c1"># Register attenuation errors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">AttenuationError</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
+            <span class="c1"># errors.RandomUnitaryError(self, 2*np.pi / 100),</span>
+            <span class="c1"># errors.SystematicUnitaryError(self, 2*np.pi / 10),</span>
+        <span class="p">]</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AT&amp;T.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

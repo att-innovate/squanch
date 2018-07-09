@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>squanch.errors &mdash; SQUANCH 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demonstrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">SQUANCH API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>squanch.errors</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for squanch.errors</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="n">gates</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;QError&quot;</span><span class="p">,</span> <span class="s2">&quot;AttenuationError&quot;</span><span class="p">,</span> <span class="s2">&quot;RandomUnitaryError&quot;</span><span class="p">,</span> <span class="s2">&quot;SystematicUnitaryError&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="QError"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.QError">[docs]</a><span class="k">class</span> <span class="nc">QError</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;A generalized quantum error model&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="QError.__init__"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.QError.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Base initialization class; extend in child methods by overwriting along with QError.__init__(self, qchannel)</span>
+
+<span class="sd">        :param qchannel: the quantum channel this error model is being used on</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qchannel</span> <span class="o">=</span> <span class="n">qchannel</span></div>
+
+<div class="viewcode-block" id="QError.apply"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.QError.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Generic apply method; overwrite in child methods while maintaining the Qubit-&gt;(Qubit | None) signature</span>
+
+<span class="sd">        :param Qubit qubit: the qubit being withdrawn from the quantum channel with channel.get(); possibly None</span>
+<span class="sd">        :return: the modified qubit</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Implement error logic here</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="n">qubit</span></div></div>
+
+
+<div class="viewcode-block" id="AttenuationError"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.AttenuationError">[docs]</a><span class="k">class</span> <span class="nc">AttenuationError</span><span class="p">(</span><span class="n">QError</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Simulate the possible loss of a qubit in a fiber optic channel due to attenuation effects&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="AttenuationError.__init__"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.AttenuationError.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">,</span> <span class="n">attenuation_coefficient</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.16</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instatiate the error class</span>
+
+<span class="sd">        :param QChannel qchannel: parent quantum channel</span>
+<span class="sd">        :param float attenuation_coefficient: attenuation of fiber in dB/km; default: -.16 dB/km, from Yin, et al</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QError</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">)</span>
+        <span class="n">decibel_loss</span> <span class="o">=</span> <span class="n">qchannel</span><span class="o">.</span><span class="n">length</span> <span class="o">*</span> <span class="n">attenuation_coefficient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attenuation</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="p">(</span><span class="n">decibel_loss</span> <span class="o">/</span> <span class="mi">10</span><span class="p">)</span>  <span class="c1"># Total attenuation along the fiber</span></div>
+
+<div class="viewcode-block" id="AttenuationError.apply"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.AttenuationError.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Simulates possible loss + measurement of qubit</span>
+
+<span class="sd">        :param Qubit qubit: qubit from quantum channel</span>
+<span class="sd">        :return: either unchanged qubit or None</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attenuation</span> <span class="ow">and</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Photon was lost due to attenuation effects; collapse state and return nothing</span>
+            <span class="n">qubit</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+            <span class="n">qubit</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">qubit</span></div></div>
+
+
+<div class="viewcode-block" id="RandomUnitaryError"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.RandomUnitaryError">[docs]</a><span class="k">class</span> <span class="nc">RandomUnitaryError</span><span class="p">(</span><span class="n">QError</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Simualates a random rotation along X and Z with a Gaussian distribution of rotation angles&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="RandomUnitaryError.__init__"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.RandomUnitaryError.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">,</span> <span class="n">variance</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instatiate the error class</span>
+
+<span class="sd">        :param QChannel qchannel: parent quantum channel</span>
+<span class="sd">        :param float variance: variance to use in the Gaussian sampling of X and Z rotation angles</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QError</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">=</span> <span class="n">variance</span></div>
+
+<div class="viewcode-block" id="RandomUnitaryError.apply"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.RandomUnitaryError.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Simulates random rotations on X and Z of a qubit</span>
+
+<span class="sd">        :param Qubit qubit: qubit from quantum channel</span>
+<span class="sd">        :return: rotated qubit</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_angle</span><span class="p">,</span> <span class="n">z_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">gates</span><span class="o">.</span><span class="n">RX</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">x_angle</span><span class="p">)</span>
+            <span class="n">gates</span><span class="o">.</span><span class="n">RZ</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">z_angle</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qubit</span></div></div>
+
+
+<div class="viewcode-block" id="SystematicUnitaryError"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.SystematicUnitaryError">[docs]</a><span class="k">class</span> <span class="nc">SystematicUnitaryError</span><span class="p">(</span><span class="n">QError</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;Simulates a random unitary error that is the same for each qubit&#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="SystematicUnitaryError.__init__"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.SystematicUnitaryError.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">,</span> <span class="n">operator</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">variance</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate the systematic unitary error class</span>
+
+<span class="sd">        :param QChannel qchannel: parent quantum channel</span>
+<span class="sd">        :param np.array operator:</span>
+<span class="sd">        :param float variance:</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">QError</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">operator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">variance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> \
+            <span class="s2">&quot;Provide either a random operator or a variance value to use for sampling.&quot;</span>
+
+        <span class="k">if</span> <span class="n">operator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="n">operator</span>
+        <span class="k">elif</span> <span class="n">variance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x_angle</span><span class="p">,</span> <span class="n">z_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">variance</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">Rx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x_angle</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">gates</span><span class="o">.</span><span class="n">_I</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x_angle</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">gates</span><span class="o">.</span><span class="n">_X</span>
+            <span class="n">Rz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">z_angle</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">gates</span><span class="o">.</span><span class="n">_I</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">z_angle</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">gates</span><span class="o">.</span><span class="n">_Z</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">Rz</span><span class="p">,</span> <span class="n">Rx</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SystematicUnitaryError.apply"><a class="viewcode-back" href="../../api/errors.html#squanch.errors.SystematicUnitaryError.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Simulates the application of the unitary error</span>
+
+<span class="sd">        :param Qubit qubit: qubit from quantum channel</span>
+<span class="sd">        :return: rotated qubit</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">qubit</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">operator</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qubit</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AT&amp;T.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Qubit – Qubits and quantum systems &mdash; SQUANCH 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="QStream – Working with quantum datastreams" href="qstream.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demos.html">Demonstrations</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">SQUANCH API reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="agent.html"><code class="docutils literal notranslate"><span class="pre">Agent</span></code> – Alice and Bob in code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="channels.html"><code class="docutils literal notranslate"><span class="pre">Channels</span></code> – Simulating realistic quantum channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html"><code class="docutils literal notranslate"><span class="pre">Errors</span></code> – Quantum errors in channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gates.html"><code class="docutils literal notranslate"><span class="pre">Gates</span></code> – Manipulating quantum states</a></li>
+<li class="toctree-l2"><a class="reference internal" href="linalg.html"><code class="docutils literal notranslate"><span class="pre">Linalg</span></code> – Useful linear algebra functions for QM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Plug-and-play agent simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qstream.html"><code class="docutils literal notranslate"><span class="pre">QStream</span></code> – Working with quantum datastreams</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../api.html">SQUANCH API reference</a> &raquo;</li>
+        
+      <li><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/api/qubit.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-squanch.qubit">
+<span id="qubit-qubits-and-quantum-systems"></span><span id="qubit"></span><h1><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems<a class="headerlink" href="#module-squanch.qubit" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="squanch.qubit.QSystem">
+<em class="property">class </em><code class="descclassname">squanch.qubit.</code><code class="descname">QSystem</code><span class="sig-paren">(</span><em>num_qubits</em>, <em>index=None</em>, <em>state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a multi-particle Hilbert space for several qubuts comprising a single system of a quantum datastream.
+Designed to have similar syntax to QubitSytem, but instantiation is much faster</p>
+<dl class="attribute">
+<dt id="squanch.qubit.QSystem.__dict__">
+<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.qubit', '__doc__': '\n    Represents a multi-particle Hilbert space for several qubuts comprising a single system of a quantum datastream.\n    Designed to have similar syntax to QubitSytem, but instantiation is much faster\n    ', '__init__': &lt;function QSystem.__init__&gt;, 'from_stream': &lt;classmethod object&gt;, 'qubit': &lt;function QSystem.qubit&gt;, 'measure_qubit': &lt;function QSystem.measure_qubit&gt;, 'apply': &lt;function QSystem.apply&gt;, '__dict__': &lt;attribute '__dict__' of 'QSystem' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'QSystem' objects&gt;})</em><a class="headerlink" href="#squanch.qubit.QSystem.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.QSystem.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>num_qubits</em>, <em>index=None</em>, <em>state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instatiate the quantum state for an n-qubit system</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>num_qubits</strong> (<em>int</em>) – number of qubits in the system, treated as maximally entangled</li>
+<li><strong>state</strong> (<em>np.array</em>) – density matrix representing the quantum state. By default, <a href="#id1"><span class="problematic" id="id2">|000...0&gt;&lt;0...000|</span></a> is used</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="squanch.qubit.QSystem.__module__">
+<code class="descname">__module__</code><em class="property"> = 'squanch.qubit'</em><a class="headerlink" href="#squanch.qubit.QSystem.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="squanch.qubit.QSystem.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#squanch.qubit.QSystem.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.QSystem.apply">
+<code class="descname">apply</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply an n-qubit operator to this system’s n-qubit quantum state: U|psi&gt;&lt;psi|U^+ (U^+ = U for Hermitian)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operator</strong> (<em>np.array</em>) – the <em>Hermitian</em> n-qubit operator to apply</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">nothing, the qsystem state is mutated</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="squanch.qubit.QSystem.from_stream">
+<em class="property">classmethod </em><code class="descname">from_stream</code><span class="sig-paren">(</span><em>qstream</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.from_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.from_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate a QSystem from a given point in a parent QStream</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>qstream</strong> (<a class="reference internal" href="qstream.html#squanch.qstream.QStream" title="squanch.qstream.QStream"><em>QStream</em></a>) – the parent stream</li>
+<li><strong>index</strong> (<em>int</em>) – the index in the parent stream corresponding to this system</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the QSystem object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.QSystem.measure_qubit">
+<code class="descname">measure_qubit</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.measure_qubit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.measure_qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measure the qubit at a given index, partially collapsing the state based on the observed qubit value.
+The state vector is modified in-place by this function.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – the qubit to measure</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the measured qubit value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.QSystem.qubit">
+<code class="descname">qubit</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.qubit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Access a qubit by index; self.qubits does not instantiate all qubits unless casted to a list. Use this
+function to access a single qubit of a given index.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>index</strong> (<em>int</em>) – qubit index to generate a qubit instance for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the qubit instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="squanch.qubit.Qubit">
+<em class="property">class </em><code class="descclassname">squanch.qubit.</code><code class="descname">Qubit</code><span class="sig-paren">(</span><em>qsystem</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents a single physical qubit, which is a wrapper for part of a pre-allocated nonlocal QSystem</p>
+<dl class="attribute">
+<dt id="squanch.qubit.Qubit.__dict__">
+<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.qubit', '__doc__': '\n    Represents a single physical qubit, which is a wrapper for part of a pre-allocated nonlocal QSystem\n    ', '__init__': &lt;function Qubit.__init__&gt;, 'from_stream': &lt;classmethod object&gt;, 'measure': &lt;function Qubit.measure&gt;, 'getState': &lt;function Qubit.getState&gt;, 'apply': &lt;function Qubit.apply&gt;, 'serialize': &lt;function Qubit.serialize&gt;, '__dict__': &lt;attribute '__dict__' of 'Qubit' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Qubit' objects&gt;})</em><a class="headerlink" href="#squanch.qubit.Qubit.__dict__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.Qubit.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>qsystem</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate the qubit from an existing QSystem and index</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>qsystem</strong> (<a class="reference internal" href="#squanch.qubit.QSystem" title="squanch.qubit.QSystem"><em>QSystem</em></a>) – n-qubit quantum system that this qubit points to</li>
+<li><strong>index</strong> (<em>int</em>) – particle index in the quantum system, ranging from 0 to n-1</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="squanch.qubit.Qubit.__module__">
+<code class="descname">__module__</code><em class="property"> = 'squanch.qubit'</em><a class="headerlink" href="#squanch.qubit.Qubit.__module__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="squanch.qubit.Qubit.__weakref__">
+<code class="descname">__weakref__</code><a class="headerlink" href="#squanch.qubit.Qubit.__weakref__" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of weak references to the object (if defined)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.Qubit.apply">
+<code class="descname">apply</code><span class="sig-paren">(</span><em>operator</em>, <em>cacheID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.apply" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply a single-qubit operator to this qubit, tensoring with I and passing to the qsystem.apply() method</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>operator</strong> (<em>np.array</em>) – a single qubit (2x2) complex-valued matrix</li>
+<li><strong>cacheID</strong> (<em>str</em>) – a character or string to cache the expanded operator by (e.g. Hadamard qubit 2 -&gt; “IHII…”)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="squanch.qubit.Qubit.from_stream">
+<em class="property">classmethod </em><code class="descname">from_stream</code><span class="sig-paren">(</span><em>qstream</em>, <em>system_index</em>, <em>qubit_index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.from_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.from_stream" title="Permalink to this definition">¶</a></dt>
+<dd><p>Instantiate a qubit from a parent stream (via a QSystem call)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>qstream</strong> (<a class="reference internal" href="qstream.html#squanch.qstream.QStream" title="squanch.qstream.QStream"><em>QStream</em></a>) – the parent stream</li>
+<li><strong>system_index</strong> (<em>int</em>) – the index corresponding to the parent QSystem</li>
+<li><strong>qubit_index</strong> (<em>int</em>) – the index of the qubit to be recalled</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the qubit</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.Qubit.getState">
+<code class="descname">getState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.getState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.getState" title="Permalink to this definition">¶</a></dt>
+<dd><p>Traces over the remaining portions of the qsystem to return this qubit’s state expressed as a density matrix.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The (mixed) density matrix describing this qubit’s state</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.Qubit.measure">
+<code class="descname">measure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Measure a qubit, mutating its state in-place</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the measured value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="squanch.qubit.Qubit.serialize">
+<code class="descname">serialize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.serialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.serialize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a reference to reconstruct this qubit from shared memory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">qubit reference as (systemIndex, qubitIndex)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="qstream.html" class="btn btn-neutral" title="QStream – Working with quantum datastreams" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AT&amp;T.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

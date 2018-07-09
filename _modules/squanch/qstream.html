@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>squanch.qstream &mdash; SQUANCH 0.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../demos.html">Demonstrations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">SQUANCH API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>squanch.qstream</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for squanch.qstream</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="n">qubit</span><span class="p">,</span> <span class="n">linalg</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;QStream&quot;</span><span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">zero_state</span><span class="p">(</span><span class="n">system_size</span><span class="p">,</span> <span class="n">num_systems</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Generate an array representing the num_systems Hilbert spaces in the state ``|0&gt;...|0&gt;&lt;0|...&lt;0|``</span>
+
+<span class="sd">    :param int system_size: maximum size of entangled subsystems</span>
+<span class="sd">    :param int num_systems: number of disjoint quantum subsystems to allocate</span>
+<span class="sd">    :return: the all-zero state array</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="c1"># Initialize each qubit state</span>
+    <span class="n">zero</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>  <span class="c1"># vector representation of the |0&gt; pure state</span>
+    <span class="n">initial_qubit_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">zero</span><span class="p">,</span> <span class="n">zero</span><span class="p">)</span>  <span class="c1"># each qubit is initialized as |0&gt;&lt;0|</span>
+    <span class="n">initial_system_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span>
+    <span class="c1"># Generate the matrix representation of the initial state of the n-qubit system</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">system_size</span><span class="p">):</span>
+        <span class="n">initial_system_state</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">tensor_product</span><span class="p">(</span><span class="n">initial_system_state</span><span class="p">,</span> <span class="n">initial_qubit_state</span><span class="p">)</span>
+    <span class="c1"># The Hilbert space of QSys0 x QSys1 x ... x QSysN is represented as an n-dimensional array of state vectors</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">([</span><span class="n">initial_system_state</span><span class="p">],</span> <span class="n">num_systems</span><span class="p">,</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># repeat state into vertical axis</span>
+
+
+<div class="viewcode-block" id="QStream"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream">[docs]</a><span class="k">class</span> <span class="nc">QStream</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Efficiently handle a large number of small entangled quantum systems to avoid having to perform many class</span>
+<span class="sd">    instantiations when simulating transmission of data through quantum channels</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+<div class="viewcode-block" id="QStream.__init__"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">system_size</span><span class="p">,</span> <span class="n">num_systems</span><span class="p">,</span> <span class="n">array</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiate the quantum datastream object</span>
+
+<span class="sd">        :param int system_size: number of entangled qubits in each quantum system; each system has dims 2^system_size</span>
+<span class="sd">        :param int num_systems: number of small quantum systems in the data stream</span>
+<span class="sd">        :param np.array array: pre-allocated array in memory for purposes of sharing QStreams in multiprocessing</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">system_size</span> <span class="o">=</span> <span class="n">system_size</span>  <span class="c1"># number of qubits per system</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_systems</span> <span class="o">=</span> <span class="n">num_systems</span>  <span class="c1"># number of disjoint quantum subsystems</span>
+        <span class="c1"># Generate the matrix representation of the overall state of the quantum stream</span>
+        <span class="k">if</span> <span class="n">array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">array</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">zero_state</span><span class="p">(</span><span class="n">system_size</span><span class="p">,</span> <span class="n">num_systems</span><span class="p">)</span>
+
+        <span class="c1"># The &quot;head&quot; of the stream; what qsystem is being processed at the moment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="QStream.__iter__"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Custom iterator method for streams</span>
+
+<span class="sd">        :return: each system in the stream</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_systems</span><span class="p">):</span>
+            <span class="k">yield</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">i</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QStream.__len__"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.__len__">[docs]</a>    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Custom length method for streams; equivalent to stream.num_systems</span>
+
+<span class="sd">        :return: stream.num_systems</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_systems</span></div>
+
+<div class="viewcode-block" id="QStream.from_array"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.from_array">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_array</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">reformat</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Instantiates a quantum datastream object from a (typically shared) pre-allocated array</span>
+
+<span class="sd">        :param np.array array: the pre-allocated np.complex64 array representing the shared Hilbert space</span>
+<span class="sd">        :param bool reformat: if providing a pre-allocated array, whether to reformat it to the all-zero state</span>
+<span class="sd">        :return: the child QStream</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">num_systems</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">system_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">qstream</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">system_size</span><span class="p">,</span> <span class="n">num_systems</span><span class="p">,</span> <span class="n">array</span> <span class="o">=</span> <span class="n">array</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">reformat</span><span class="p">:</span>
+            <span class="n">qstream</span><span class="o">.</span><span class="n">reformat</span><span class="p">(</span><span class="n">qstream</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">qstream</span></div>
+
+<div class="viewcode-block" id="QStream.reformat"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.reformat">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">reformat</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Reformats a Hilbert space array in-place to the all-zero state</span>
+
+<span class="sd">        :param np.array array: a num_systems x 2^system_size x 2^system_size array of np.complex64 values</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">num_systems</span> <span class="o">=</span> <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">system_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">log2</span><span class="p">(</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">array</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">zero_state</span><span class="p">(</span><span class="n">system_size</span><span class="p">,</span> <span class="n">num_systems</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QStream.system"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.system">[docs]</a>    <span class="k">def</span> <span class="nf">system</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Access the nth quantum system in the quantum datastream object</span>
+
+<span class="sd">        :param int index: zero-index of the quantum system to access</span>
+<span class="sd">        :return: the quantum system</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">qubit</span><span class="o">.</span><span class="n">QSystem</span><span class="o">.</span><span class="n">from_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="QStream.head"><a class="viewcode-back" href="../../api/qstream.html#squanch.qstream.QStream.head">[docs]</a>    <span class="k">def</span> <span class="nf">head</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Access the &quot;head&quot; of the quantum system &quot;queue&quot;, returning it as a QSystem object, and increment the head by 1</span>
+
+<span class="sd">        :return: a QSystem for the &quot;head&quot; system</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">sys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">sys</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AT&amp;T.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>
