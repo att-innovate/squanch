@@ -39,7 +39,7 @@ class Agent(multiprocessing.Process):
         # Agent's clock
         self.time = 0.0
         # self.retardedTime = 0.0
-        self.pulseLength = 10 * 10 ** -12  # 10ps photon pulse size
+        self.pulse_length = 10 * 10 ** -12  # 10ps photon pulse size
 
         # Register input data and output structure
         self.data = data
@@ -102,8 +102,8 @@ class Agent(multiprocessing.Process):
         :return: a blank, sharable, num_systems * 2^system_size * 2^system_size array of np.complex64 values
         '''
         dim = 2 ** system_size
-        mallocMem = sharedctypes.RawArray(ctypes.c_double, num_systems * dim * dim)
-        array = np.frombuffer(mallocMem, dtype = np.complex64).reshape((num_systems, dim, dim))
+        mallocced = sharedctypes.RawArray(ctypes.c_double, num_systems * dim * dim)
+        array = np.frombuffer(mallocced, dtype = np.complex64).reshape((num_systems, dim, dim))
         qstream.QStream.reformat(array)
         return array
 
@@ -113,7 +113,7 @@ class Agent(multiprocessing.Process):
 
         :param Agent other: the other agent to connect to
         :param QChannel channel: the quantum channel model to use
-        :param kwargs any: optional channel arguments
+        :param \**kwargs: optional channel arguments
         '''
         # Instantiate quantum channels between Alice and Bob
         qchannel_alice_to_bob = channel(self, other, **kwargs)
@@ -136,7 +136,7 @@ class Agent(multiprocessing.Process):
         :param Qubit qubit: the qubit to send
         '''
         self.qchannels_out[target].put(qubit)
-        self.time += self.pulseLength
+        self.time += self.pulse_length
 
     def qrecv(self, origin):
         '''
@@ -166,7 +166,7 @@ class Agent(multiprocessing.Process):
 
         :param Agent other: the other agent to connect to
         :param CChannel channel: the classical channel model to use
-        :param kwargs any: optional channel arguments
+        :param \**kwargs: optional channel arguments
         '''
         # Instantiate classical channels between Alice and Bob
         cchannel_alice_to_bob = channel(self, other, **kwargs)
@@ -188,7 +188,7 @@ class Agent(multiprocessing.Process):
         '''
 
         self.cchannels_out[target].put(thing)
-        self.time += sys.getsizeof(thing) * 8 * self.pulseLength
+        self.time += sys.getsizeof(thing) * 8 * self.pulse_length
 
     def crecv(self, origin):
         '''

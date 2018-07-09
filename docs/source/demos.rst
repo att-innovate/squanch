@@ -4,5 +4,5 @@ Demonstrations
 ==============
 
 .. toctree::
-   demos/teleportation
-   demos/superdenseCoding
+   demos/quantum-teleportation
+   demos/superdense-coding

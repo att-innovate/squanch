@@ -1,5 +1,4 @@
 import sys
-import numpy as np
 import multiprocessing
 from squanch.qubit import Qubit
 from squanch import errors
@@ -42,7 +41,7 @@ class QChannel:
         :param Qubit qubit: the qubit to send
         '''
         # Calculate the time of arrival
-        time_of_arrival = self.from_agent.time + self.from_agent.pulseLength + (self.length / self.signal_speed)
+        time_of_arrival = self.from_agent.time + self.from_agent.pulse_length + (self.length / self.signal_speed)
         if qubit is not None:
             self.queue.put((qubit.serialize(), time_of_arrival))
         else:

@@ -2,6 +2,7 @@ import numpy as np
 
 __all__ = ["is_hermitian", "tensor_product", "tensors", "tensor_fill_identity"]
 
+
 def is_hermitian(matrix):
     '''
     Checks if an operator is Hermitian

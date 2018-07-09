@@ -11,7 +11,7 @@ Welcome to the SQUANCH documentation!
    :caption: Contents:
 
    overview
-   gettingStarted
+   getting-started
    demos
    api
 

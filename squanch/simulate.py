@@ -4,6 +4,7 @@ import threading
 
 __all__ = ["Simulation"]
 
+
 class Simulation:
     '''
     Simulation class for easily creating and running agent-based simulations.
@@ -19,7 +20,7 @@ class Simulation:
         '''
         self.out = args[0].out
         self.agents = args
-        try: # figure out if we're in a Jupyter notebook or not
+        try:  # figure out if we're in a Jupyter notebook or not
             __IPYTHON__
             self.is_ipython = True
         except:
@@ -55,7 +56,7 @@ class Simulation:
             pbars[agent.name].close()
 
     # noinspection PyUnboundLocalVariable
-    def run(self, monitor_progress = None):
+    def run(self, monitor_progress = True):
         '''
         Run the simulation
 
