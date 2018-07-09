@@ -19,7 +19,8 @@ between AT&T and the California Institute of Technology](http://about.att.com/st
 
 ## Documentation
 
-Documentation for SQUANCH can be found at *LINK HERE*
+Documentation for this package is available at the [documentation website](https://att-innovate.github.io/squanch/) or 
+as a pdf manual [here](/docs/SQUANCH.pdf).
 
 ## Installation 
 
