@@ -16,7 +16,8 @@ class Simulation:
         '''
         Initialize the simulation
 
-        :param args: unpacked list of agents, e.g. Simulation(alice, bob, charlie)
+        :param args: unpacked list of agents, e.g. Simulation(alice, bob, charlie). All agents must share the same
+                     output dictionary using Agent.shared_output()
         '''
         self.out = args[0].out
         self.agents = args

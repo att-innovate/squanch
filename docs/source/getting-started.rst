@@ -181,8 +181,8 @@ You can pull specific systems from a stream an manipulate them. For example, let
 
 .. code:: python
 
-    firstSys = stream.system(2)
-    H(firstSys.qubit(1))
+    first_system = stream.system(2)
+    H(first_system.qubit(1))
 
 .. parsed-literal::
 
@@ -303,7 +303,7 @@ To program the agents themselves, we extend the Agent base class and overwrite t
                 bits += str(q.measure())
             self.output(bits)
 
-Finally, to instantiate and run the agents, we need to name them (if no name is provided in the class call, it defaults to the name of the class, e.g. ``Alice(...).name == "Alice"``) and we need to make an appropriately sized ``shared_hilbert_space`` and a ``shared_output`` to pass to the agents. We then connect the agents with a quantum channel and run their processes:
+Finally, to instantiate and run the agents, we need to name them (if no name is provided in the class call, it defaults to the name of the class, e.g. ``Alice(...).name == "Alice"``) and we need to make an appropriately sized ``shared_hilbert_space`` and a ``shared_output`` to pass to the agents. We then connect the agents with a quantum channel:
 
 .. code:: python 
 
@@ -314,6 +314,10 @@ Finally, to instantiate and run the agents, we need to name them (if no name is 
     bob = Bob(mem, out = out)
 
     alice.qconnect(bob)
+
+Running the agents has the same syntax as running a `Process` in Python. `alice.start()` starts Alice's runtime logic, and `alice.join()` waits for all other agents to finish executing:
+
+.. code:: python
 
     alice.start()
     bob.start()
@@ -328,7 +332,20 @@ Finally, to instantiate and run the agents, we need to name them (if no name is 
 
     Alice sent: 'Hello, Bob!'. Bob received: 'Hello, Bob!'.
 
+Alternately, SQUANCH also includes a `Simulation` module which can track the progress of each agent as they execute their code and display a progress bar in a terminal or Jupyter notebook:
+
+
+.. code:: python
+
+    Simulation(alice, bob).run()
+    received_msg = bits_to_string(out["Bob"])
+    print("Alice sent: '{}'. Bob received: '{}'.".format(msg, received_msg))
+
+.. parsed-literal::
+
+    Alice sent: 'Hello, Bob!'. Bob received: 'Hello, Bob!'.
+
 See also
 --------
 
-This tutorial page only touches on some very basic uses of SQUANCH. For demonstrations of more complex scenarios, see the :ref:`demonstrations section <demos>`, and for an overview of SQUANCH's core concepts and organization, see the :ref:`overview section <overview>`.
+This tutorial page only touches on some of the basic uses of SQUANCH. For demonstrations of more complex scenarios, see the :ref:`demonstrations section <demos>`, and for an overview of SQUANCH's core concepts and organization, see the :ref:`overview section <overview>`.

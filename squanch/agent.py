@@ -19,14 +19,14 @@ class Agent(multiprocessing.Process):
     * Quantum memory with some characteristic corruption timescale
     '''
 
-    def __init__(self, hilbert_space, name = None, data = None, out = None):
+    def __init__(self, hilbert_space, out = None, name = None, data = None):
         '''
         Instantiate an Agent from a unique identifier and a shared memory pool
 
         :param np.array hilbert_space: the shared memory pool representing the Hilbert space of the qstream
+        :param dict out: shared output dictionary to pass to Agent processes to allow for "returns". Default: {}
         :param str name: the unique identifier for the Agent. Default: class name
         :param any data: data to pass to the Agent's process, stored in ``self.data``. Default: None
-        :param dict out: shared output dictionary to pass to Agent processes to allow for "returns". Default: None
         '''
         multiprocessing.Process.__init__(self)
         # Name of the agent, e.g. "Alice". Defaults to the name of the class.
@@ -34,7 +34,6 @@ class Agent(multiprocessing.Process):
             self.name = name
         else:
             self.name = self.__class__.__name__
-        self.stream = qstream.QStream.from_array(hilbert_space)
 
         # Agent's clock
         self.time = 0.0
@@ -43,10 +42,12 @@ class Agent(multiprocessing.Process):
 
         # Register input data and output structure
         self.data = data
-        if out is not None:
-            out[self.name] = None
-            out[self.name + ":progress"] = 0
-            out[self.name + ":progressMax"] = len(self.stream)
+        if out is None:
+            out = {}
+        out[self.name] = None
+        out[self.name + ":progress"] = 0
+        out[self.name + ":progress_max"] = hilbert_space.shape[0]
+        self.stream = qstream.QStream.from_array(hilbert_space, agent = self)
         self.out = out
 
         # Communication channels are dicts; keys: agent objects, values: channel objects

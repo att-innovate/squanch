@@ -3,6 +3,7 @@ from squanch import qubit, linalg
 
 __all__ = ["QStream"]
 
+
 def zero_state(system_size, num_systems):
     '''
     Generate an array representing the num_systems Hilbert spaces in the state ``|0>...|0><0|...<0|``
@@ -28,16 +29,19 @@ class QStream:
     instantiations when simulating transmission of data through quantum channels
     '''
 
-    def __init__(self, system_size, num_systems, array = None):
+    def __init__(self, system_size, num_systems, array = None, agent = None):
         '''
         Instantiate the quantum datastream object
 
         :param int system_size: number of entangled qubits in each quantum system; each system has dims 2^system_size
         :param int num_systems: number of small quantum systems in the data stream
         :param np.array array: pre-allocated array in memory for purposes of sharing QStreams in multiprocessing
+        :param Agent agent: optional reference to the Agent owning the qstream; useful for progress monitoring across
+                            separate processes
         '''
         self.system_size = system_size  # number of qubits per system
         self.num_systems = num_systems  # number of disjoint quantum subsystems
+        self.agent = agent
         # Generate the matrix representation of the overall state of the quantum stream
         if array is not None:
             self.state = array
@@ -54,6 +58,7 @@ class QStream:
         :return: each system in the stream
         '''
         for i in range(self.num_systems):
+            if self.agent: self.agent.update_progress(i)
             yield self.system(i)
 
     def __len__(self):
@@ -65,7 +70,7 @@ class QStream:
         return self.num_systems
 
     @classmethod
-    def from_array(cls, array, reformat = False):
+    def from_array(cls, array, reformat = False, agent = None):
         '''
         Instantiates a quantum datastream object from a (typically shared) pre-allocated array
 
@@ -75,7 +80,7 @@ class QStream:
         '''
         num_systems = array.shape[0]
         system_size = int(np.log2(array.shape[1]))
-        qstream = cls(system_size, num_systems, array = array)
+        qstream = cls(system_size, num_systems, array = array, agent = agent)
         if reformat:
             qstream.reformat(qstream.state)
         return qstream
@@ -100,9 +105,9 @@ class QStream:
         '''
         return qubit.QSystem.from_stream(self, index)
 
-    def head(self):
+    def next(self):
         '''
-        Access the "head" of the quantum system "queue", returning it as a QSystem object, and increment the head by 1
+        Access the next element in the quantum stream, returning it as a QSystem object, and increment the head by 1
 
         :return: a QSystem for the "head" system
         '''

@@ -99,7 +99,7 @@ class CChannel:
         :param any thing: the qubit to send
         '''
         # Calculate the time of arrival
-        pulse_time = sys.getsizeof(thing) * 8 * self.from_agent.pulseLength
+        pulse_time = sys.getsizeof(thing) * 8 * self.from_agent.pulse_length
         time_of_arrival = self.from_agent.time + pulse_time + (self.length / self.signal_speed)
         self.queue.put((thing, time_of_arrival))
 
