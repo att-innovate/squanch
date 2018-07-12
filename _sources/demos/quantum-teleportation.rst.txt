@@ -3,7 +3,7 @@
 Quantum Teleportation
 =====================
 
-Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
+Quantum teleportation allows two parties that share an entangled pair to transfer an arbitrary quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
 
 The source code for this demo is included in the `demos` directory of the SQUANCH repository.
 
@@ -12,7 +12,7 @@ Protocol
 
 .. image:: https://www.media.mit.edu/quanta/qasm2circ/test2.png
 
-Below is a simple two-party quantum teleportation protocol. We'll be using the above circuit diagram.
+In this demo, we'll implement a simple two-party quantum teleportation protocol using the above circuit diagram.
 
 	1. Alice generates an EPR pair; for this protocol, we'll use the state :math:`\lvert q_1 q_2 \rangle = \frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )`. She will keep one particle in the pair and send the other one to Bob.
 

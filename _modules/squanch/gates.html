@@ -153,13 +153,15 @@
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="n">linalg</span>
 
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;RX&quot;</span><span class="p">,</span> <span class="s2">&quot;RY&quot;</span><span class="p">,</span> <span class="s2">&quot;RZ&quot;</span><span class="p">,</span> <span class="s2">&quot;CNOT&quot;</span><span class="p">,</span> <span class="s2">&quot;expand&quot;</span><span class="p">]</span>
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;H&quot;</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;RX&quot;</span><span class="p">,</span> <span class="s2">&quot;RY&quot;</span><span class="p">,</span> <span class="s2">&quot;RZ&quot;</span><span class="p">,</span> <span class="s2">&quot;CNOT&quot;</span><span class="p">,</span> <span class="s2">&quot;TOFFOLI&quot;</span><span class="p">,</span> <span class="s2">&quot;CU&quot;</span><span class="p">,</span> <span class="s2">&quot;SWAP&quot;</span><span class="p">,</span> <span class="s2">&quot;expand&quot;</span><span class="p">]</span>
 
 <span class="c1"># Single qubit operators that can be applied with qubit.apply()</span>
 
 <span class="c1"># Projection operators</span>
-<span class="n">_M0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
-<span class="n">_M1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">_M0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="n">_M1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+               <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
 
 <span class="c1"># Identity operator</span>
 <span class="n">_I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
@@ -186,7 +188,7 @@
 <div class="viewcode-block" id="H"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.H">[docs]</a><span class="k">def</span> <span class="nf">H</span><span class="p">(</span><span class="n">qubit</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the Hadamard transform to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``H``</span>
+<span class="sd">    cache_id: ``H``</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -196,7 +198,7 @@
 <div class="viewcode-block" id="X"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.X">[docs]</a><span class="k">def</span> <span class="nf">X</span><span class="p">(</span><span class="n">qubit</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the Pauli-X (NOT) operation to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``X``</span>
+<span class="sd">    cache_id: ``X``</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -206,7 +208,7 @@
 <div class="viewcode-block" id="Y"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.Y">[docs]</a><span class="k">def</span> <span class="nf">Y</span><span class="p">(</span><span class="n">qubit</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the Pauli-Y operation to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``Y``</span>
+<span class="sd">    cache_id: ``Y``</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -216,7 +218,7 @@
 <div class="viewcode-block" id="Z"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.Z">[docs]</a><span class="k">def</span> <span class="nf">Z</span><span class="p">(</span><span class="n">qubit</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the Pauli-Z operation to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``Z``</span>
+<span class="sd">    cache_id: ``Z``</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    &#39;&#39;&#39;</span>
@@ -226,7 +228,7 @@
 <div class="viewcode-block" id="RX"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.RX">[docs]</a><span class="k">def</span> <span class="nf">RX</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the single qubit X-rotation operator to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``Rx*``, where * is angle/pi</span>
+<span class="sd">    cache_id: ``Rx*``, where * is angle/pi</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    :param float angle: the angle by which to rotate</span>
@@ -238,7 +240,7 @@
 <div class="viewcode-block" id="RY"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.RY">[docs]</a><span class="k">def</span> <span class="nf">RY</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the single qubit Y-rotation operator to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``Ry*``, where * is angle/pi</span>
+<span class="sd">    cache_id: ``Ry*``, where * is angle/pi</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    :param float angle: the angle by which to rotate</span>
@@ -250,7 +252,7 @@
 <div class="viewcode-block" id="RZ"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.RZ">[docs]</a><span class="k">def</span> <span class="nf">RZ</span><span class="p">(</span><span class="n">qubit</span><span class="p">,</span> <span class="n">angle</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the single qubit Z-rotation operator to the specified qubit, updating the qsystem state.</span>
-<span class="sd">    cacheID: ``Rz*``, where * is angle/pi</span>
+<span class="sd">    cache_id: ``Rz*``, where * is angle/pi</span>
 
 <span class="sd">    :param Qubit qubit: the qubit to apply the operator to</span>
 <span class="sd">    :param float angle: the angle by which to rotate</span>
@@ -259,13 +261,11 @@
     <span class="n">qubit</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">expand</span><span class="p">(</span><span class="n">gate</span><span class="p">,</span> <span class="n">qubit</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">qubit</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="s2">&quot;Rz&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">angle</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)))</span></div>
 
 
-<span class="c1"># Controlled-not gate</span>
-
 <div class="viewcode-block" id="CNOT"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.CNOT">[docs]</a><span class="k">def</span> <span class="nf">CNOT</span><span class="p">(</span><span class="n">control</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">    Applies the controlled-NOT operation from control on target. This gate takes two qubit arguments to</span>
 <span class="sd">    construct an arbitrary CNOT matrix.</span>
-<span class="sd">    cacheID: ``CNOTij``, where i and j are control and target indices</span>
+<span class="sd">    cache_id: ``CNOTi,j``, where i and j are control and target indices</span>
 
 <span class="sd">    :param Qubit control: the control qubit</span>
 <span class="sd">    :param Qubit target: the target qubit, with Pauli-X applied according to the control qubit</span>
@@ -286,19 +286,76 @@
     <span class="n">target</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_expandedGateCache</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
 
 
-<span class="n">_CNOT</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-<span class="p">])</span>
+<div class="viewcode-block" id="CU"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.CU">[docs]</a><span class="k">def</span> <span class="nf">CU</span><span class="p">(</span><span class="n">control</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">unitary</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Applies the controlled-unitary operation from control on target. This gate takes control and target qubit arguments</span>
+<span class="sd">    and a unitary operator to apply</span>
+<span class="sd">    cache_id: ``CUi,j,&lt;str(unitary)&gt;``, where i and j are control and target indices</span>
 
-<span class="n">_SWAP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
-    <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
-    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
-<span class="p">])</span>
+<span class="sd">    :param Qubit control: the control qubit</span>
+<span class="sd">    :param Qubit target: the target qubit</span>
+<span class="sd">    :param np.array unitary: the unitary single-qubit gate to apply to the target qubit</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;CU&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">control</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">unitary</span><span class="p">)</span>
+    <span class="c1"># Generate the gate if needed</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_expandedGateCache</span><span class="p">:</span>
+        <span class="c1"># Represent CNOT(i,j) as |0i&gt;&lt;0i| x I x ... x I + |1i&gt;&lt;1i| x I x ... x Xtarg x I x ...</span>
+        <span class="n">proj0</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">tensor_fill_identity</span><span class="p">(</span><span class="n">_M0</span><span class="p">,</span> <span class="n">control</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">,</span> <span class="n">control</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">proj1gates</span> <span class="o">=</span> <span class="p">[</span><span class="n">_I</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">control</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">num_qubits</span><span class="p">)]</span>
+        <span class="n">proj1gates</span><span class="p">[</span><span class="n">control</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">_M1</span>
+        <span class="n">proj1gates</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">unitary</span>
+        <span class="n">proj1</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">tensors</span><span class="p">(</span><span class="n">proj1gates</span><span class="p">)</span>
+        <span class="n">CUij</span> <span class="o">=</span> <span class="n">proj0</span> <span class="o">+</span> <span class="n">proj1</span>
+        <span class="c1"># Cache the gate</span>
+        <span class="n">_expandedGateCache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">CUij</span>
+    <span class="c1"># Apply the gate</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_expandedGateCache</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TOFFOLI"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.TOFFOLI">[docs]</a><span class="k">def</span> <span class="nf">TOFFOLI</span><span class="p">(</span><span class="n">control1</span><span class="p">,</span> <span class="n">control2</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Applies the Toffoli (or controlled-controlled-NOT) operation from control on target. This gate takes three qubit</span>
+<span class="sd">    arguments to construct an arbitrary CCNOT matrix.</span>
+<span class="sd">    cache_id: ``CCNOTi,j,k``, where i and j are control indices and k target indices</span>
+
+<span class="sd">    :param Qubit control1: the first control qubit</span>
+<span class="sd">    :param Qubit control2: the second control qubit</span>
+<span class="sd">    :param Qubit target: the target qubit, with Pauli-X applied according to the control qubit</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">c1</span><span class="p">,</span> <span class="n">c2</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">control1</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">control2</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+    <span class="n">num_qubits</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">num_qubits</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;CCNOT&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">c2</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;,&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">target</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="c1"># Generate the gate if needed</span>
+    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_expandedGateCache</span><span class="p">:</span>
+        <span class="c1"># Represent CCNOT(i,j) as |0i&gt;&lt;0i| x |0j&gt;&lt;0j| x I x ... x I + |1i&gt;&lt;1i| x |1j&gt;&lt;1j| x I x ... x Xtarg x I x ...</span>
+        <span class="n">proj0ij</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">tensors</span><span class="p">([</span>
+            <span class="n">linalg</span><span class="o">.</span><span class="n">tensors</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span> <span class="o">*</span> <span class="n">c1</span><span class="p">),</span> <span class="n">_M0</span><span class="p">,</span>
+            <span class="n">linalg</span><span class="o">.</span><span class="n">tensors</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">c2</span> <span class="o">-</span> <span class="p">(</span><span class="n">c1</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))),</span> <span class="n">_M0</span><span class="p">,</span>
+            <span class="n">linalg</span><span class="o">.</span><span class="n">tensors</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span> <span class="o">*</span> <span class="p">(</span><span class="n">num_qubits</span> <span class="o">-</span> <span class="p">(</span><span class="n">c2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)))</span>
+        <span class="p">])</span>
+        <span class="n">proj1gates</span> <span class="o">=</span> <span class="p">[</span><span class="n">_I</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_qubits</span><span class="p">)]</span>
+        <span class="n">proj1gates</span><span class="p">[</span><span class="n">c1</span><span class="p">]</span> <span class="o">=</span> <span class="n">_M1</span>
+        <span class="n">proj1gates</span><span class="p">[</span><span class="n">c2</span><span class="p">]</span> <span class="o">=</span> <span class="n">_M1</span>
+        <span class="n">proj1gates</span><span class="p">[</span><span class="n">target</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">_X</span>
+        <span class="n">proj1ijk</span> <span class="o">=</span> <span class="n">linalg</span><span class="o">.</span><span class="n">tensors</span><span class="p">(</span><span class="n">proj1gates</span><span class="p">)</span>
+        <span class="n">CNOTijk</span> <span class="o">=</span> <span class="n">proj0ij</span> <span class="o">+</span> <span class="n">proj1ijk</span>
+        <span class="c1"># Cache the gate</span>
+        <span class="n">_expandedGateCache</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">CNOTijk</span>
+    <span class="c1"># Apply the gate</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">qsystem</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">_expandedGateCache</span><span class="p">[</span><span class="n">key</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="SWAP"><a class="viewcode-back" href="../../api/gates.html#squanch.gates.SWAP">[docs]</a><span class="k">def</span> <span class="nf">SWAP</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Applies the SWAP operator to two qubits, switching the states. This gate is implemented by three CNOT operations </span>
+<span class="sd">    and thus has no cache_id.</span>
+<span class="sd">    :param q1: the first qubit</span>
+<span class="sd">    :param q2: the second qubit</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">CNOT</span><span class="p">(</span><span class="n">q2</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span>
+    <span class="n">CNOT</span><span class="p">(</span><span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>
+    <span class="n">CNOT</span><span class="p">(</span><span class="n">q2</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span></div>
+
 
 <span class="n">_expandedGateCache</span> <span class="o">=</span> <span class="p">{}</span>
 

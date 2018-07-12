@@ -203,6 +203,21 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">generator</span> <span class="nb">object</span> <span class="o">&lt;</span><span class="n">genexpr</span><span class="o">&gt;</span> <span class="n">at</span> <span class="mh">0x107000460</span><span class="o">&gt;</span>
 </pre></div>
 </div>
+<p>A possible point of confusion: since <code class="docutils literal notranslate"><span class="pre">qubits</span></code> is a generator object, you can only loop through the qubits of a given qsystem once (for a given agent – more on that below)! (If you need to access them multiple times, consider converting them to a list with <code class="docutils literal notranslate"><span class="pre">qubits</span> <span class="pre">=</span> <span class="pre">list(qsys.qubits)</span></code>.)</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qsys2</span> <span class="o">=</span> <span class="n">QSystem</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loop &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">qsys2</span><span class="o">.</span><span class="n">qubits</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">qubit</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Loop</span> <span class="mi">0</span>
+<span class="o">&lt;</span><span class="n">squanch</span><span class="o">.</span><span class="n">qubit</span><span class="o">.</span><span class="n">Qubit</span> <span class="n">instance</span> <span class="n">at</span> <span class="mh">0x10d7d3828</span><span class="o">&gt;</span>
+<span class="o">&lt;</span><span class="n">squanch</span><span class="o">.</span><span class="n">qubit</span><span class="o">.</span><span class="n">Qubit</span> <span class="n">instance</span> <span class="n">at</span> <span class="mh">0x10d7d3908</span><span class="o">&gt;</span>
+<span class="n">Loop</span> <span class="mi">1</span>
+<span class="n">Loop</span> <span class="mi">2</span>
+</pre></div>
+</div>
 <p>You can access and work with the qubits of a system either by pattern matching them:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
@@ -411,7 +426,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Finally, to instantiate and run the agents, we need to name them (if no name is provided in the class call, it defaults to the name of the class, e.g. <code class="docutils literal notranslate"><span class="pre">Alice(...).name</span> <span class="pre">==</span> <span class="pre">&quot;Alice&quot;</span></code>) and we need to make an appropriately sized <code class="docutils literal notranslate"><span class="pre">shared_hilbert_space</span></code> and a <code class="docutils literal notranslate"><span class="pre">shared_output</span></code> to pass to the agents. We then connect the agents with a quantum channel:</p>
+<p>To instantiate and run the agents, we need to allocate memory for <cite>QStream</cite> using <cite>Agent.shared_hilbert_space</cite> and a shared output dictionary with <cite>Agent.shared_output</cite>. Explicitly allocating and passing memory and output dictionaries to agents is necessary because each agent runs in its own separate process, which (generally) have separate memory pools. (See <a class="reference internal" href="api/agent.html#agent"><span class="std std-ref">Agent</span></a> API for more details.)  We then connect the agents with a quantum channel:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">msgBits</span><span class="p">))</span>
 <span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
 

@@ -96,6 +96,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="superdense-coding.html">Superdense Coding</a></li>
 <li class="toctree-l2"><a class="reference internal" href="man-in-the-middle.html">Man-In-The-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum-error-correction.html">Quantum Error Correction</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">SQUANCH API reference</a></li>
@@ -167,12 +168,12 @@
             
   <div class="section" id="quantum-teleportation">
 <span id="teleportationdemo"></span><h1>Quantum Teleportation<a class="headerlink" href="#quantum-teleportation" title="Permalink to this headline">¶</a></h1>
-<p>Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a>.</p>
+<p>Quantum teleportation allows two parties that share an entangled pair to transfer an arbitrary quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a>.</p>
 <p>The source code for this demo is included in the <cite>demos</cite> directory of the SQUANCH repository.</p>
 <div class="section" id="protocol">
 <h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
 <img alt="https://www.media.mit.edu/quanta/qasm2circ/test2.png" src="https://www.media.mit.edu/quanta/qasm2circ/test2.png" />
-<p>Below is a simple two-party quantum teleportation protocol. We’ll be using the above circuit diagram.</p>
+<p>In this demo, we’ll implement a simple two-party quantum teleportation protocol using the above circuit diagram.</p>
 <blockquote>
 <div><ol class="arabic simple">
 <li>Alice generates an EPR pair; for this protocol, we’ll use the state <span class="math notranslate">\(\lvert q_1 q_2 \rangle = \frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )\)</span>. She will keep one particle in the pair and send the other one to Bob.</li>

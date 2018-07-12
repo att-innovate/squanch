@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Quantum Error Correction &mdash; SQUANCH 1.0.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SQUANCH API reference" href="../api.html" />
+    <link rel="prev" title="Man-In-The-Middle Attack" href="man-in-the-middle.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> SQUANCH
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../demos.html">Demonstrations</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="quantum-teleportation.html">Quantum Teleportation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="superdense-coding.html">Superdense Coding</a></li>
+<li class="toctree-l2"><a class="reference internal" href="man-in-the-middle.html">Man-In-The-Middle Attack</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Quantum Error Correction</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#protocol">Protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation">Implementation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-code">Source code</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">SQUANCH API reference</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SQUANCH</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../demos.html">Demonstrations</a> &raquo;</li>
+        
+      <li>Quantum Error Correction</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/demos/quantum-error-correction.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="quantum-error-correction">
+<span id="quantumerrorcorrectiondemo"></span><h1>Quantum Error Correction<a class="headerlink" href="#quantum-error-correction" title="Permalink to this headline">¶</a></h1>
+<p>When qubits are transmitted over quantum channels, they are subject to a complex set of errors which can cause them to decohere, depolarize, or simply vanish completely. For quantum information transfer to be feasible, the information must be encoded in a error-resistent format using any of a variety of quantum error correction models. In this demonstration, we show how to use SQUANCH’s channel and error modules to simulate quantum errors in a transmitted message, which we correct for using the <a class="reference external" href="https://en.wikipedia.org/wiki/Quantum_error_correction#The_Shor_code">Shor Code</a> This error correction model encodes a single logical qubit into the product of 9 physical qubits and is capable of correcting for arbitrary single-qubit errors. A circuit diagram of the protocol we will implement is shown below, where <span class="math notranslate">\(E\)</span> represents a quantum channel which can arbitrarily corrupt a single qubit:</p>
+<img alt="https://upload.wikimedia.org/wikipedia/commons/a/a9/Shore_code.svg" src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Shore_code.svg" /><div class="section" id="protocol">
+<h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ol class="arabic simple">
+<li>Alice has some state <span class="math notranslate">\(|\psi\rangle=\alpha_0|0\rangle+\alpha_1|1\rangle\)</span>, which she wants to send to Bob through a noisy quantum channel. She encodes her state as <span class="math notranslate">\(|\psi \rangle \rightarrow \alpha_0 \frac{1}{2\sqrt{2}}(|000\rangle + |111\rangle) \otimes (|000\rangle + |111\rangle) \otimes (|000\rangle + |111\rangle) + \alpha_1\frac{1}{2\sqrt{2}}(|000\rangle - |111\rangle) \otimes (|000\rangle - |111\rangle) \otimes (|000\rangle - |111\rangle)\)</span> using the circuit diagram above.</li>
+<li>DumbAlice wants to do the same, but doesn’t encode her state.</li>
+<li>Alice and DumbAlice send their qubits through the quantum channel to Bob and DumbBob, respectively. The channel may apply an arbitrary unitary operation to a single physical qubit in each group of 9.</li>
+<li>Bob and DumbBob receive their qubits. Bob decodes his using the Shor decoding circuit. DumbBob is dumb, and thus does nothing. For the purposes of this demonstration, the qubits will be measured and the results assembled to form a message.</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="k">import</span> <span class="n">unitary_group</span>
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.image</span> <span class="k">as</span> <span class="nn">image</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+<p>First, let’s define what each of the agents do. Let’s start with Alice and DumbAlice.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Alice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Alice sends an arbitrary Shor-encoded state to Bob&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">shor_encode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qsys</span><span class="p">):</span>
+                <span class="c1"># psi is state to send, q1...q8 are ancillas from top to bottom in diagram</span>
+                <span class="n">psi</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">q3</span><span class="p">,</span> <span class="n">q4</span><span class="p">,</span> <span class="n">q5</span><span class="p">,</span> <span class="n">q6</span><span class="p">,</span> <span class="n">q7</span><span class="p">,</span> <span class="n">q8</span> <span class="o">=</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span>
+                <span class="c1"># Gates are enumerated left to right, top to bottom from figure</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q3</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q6</span><span class="p">)</span>
+                <span class="n">H</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+                <span class="n">H</span><span class="p">(</span><span class="n">q3</span><span class="p">)</span>
+                <span class="n">H</span><span class="p">(</span><span class="n">q6</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q3</span><span class="p">,</span> <span class="n">q4</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q3</span><span class="p">,</span> <span class="n">q5</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q6</span><span class="p">,</span> <span class="n">q7</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q6</span><span class="p">,</span> <span class="n">q8</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">psi</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">q3</span><span class="p">,</span> <span class="n">q4</span><span class="p">,</span> <span class="n">q5</span><span class="p">,</span> <span class="n">q6</span><span class="p">,</span> <span class="n">q7</span><span class="p">,</span> <span class="n">q8</span>
+
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="c1"># send the encoded qubits to Bob</span>
+                        <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shor_encode</span><span class="p">(</span><span class="n">qsys</span><span class="p">):</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">qubit</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DumbAlice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;DumbAlice sends a state to Bob but forgets to error-correct!&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="k">for</span> <span class="n">qubit</span> <span class="ow">in</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">dumb_bob</span><span class="p">,</span> <span class="n">qubit</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now let’s define Bob’s behavior:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bob</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Bob receives Alice&#39;s qubits and applied error correction&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">shor_decode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">psi</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">q2</span><span class="p">,</span> <span class="n">q3</span><span class="p">,</span> <span class="n">q4</span><span class="p">,</span> <span class="n">q5</span><span class="p">,</span> <span class="n">q6</span><span class="p">,</span> <span class="n">q7</span><span class="p">,</span> <span class="n">q8</span><span class="p">):</span>
+                <span class="c1"># same enumeration as Alice</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q1</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q2</span><span class="p">)</span>
+                <span class="n">TOFFOLI</span><span class="p">(</span><span class="n">q2</span><span class="p">,</span> <span class="n">q1</span><span class="p">,</span> <span class="n">psi</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q3</span><span class="p">,</span> <span class="n">q4</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q3</span><span class="p">,</span> <span class="n">q5</span><span class="p">)</span>
+                <span class="n">TOFFOLI</span><span class="p">(</span><span class="n">q5</span><span class="p">,</span> <span class="n">q4</span><span class="p">,</span> <span class="n">q3</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q6</span><span class="p">,</span> <span class="n">q7</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">q6</span><span class="p">,</span> <span class="n">q8</span><span class="p">)</span>
+                <span class="n">TOFFOLI</span><span class="p">(</span><span class="n">q7</span><span class="p">,</span> <span class="n">q8</span><span class="p">,</span> <span class="n">q6</span><span class="p">)</span> <span class="c1"># Toffoli control qubit order doesn&#39;t matter</span>
+                <span class="n">H</span><span class="p">(</span><span class="n">psi</span><span class="p">)</span>
+                <span class="n">H</span><span class="p">(</span><span class="n">q3</span><span class="p">)</span>
+                <span class="n">H</span><span class="p">(</span><span class="n">q6</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q3</span><span class="p">)</span>
+                <span class="n">CNOT</span><span class="p">(</span><span class="n">psi</span><span class="p">,</span> <span class="n">q6</span><span class="p">)</span>
+                <span class="n">TOFFOLI</span><span class="p">(</span><span class="n">q6</span><span class="p">,</span> <span class="n">q3</span><span class="p">,</span> <span class="n">psi</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">psi</span> <span class="c1"># psi is now Alice&#39;s original state</span>
+
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">measurement_results</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="c1"># Bob receives 9 qubits representing Alice&#39;s encoded state</span>
+                        <span class="n">received</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
+                        <span class="c1"># Decode and measure the original state</span>
+                        <span class="n">psi_true</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shor_decode</span><span class="p">(</span><span class="o">*</span><span class="n">received</span><span class="p">)</span>
+                        <span class="n">measurement_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psi_true</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">measurement_results</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">DumbBob</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;DumbBob receives a state from Alice but does not error-correct&#39;&#39;&#39;</span>
+        <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="n">measurement_results</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                        <span class="n">received</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">dumb_alice</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
+                        <span class="n">psi_true</span> <span class="o">=</span> <span class="n">received</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">measurement_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">psi_true</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">measurement_results</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now we need to make an error model to simulate the qubit corruption. SQUANCH includes base classes for defining error models and quantum/classical channels. In this demonstration, we’ll only use a quantum error, from the base class <code class="docutils literal notranslate"><span class="pre">QError</span></code>, and a quantum channel model, from the base class <code class="docutils literal notranslate"><span class="pre">QChannel</span></code>. Let’s start with the error model, which can apply a random unitary operation to a single qubit in each group of nine.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShorError</span><span class="p">(</span><span class="n">QError</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">):</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                Instatiate the error model from the parent class</span>
+<span class="sd">                :param QChannel qchannel: parent quantum channel</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="n">QError</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qchannel</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">error_applied</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qubit</span><span class="p">):</span>
+                <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">                Apply a random unitary operation to one of the qubits in a set of 9</span>
+<span class="sd">                :param Qubit qubit: qubit from quantum channel</span>
+<span class="sd">                :return: either unchanged qubit or None</span>
+<span class="sd">                &#39;&#39;&#39;</span>
+                <span class="c1"># reset error for each group of 9 qubits</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">error_applied</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">9</span>
+                <span class="c1"># qubit could be None if combining with other error models, such as attenuation</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">error_applied</span> <span class="ow">and</span> <span class="n">qubit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mf">0.5</span><span class="p">:</span> <span class="c1"># apply the error</span>
+                                <span class="n">random_unitary</span> <span class="o">=</span> <span class="n">unitary_group</span><span class="o">.</span><span class="n">rvs</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="c1"># pick a random U(2) matrix</span>
+                                <span class="n">qubit</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">random_unitary</span><span class="p">)</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">error_applied</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">return</span> <span class="n">qubit</span>
+</pre></div>
+</div>
+<p>Adding this error to a channel model is simple: simply call <code class="docutils literal notranslate"><span class="pre">__init__</span></code> of the parent channel class and add the error class to the <code class="docutils literal notranslate"><span class="pre">self.errors</span></code> list:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">ShorQChannel</span><span class="p">(</span><span class="n">QChannel</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Represents a quantum channel with a Shor error applied&#39;&#39;&#39;</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_agent</span><span class="p">,</span> <span class="n">to_agent</span><span class="p">):</span>
+                <span class="n">QChannel</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_agent</span><span class="p">,</span> <span class="n">to_agent</span><span class="p">)</span>
+                <span class="c1"># register the error model</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">errors</span> <span class="o">=</span> <span class="p">[</span><span class="n">ShorError</span><span class="p">(</span><span class="bp">self</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>Before we move on, let’s make some helper functions:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">to_bits</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Convert a string to a list of bits&#39;&#39;&#39;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">string</span><span class="p">:</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="nb">bin</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">c</span><span class="p">))[</span><span class="mi">2</span><span class="p">:]</span>
+                <span class="n">bits</span> <span class="o">=</span> <span class="s1">&#39;00000000&#39;</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">bits</span><span class="p">):]</span> <span class="o">+</span> <span class="n">bits</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">bits</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+<span class="k">def</span> <span class="nf">from_bits</span><span class="p">(</span><span class="n">bits</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;Convert a list of bits to a string&#39;&#39;&#39;</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">8</span><span class="p">)):</span>
+                <span class="n">byte</span> <span class="o">=</span> <span class="n">bits</span><span class="p">[</span><span class="n">b</span><span class="o">*</span><span class="mi">8</span><span class="p">:(</span><span class="n">b</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="mi">8</span><span class="p">]</span>
+                <span class="n">chars</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">bit</span><span class="p">)</span> <span class="k">for</span> <span class="n">bit</span> <span class="ow">in</span> <span class="n">byte</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chars</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now let’s prepare a set of states for Alice to transmit to Bob. Since each qsystem has 9 qubits – much larger than in the other demonstrations – we don’t want to make anything too large, so a small text message is suitable.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare a message to send</span>
+<span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Peter Shor once lived in Ruddock 238! But who was Airman?&quot;</span>
+<span class="n">bits</span> <span class="o">=</span> <span class="n">to_bits</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="c1"># Allocate memory and output</span>
+<span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bits</span><span class="p">))</span> <span class="c1"># 9 qubits per encoded state</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+
+<span class="c1"># Encode the message as spin eigenstates</span>
+<span class="n">stream</span> <span class="o">=</span> <span class="n">QStream</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">bit</span><span class="p">,</span> <span class="n">qsystem</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bits</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">bit</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">X</span><span class="p">(</span><span class="n">qsystem</span><span class="o">.</span><span class="n">qubit</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Finally, we need to instantiate Alice, DumbAlice, Bob, and DumbBob. We’ll make a copy of <code class="docutils literal notranslate"><span class="pre">mem</span></code> for DumbAlice and DumbBob to use since they can’t be trusted with the real thing. (Otherwise, manipulations done by DumbAlice would affect Bob’s memory/QStream/qubits.)</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Alice and Bob will use error correction</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span><span class="c1">#, ShorQChannel)</span>
+
+<span class="c1"># Dumb agents won&#39;t use error correction</span>
+<span class="n">mem2</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+<span class="n">dumb_alice</span> <span class="o">=</span> <span class="n">DumbAlice</span><span class="p">(</span><span class="n">mem2</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">dumb_bob</span> <span class="o">=</span> <span class="n">DumbBob</span><span class="p">(</span><span class="n">mem2</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">dumb_alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">dumb_bob</span><span class="p">,</span> <span class="n">ShorQChannel</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, let’s run the simulation!</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Simulation</span><span class="p">(</span><span class="n">dumb_alice</span><span class="p">,</span> <span class="n">dumb_bob</span><span class="p">,</span> <span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DumbAlice sent:   </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;DumbBob received: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_bits</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;DumbBob&quot;</span><span class="p">])))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Alice sent:       </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bob received:     </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">from_bits</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">])))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>DumbAlice sent:   Peter Shor once lived in Ruddock 238! But who was Airman?
+DumbBob received: fá[0`ëf%§} ÍéþE~¼åNªÔdf.ãs&quot;2a=#°[Ô _d 9q² bNiv7
+Alice sent:       Peter Shor once lived in Ruddock 238! But who was Airman?
+Bob received:     Peter Shor once lived in Ruddock 238! But who was Airman?
+</pre></div>
+</div>
+</div>
+<div class="section" id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<p>The full source code for this demonstration is available in the demos directory of the SQUANCH repository.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../api.html" class="btn btn-neutral float-right" title="SQUANCH API reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="man-in-the-middle.html" class="btn btn-neutral" title="Man-In-The-Middle Attack" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, AT&amp;T.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.0',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          
+          SphinxRtdTheme.Navigation.enableSticky();
+          
+      });
+  </script> 
+
+</body>
+</html>

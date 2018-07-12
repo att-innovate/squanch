@@ -96,6 +96,7 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="man-in-the-middle.html">Man-In-The-Middle Attack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantum-error-correction.html">Quantum Error Correction</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../api.html">SQUANCH API reference</a></li>
@@ -175,7 +176,7 @@
 <blockquote>
 <div><ol class="arabic simple">
 <li>Charlie generates EPR pairs in the state <span class="math notranslate">\(\frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )\)</span>. He sends one particle to Alice and the other to Bob.</li>
-<li>Alice encodes her two bits of classical inforation in the relative sign and phase of her qubit by acting with the Pauli-X and -Z gates. Formally, if she has two bits, <span class="math notranslate">\(b_1 and b_2\)</span>, she applies X if <span class="math notranslate">\(b_2 = 1\)</span> and then applies Z if <span class="math notranslate">\(b_1 = 1\)</span>. She then sends the modified qubit to Bob.</li>
+<li>Alice encodes her two bits of classical inforation in the relative sign and phase of her qubit by acting with the Pauli-X and -Z gates. Formally, if she has two bits, <span class="math notranslate">\(b_1\)</span> and <span class="math notranslate">\(b_2\)</span>, she applies X if <span class="math notranslate">\(b_2 = 1\)</span> and then applies Z if <span class="math notranslate">\(b_1 = 1\)</span>. She then sends the modified qubit to Bob.</li>
 <li>Bob disentangles the X and Z components of the qubit by applying CNOT and H to Alice’s qubit and Charlie’s qubit. He then measures each of Alice’s and Charlie’s qubits to obtain <span class="math notranslate">\(b_1\)</span> and <span class="math notranslate">\(b_2\)</span>, respectively.</li>
 </ol>
 </div></blockquote>
