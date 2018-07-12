@@ -1,13 +1,15 @@
 import numpy as np
 from squanch import linalg
 
-__all__ = ["H", "X", "Y", "Z", "RX", "RY", "RZ", "CNOT", "expand"]
+__all__ = ["H", "X", "Y", "Z", "RX", "RY", "RZ", "CNOT", "TOFFOLI", "CU", "SWAP", "expand"]
 
 # Single qubit operators that can be applied with qubit.apply()
 
 # Projection operators
-_M0 = np.outer([1, 0], [1, 0])
-_M1 = np.outer([0, 1], [0, 1])
+_M0 = np.outer([1, 0],
+               [1, 0])
+_M1 = np.outer([0, 1],
+               [0, 1])
 
 # Identity operator
 _I = np.array([[1, 0],
@@ -34,7 +36,7 @@ _Z = np.array([[1, 0],
 def H(qubit):
     '''
     Applies the Hadamard transform to the specified qubit, updating the qsystem state.
-    cacheID: ``H``
+    cache_id: ``H``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
@@ -44,7 +46,7 @@ def H(qubit):
 def X(qubit):
     '''
     Applies the Pauli-X (NOT) operation to the specified qubit, updating the qsystem state.
-    cacheID: ``X``
+    cache_id: ``X``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
@@ -54,7 +56,7 @@ def X(qubit):
 def Y(qubit):
     '''
     Applies the Pauli-Y operation to the specified qubit, updating the qsystem state.
-    cacheID: ``Y``
+    cache_id: ``Y``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
@@ -64,7 +66,7 @@ def Y(qubit):
 def Z(qubit):
     '''
     Applies the Pauli-Z operation to the specified qubit, updating the qsystem state.
-    cacheID: ``Z``
+    cache_id: ``Z``
 
     :param Qubit qubit: the qubit to apply the operator to
     '''
@@ -74,7 +76,7 @@ def Z(qubit):
 def RX(qubit, angle):
     '''
     Applies the single qubit X-rotation operator to the specified qubit, updating the qsystem state.
-    cacheID: ``Rx*``, where * is angle/pi
+    cache_id: ``Rx*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
     :param float angle: the angle by which to rotate
@@ -86,7 +88,7 @@ def RX(qubit, angle):
 def RY(qubit, angle):
     '''
     Applies the single qubit Y-rotation operator to the specified qubit, updating the qsystem state.
-    cacheID: ``Ry*``, where * is angle/pi
+    cache_id: ``Ry*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
     :param float angle: the angle by which to rotate
@@ -98,7 +100,7 @@ def RY(qubit, angle):
 def RZ(qubit, angle):
     '''
     Applies the single qubit Z-rotation operator to the specified qubit, updating the qsystem state.
-    cacheID: ``Rz*``, where * is angle/pi
+    cache_id: ``Rz*``, where * is angle/pi
 
     :param Qubit qubit: the qubit to apply the operator to
     :param float angle: the angle by which to rotate
@@ -107,13 +109,11 @@ def RZ(qubit, angle):
     qubit.qsystem.apply(expand(gate, qubit.index, qubit.qsystem.num_qubits, "Rz" + str(angle / np.pi)))
 
 
-# Controlled-not gate
-
 def CNOT(control, target):
     '''
     Applies the controlled-NOT operation from control on target. This gate takes two qubit arguments to
     construct an arbitrary CNOT matrix.
-    cacheID: ``CNOTij``, where i and j are control and target indices
+    cache_id: ``CNOTi,j``, where i and j are control and target indices
 
     :param Qubit control: the control qubit
     :param Qubit target: the target qubit, with Pauli-X applied according to the control qubit
@@ -134,19 +134,76 @@ def CNOT(control, target):
     target.qsystem.apply(_expandedGateCache[key])
 
 
-_CNOT = np.array([
-    [1, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, 0, 1],
-    [0, 0, 1, 0],
-])
+def CU(control, target, unitary):
+    '''
+    Applies the controlled-unitary operation from control on target. This gate takes control and target qubit arguments
+    and a unitary operator to apply
+    cache_id: ``CUi,j,<str(unitary)>``, where i and j are control and target indices
 
-_SWAP = np.array([
-    [1, 0, 0, 0],
-    [0, 0, 1, 0],
-    [0, 1, 0, 0],
-    [0, 0, 0, 1],
-])
+    :param Qubit control: the control qubit
+    :param Qubit target: the target qubit
+    :param np.array unitary: the unitary single-qubit gate to apply to the target qubit
+    '''
+    key = "CU" + str(control.index) + "," + str(target.index) + "," + str(unitary)
+    # Generate the gate if needed
+    if key not in _expandedGateCache:
+        # Represent CNOT(i,j) as |0i><0i| x I x ... x I + |1i><1i| x I x ... x Xtarg x I x ...
+        proj0 = linalg.tensor_fill_identity(_M0, control.qsystem.num_qubits, control.index)
+        proj1gates = [_I for _ in range(control.qsystem.num_qubits)]
+        proj1gates[control.index] = _M1
+        proj1gates[target.index] = unitary
+        proj1 = linalg.tensors(proj1gates)
+        CUij = proj0 + proj1
+        # Cache the gate
+        _expandedGateCache[key] = CUij
+    # Apply the gate
+    target.qsystem.apply(_expandedGateCache[key])
+
+
+def TOFFOLI(control1, control2, target):
+    '''
+    Applies the Toffoli (or controlled-controlled-NOT) operation from control on target. This gate takes three qubit
+    arguments to construct an arbitrary CCNOT matrix.
+    cache_id: ``CCNOTi,j,k``, where i and j are control indices and k target indices
+
+    :param Qubit control1: the first control qubit
+    :param Qubit control2: the second control qubit
+    :param Qubit target: the target qubit, with Pauli-X applied according to the control qubit
+    '''
+    c1, c2 = sorted([control1.index, control2.index])
+    num_qubits = target.qsystem.num_qubits
+    key = "CCNOT" + str(c1) + "," + str(c2) + "," + str(target.index)
+    # Generate the gate if needed
+    if key not in _expandedGateCache:
+        # Represent CCNOT(i,j) as |0i><0i| x |0j><0j| x I x ... x I + |1i><1i| x |1j><1j| x I x ... x Xtarg x I x ...
+        proj0ij = linalg.tensors([
+            linalg.tensors([np.eye(2)] * c1), _M0,
+            linalg.tensors([np.eye(2)] * (c2 - (c1 + 1))), _M0,
+            linalg.tensors([np.eye(2)] * (num_qubits - (c2 + 1)))
+        ])
+        proj1gates = [_I for _ in range(num_qubits)]
+        proj1gates[c1] = _M1
+        proj1gates[c2] = _M1
+        proj1gates[target.index] = _X
+        proj1ijk = linalg.tensors(proj1gates)
+        CNOTijk = proj0ij + proj1ijk
+        # Cache the gate
+        _expandedGateCache[key] = CNOTijk
+    # Apply the gate
+    target.qsystem.apply(_expandedGateCache[key])
+
+
+def SWAP(q1, q2):
+    '''
+    Applies the SWAP operator to two qubits, switching the states. This gate is implemented by three CNOT operations 
+    and thus has no cache_id.
+    :param q1: the first qubit
+    :param q2: the second qubit
+    '''
+    CNOT(q2, q1)
+    CNOT(q1, q2)
+    CNOT(q2, q1)
+
 
 _expandedGateCache = {}
 

@@ -42,7 +42,7 @@ The state of a quantum system is tracked as a complex-valued density matrix in t
            [ 0.+0.j,  0.+0.j,  0.+0.j,  0.+0.j],
            [ 0.+0.j,  0.+0.j,  0.+0.j,  0.+0.j]], dtype=complex64)
 
-``QSystem`` s also have a generator to yield their consistuent qubits. Note that this isn't the same as a list, as the qubits are instantiated only when they are asked for, not upon instantiation of the QSystem. (This saves on overhead, especially in cases when only one qubit in a system of many needs to be modified.)
+``QSystem``s also have a generator to yield their consistuent qubits. Note that this isn't the same as a list, as the qubits are instantiated only when they are asked for, not upon instantiation of the QSystem. (This saves on overhead, especially in cases when only one qubit in a system of many needs to be modified.)
 
 .. code:: python
 
@@ -51,6 +51,24 @@ The state of a quantum system is tracked as a complex-valued density matrix in t
 .. parsed-literal:: 
 
     <generator object <genexpr> at 0x107000460>
+
+A possible point of confusion: since ``qubits`` is a generator object, you can only loop through the qubits of a given qsystem once (for a given agent -- more on that below)! (If you need to access them multiple times, consider converting them to a list with ``qubits = list(qsys.qubits)``.)
+
+.. code:: python
+
+    qsys2 = QSystem(2)
+    for i in range(3):
+        print("Loop "+str(i))
+        for qubit in qsys2.qubits:
+            print(qubit)
+
+.. parsed-literal::
+
+    Loop 0
+    <squanch.qubit.Qubit instance at 0x10d7d3828>
+    <squanch.qubit.Qubit instance at 0x10d7d3908>
+    Loop 1
+    Loop 2
 
 You can access and work with the qubits of a system either by pattern matching them:
 
@@ -303,7 +321,7 @@ To program the agents themselves, we extend the Agent base class and overwrite t
                 bits += str(q.measure())
             self.output(bits)
 
-Finally, to instantiate and run the agents, we need to name them (if no name is provided in the class call, it defaults to the name of the class, e.g. ``Alice(...).name == "Alice"``) and we need to make an appropriately sized ``shared_hilbert_space`` and a ``shared_output`` to pass to the agents. We then connect the agents with a quantum channel:
+To instantiate and run the agents, we need to allocate memory for `QStream` using `Agent.shared_hilbert_space` and a shared output dictionary with `Agent.shared_output`. Explicitly allocating and passing memory and output dictionaries to agents is necessary because each agent runs in its own separate process, which (generally) have separate memory pools. (See :ref:`Agent <agent>` API for more details.)  We then connect the agents with a quantum channel:
 
 .. code:: python 
 

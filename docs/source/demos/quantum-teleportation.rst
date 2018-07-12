@@ -3,7 +3,7 @@
 Quantum Teleportation
 =====================
 
-Quantum teleportation allows two parties that share an entangled pair to transfer a quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
+Quantum teleportation allows two parties that share an entangled pair to transfer an arbitrary quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of :ref:`superdense coding <superdenseCodingDemo>`.
 
 The source code for this demo is included in the `demos` directory of the SQUANCH repository.
 
