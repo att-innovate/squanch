@@ -175,18 +175,15 @@ def TOFFOLI(control1, control2, target):
     key = "CCNOT" + str(c1) + "," + str(c2) + "," + str(target.index)
     # Generate the gate if needed
     if key not in _expandedGateCache:
-        # Represent CCNOT(i,j) as |0i><0i| x |0j><0j| x I x ... x I + |1i><1i| x |1j><1j| x I x ... x Xtarg x I x ...
-        proj0ij = linalg.tensors([
-            linalg.tensors([np.eye(2)] * c1), _M0,
-            linalg.tensors([np.eye(2)] * (c2 - (c1 + 1))), _M0,
-            linalg.tensors([np.eye(2)] * (num_qubits - (c2 + 1)))
-        ])
-        proj1gates = [_I for _ in range(num_qubits)]
-        proj1gates[c1] = _M1
-        proj1gates[c2] = _M1
-        proj1gates[target.index] = _X
-        proj1ijk = linalg.tensors(proj1gates)
-        CNOTijk = proj0ij + proj1ijk
+        gates_list = [[_M0, _M0, _I], [_M0, _M1, _I], [_M1, _M0, _I], [_M1, _M1, _X]]
+        CNOTijk = 0
+        for gates in gates_list:
+            ops = [_I for _ in range(num_qubits)]
+            ops[c1] = gates[0]
+            ops[c2] = gates[1]
+            ops[target.index] = gates[2]
+            operator = linalg.tensors(ops)
+            CNOTijk += operator
         # Cache the gate
         _expandedGateCache[key] = CNOTijk
     # Apply the gate

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="SQUANCH",
-    version="0.0.2",
+    version="1.0.0",
     author="Ben Bartlett",
     author_email="benbartlett@stanford.edu",
     description="Simulator for Quantum Networks and Channels",

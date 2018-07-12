@@ -28,7 +28,7 @@ class QSystem:
         self.index = index
         # Register the state or generate a new one
         if state is not None:
-            self.state = state  # density matrix should be passed by reference and will modiy the QStream.state
+            self.state = state  # density matrix should be passed by reference and will modify the QStream.state
         else:
             # Initialize each qubit state
             initial_qubit_state = np.outer(_0, _0)  # each qubit is initialized as |0><0|
