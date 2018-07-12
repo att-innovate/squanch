@@ -12,7 +12,7 @@ Protocol
 
 .. image:: https://www.media.mit.edu/quanta/qasm2circ/test2.png
 
-Below is a simple two-party quantum teleportation protocol. We'll be using the above circuit diagram.
+In this demo, we'll implement a simple two-party quantum teleportation protocol using the above circuit diagram.
 
 	1. Alice generates an EPR pair; for this protocol, we'll use the state :math:`\lvert q_1 q_2 \rangle = \frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )`. She will keep one particle in the pair and send the other one to Bob.
 

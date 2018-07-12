@@ -42,7 +42,7 @@ The state of a quantum system is tracked as a complex-valued density matrix in t
            [ 0.+0.j,  0.+0.j,  0.+0.j,  0.+0.j],
            [ 0.+0.j,  0.+0.j,  0.+0.j,  0.+0.j]], dtype=complex64)
 
-``QSystem``s also have a generator to yield their consistuent qubits. Note that this isn't the same as a list, as the qubits are instantiated only when they are asked for, not upon instantiation of the QSystem. (This saves on overhead, especially in cases when only one qubit in a system of many needs to be modified.)
+``QSystem`` s also have a generator to yield their consistuent qubits. Note that this isn't the same as a list, as the qubits are instantiated only when they are asked for, not upon instantiation of the QSystem. (This saves on overhead, especially in cases when only one qubit in a system of many needs to be modified.)
 
 .. code:: python
 
