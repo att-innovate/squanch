@@ -1,6 +1,8 @@
 # Simulator for quantum networks and channels
 
-<img align="right" src="/docs/source/img/superdenseAEB.png" width=400>
+<!-- images are hard-linked so they will show up on pypi page -->
+
+<img align="right" src="https://github.com/att-innovate/squanch/blob/master/docs/source/img/superdenseAEB.png" width=400>
 
 SQUANCH (Simulator for QUAntum Networks and CHannels) is an open-source Python framework for creating performant and 
 parallelized simulations of distributed quantum information processing. Although it can be used as a general-purpose 
