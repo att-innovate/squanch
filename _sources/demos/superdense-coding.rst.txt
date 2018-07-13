@@ -18,6 +18,8 @@ We'll be using the above circuit diagram to describe a three-party quantum super
 
 	3. Bob disentangles the X and Z components of the qubit by applying CNOT and H to Alice's qubit and Charlie's qubit. He then measures each of Alice's and Charlie's qubits to obtain :math:`b_1` and :math:`b_2`, respectively.
 
+We'll also use SQUANCH's built-in timing functionality to track the simulated time for each agent to complete their part of the protocol assuming a photon pulse interval of 1ns.
+
 Implementation
 --------------
 
@@ -48,6 +50,7 @@ Now, as usual, we'll want to define child `Agent` classes that implement the beh
 				CNOT(a, b)
 				self.qsend(alice, a)
 				self.qsend(bob, b)
+            self.output({"t": self.time})
 
 For Alice, we'll want to include the transmission behavior. We'll pass in the data that she wants to transmit as a 1D array in an input argument when we instantiate her, and it will be stored in `self.data`. 
 
@@ -64,6 +67,7 @@ For Alice, we'll want to include the transmission behavior. We'll pass in the da
 					if bit2 == 1: X(q)
 					if bit1 == 1: Z(q)
 				self.qsend(bob, q)
+            self.output({"t": self.time})
 
 Finally, for Bob, we'll want to include the disentangling and measurement behavior, and we'll want to output his measured data using `self.output`, which passes it to the parent process through the `sharedOutputDict` that is provided to agents on instantiation.
 
@@ -82,7 +86,7 @@ Finally, for Bob, we'll want to include the disentangling and measurement behavi
 					bits.extend([a.measure(), c.measure()])
 				else:
 					bits.extend([0,0])
-			self.output(bits)
+            self.output({"t": self.time, "bits": bits})
 
 Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we'll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we'll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)
 
@@ -101,6 +105,11 @@ Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do
 	bob = Bob(mem, out)
 	charlie = Charlie(mem, out)
 
+    # Set photon transmission rate
+    alice.pulse_length = 1e-9
+    bob.pulse_length = 1e-9
+    charlie.pulse_length = 1e-9
+
 For agents to communicate with each other, they must be connected via quantum or classical channels. The `Agent.qconnect` and `Agent.cconnect` methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.
 
 .. code:: python 
@@ -115,24 +124,33 @@ Once we've connected the agents, we just need to run all of the agent processes 
 .. code:: python
 
 	# Run the agents
-	start = time.time()
-	Simulation(alice, bob, charlie).run()
-	print("Transmitted {} bits in {:.3f}s.".format(len(out["Bob"]), time.time() - start))
+    start = time.time()
+    Simulation(alice, bob, charlie).run()
+
+    print("Transmitted {} bits in {:.3f}s.".format(len(out["Bob"]), time.time() - start))
+    t_alice, t_bob, t_charlie = out["Alice"]["t"], out["Bob"]["t"], out["Charlie"]["t"]
+    print("Simulated time: Alice: {:.2e}s, Bob: {:.2e}s, Charlie: {:.2e}s"
+          .format(t_alice, t_bob, t_charlie))
+
+.. parsed-literal::
+
+    Transmitted 2 bits in 74.323s.
+    Simulated time: Alice: 4.16e-04s, Bob: 4.20e-04s, Charlie: 4.15e-04s
 
 Finally, let's retrieve Bob's data and repackage it into an image array, then compare the results.
 
 .. code:: python
 
-	received = np.reshape(np.packbits(out["Bob"]), img.shape)
-	f, ax = plt.subplots(1, 2, figsize = (8, 4))
-	ax[0].imshow(received)
-	ax[0].axis('off')
-	ax[0].title.set_text("Alice's image")
-	ax[1].imshow(received)
-	ax[1].axis('off')
-	ax[1].title.set_text("Bob's image")
-	plt.tight_layout()
-	plt.show()
+    received = np.reshape(np.packbits(out["Bob"]["bits"]), img.shape)
+    f, ax = plt.subplots(1, 2, figsize = (8, 4))
+    ax[0].imshow(img)
+    ax[0].axis('off')
+    ax[0].title.set_text("Alice's image")
+    ax[1].imshow(received)
+    ax[1].axis('off')
+    ax[1].title.set_text("Bob's image")
+    plt.tight_layout()
+    plt.show()
 
 .. image:: ../img/transmissionDemo.png 
 

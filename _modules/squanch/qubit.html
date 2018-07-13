@@ -180,7 +180,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
         <span class="c1"># Register the state or generate a new one</span>
         <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>  <span class="c1"># density matrix should be passed by reference and will modiy the QStream.state</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>  <span class="c1"># density matrix should be passed by reference and will modify the QStream.state</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Initialize each qubit state</span>
             <span class="n">initial_qubit_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">outer</span><span class="p">(</span><span class="n">_0</span><span class="p">,</span> <span class="n">_0</span><span class="p">)</span>  <span class="c1"># each qubit is initialized as |0&gt;&lt;0|</span>

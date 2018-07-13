@@ -180,6 +180,7 @@
 <li>Bob disentangles the X and Z components of the qubit by applying CNOT and H to Alice’s qubit and Charlie’s qubit. He then measures each of Alice’s and Charlie’s qubits to obtain <span class="math notranslate">\(b_1\)</span> and <span class="math notranslate">\(b_2\)</span>, respectively.</li>
 </ol>
 </div></blockquote>
+<p>We’ll also use SQUANCH’s built-in timing functionality to track the simulated time for each agent to complete their part of the protocol assuming a photon pulse interval of 1ns.</p>
 </div>
 <div class="section" id="implementation">
 <h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
@@ -203,6 +204,7 @@
                         <span class="n">CNOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">({</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>For Alice, we’ll want to include the transmission behavior. We’ll pass in the data that she wants to transmit as a 1D array in an input argument when we instantiate her, and it will be stored in <cite>self.data</cite>.</p>
@@ -217,6 +219,7 @@
                                 <span class="k">if</span> <span class="n">bit2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">X</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
                                 <span class="k">if</span> <span class="n">bit1</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">Z</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">({</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>Finally, for Bob, we’ll want to include the disentangling and measurement behavior, and we’ll want to output his measured data using <cite>self.output</cite>, which passes it to the parent process through the <cite>sharedOutputDict</cite> that is provided to agents on instantiation.</p>
@@ -233,22 +236,27 @@
                                 <span class="n">bits</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">measure</span><span class="p">(),</span> <span class="n">c</span><span class="o">.</span><span class="n">measure</span><span class="p">()])</span>
                         <span class="k">else</span><span class="p">:</span>
                                 <span class="n">bits</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">({</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="s2">&quot;bits&quot;</span><span class="p">:</span> <span class="n">bits</span><span class="p">})</span>
 </pre></div>
 </div>
 <p>Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we’ll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we’ll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load an image and serialize it to a bitstream</span>
-<span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/foundryLogo.bmp&quot;</span><span class="p">)</span>
-<span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Load an image and serialize it to a bitstream</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/foundryLogo.bmp&quot;</span><span class="p">)</span>
+    <span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
 
-<span class="c1"># Allocate a shared Hilbert space and output object to pass to agents</span>
-<span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+    <span class="c1"># Allocate a shared Hilbert space and output object to pass to agents</span>
+    <span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
 
-<span class="c1"># Make agent instances</span>
-<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
-<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+    <span class="c1"># Make agent instances</span>
+    <span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
+    <span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+    <span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+
+<span class="c1"># Set photon transmission rate</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">pulse_length</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="n">bob</span><span class="o">.</span><span class="n">pulse_length</span> <span class="o">=</span> <span class="mf">1e-9</span>
+<span class="n">charlie</span><span class="o">.</span><span class="n">pulse_length</span> <span class="o">=</span> <span class="mf">1e-9</span>
 </pre></div>
 </div>
 <p>For agents to communicate with each other, they must be connected via quantum or classical channels. The <cite>Agent.qconnect</cite> and <cite>Agent.cconnect</cite> methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let’s say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.</p>
@@ -259,16 +267,24 @@
 </pre></div>
 </div>
 <p>Once we’ve connected the agents, we just need to run all of the agent processes with <cite>start()</cite> and wait for them to finish with <cite>join()</cite>.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run the agents</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Run the agents</span>
 <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
 <span class="n">Simulation</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">charlie</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Transmitted </span><span class="si">{}</span><span class="s2"> bits in </span><span class="si">{:.3f}</span><span class="s2">s.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]),</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">))</span>
+<span class="n">t_alice</span><span class="p">,</span> <span class="n">t_bob</span><span class="p">,</span> <span class="n">t_charlie</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;Alice&quot;</span><span class="p">][</span><span class="s2">&quot;t&quot;</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">][</span><span class="s2">&quot;t&quot;</span><span class="p">],</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;Charlie&quot;</span><span class="p">][</span><span class="s2">&quot;t&quot;</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Simulated time: Alice: </span><span class="si">{:.2e}</span><span class="s2">s, Bob: </span><span class="si">{:.2e}</span><span class="s2">s, Charlie: </span><span class="si">{:.2e}</span><span class="s2">s&quot;</span>
+      <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">t_alice</span><span class="p">,</span> <span class="n">t_bob</span><span class="p">,</span> <span class="n">t_charlie</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Transmitted</span> <span class="mi">2</span> <span class="n">bits</span> <span class="ow">in</span> <span class="mf">74.323</span><span class="n">s</span><span class="o">.</span>
+<span class="n">Simulated</span> <span class="n">time</span><span class="p">:</span> <span class="n">Alice</span><span class="p">:</span> <span class="mf">4.16e-04</span><span class="n">s</span><span class="p">,</span> <span class="n">Bob</span><span class="p">:</span> <span class="mf">4.20e-04</span><span class="n">s</span><span class="p">,</span> <span class="n">Charlie</span><span class="p">:</span> <span class="mf">4.15e-04</span><span class="n">s</span>
 </pre></div>
 </div>
 <p>Finally, let’s retrieve Bob’s data and repackage it into an image array, then compare the results.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">received</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">packbits</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]),</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">received</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">packbits</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">][</span><span class="s2">&quot;bits&quot;</span><span class="p">]),</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="n">f</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
-<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">received</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;Alice&#39;s image&quot;</span><span class="p">)</span>
 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">received</span><span class="p">)</span>
