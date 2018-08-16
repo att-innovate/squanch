@@ -37,8 +37,7 @@ Demonstrations of various quantum protocols can be found in the [demos](/demos) 
 
 As an example to put in this readme, let's consider a scenario where Alice wants to send data to Bob. For security, she transmits her message through [quantum superdense coding](https://en.wikipedia.org/wiki/Superdense_coding). In this scenario, shown below as a circuit diagram, we have four [`Agents`](https://att-innovate.github.io/squanch/getting-started.html#using-agents-in-your-simulations), who act as follows:
 
-![Circuit diagram of the four-party quatnum network described above.](https://raw.githubusercontent.com/att-innovate/squanch/master/docs/source/img/man-in-middle-circuit.png)
-
+<img src="https://raw.githubusercontent.com/att-innovate/squanch/master/docs/source/img/man-in-middle-circuit.png" width=500>
 
 - Charlie generates entangled pairs of qubits, which he sends to Alice and Bob.
 - Alice receives Charlie's qubit. She encodes two bits of her data in it and sends it Bob.
@@ -130,4 +129,4 @@ Simulation(alice, eve, bob, charlie).run()
 
 If you are doing research using `SQUANCH`, please cite our whitepaper:
 
-    B. Bartlett, "A distributed simulation framework for quantum networks and channels," arXiv: ####.##### [quant-ph], Aug. 2018.
+> B. Bartlett, "A distributed simulation framework for quantum networks and channels," arXiv: ####.##### [quant-ph], Aug. 2018.
