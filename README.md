@@ -4,13 +4,15 @@
 
 The _Simulator for Quantum Networks and Channels_ (`SQUANCH`) is an open-source Python library for creating parallelized simulations of distributed quantum information processing. The framework includes many features of a general-purpose quantum computing simulator, but it is optimized specifically for simulating quantum networks. It includes functionality to allow users to easily design complex multi-party quantum networks, extensible classes for modeling noisy quantum channels, and a multiprocessed NumPy backend for performant simulations.
 
+A schematic overview of the modules available in `SQUANCH` is shown below. (Refer to the [documentation](https://att-innovate.github.io/squanch/) or the [whitepaper](link) for more details.)
+
+![Overview of SQUANCH framework structure](https://raw.githubusercontent.com/att-innovate/squanch/master/docs/source/img/moduleOverview.png)
+
 `SQUANCH` is developed as part of the Intelligent Quantum Networks and Technologies ([INQNET](http://inqnet.caltech.edu)) program, a [collaboration](http://about.att.com/story/beyond_quantum_computing.html) between AT&T and the California Institute of Technology. 
 
 ## Documentation
 
 Documentation for this package is available at the [documentation website](https://att-innovate.github.io/squanch/) or as a [pdf manual](/docs/SQUANCH.pdf). We encourage interested users to read the whitepaper for the `SQUANCH` platform, "A distributed simulation framework for quantum networks and channels" (arXiv: [LINK HERE](https://arxiv.org/abs/BLAH)), which provides an overview of the framework and a primer on quantum information.
-
-![](module overview link)
 
 ## Installation 
 
@@ -33,16 +35,15 @@ Demonstrations of various quantum protocols can be found in the [demos](/demos) 
 
 ### Example: quantum interception attack
 
-As an example to put in this readme, let's consider a scenario where Alice wants to send data to Bob. For security, she transmits her message through [quantum superdense coding](https://en.wikipedia.org/wiki/Superdense_coding). In this scenario, we have four [`Agents`](https://att-innovate.github.io/squanch/getting-started.html#using-agents-in-your-simulations), who act as follows:
+As an example to put in this readme, let's consider a scenario where Alice wants to send data to Bob. For security, she transmits her message through [quantum superdense coding](https://en.wikipedia.org/wiki/Superdense_coding). In this scenario, shown below as a circuit diagram, we have four [`Agents`](https://att-innovate.github.io/squanch/getting-started.html#using-agents-in-your-simulations), who act as follows:
+
+![Circuit diagram of the four-party quatnum network described above.](https://raw.githubusercontent.com/att-innovate/squanch/master/docs/source/img/man-in-middle-circuit.png)
+
 
 - Charlie generates entangled pairs of qubits, which he sends to Alice and Bob.
 - Alice receives Charlie's qubit. She encodes two bits of her data in it and sends it Bob.
 - Bob receives the qubits from Charlie and Alice. He operates jointly on them and measures them to reconstruct Alice's two bits of information.
 - However, the fourth agent, Eve, wants to know Alice's data. She intercepts every qubit Alice sends to Bob, measures it, and re-transmits it to Bob, hoping he won't notice.
-
-This scenario is represented as a quantum circuit diagram, shown below.
-
-![](link here)
 
 An implementation of this scenario in `SQUANCH` is given below.
 
@@ -123,7 +124,7 @@ Simulation(alice, eve, bob, charlie).run()
 # (Plotting code omitted for brevity; results shown below)
 ``` 
 
-![Images sent by Alice, intercepted by Eve, and received by Bob](link here)
+![Images sent by Alice, intercepted by Eve, and received by Bob](https://raw.githubusercontent.com/att-innovate/squanch/master/docs/source/img/man-in-the-middle-results.png)
 
 ## Citation
 
