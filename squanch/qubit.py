@@ -1,4 +1,5 @@
 import numpy as np
+
 from squanch import linalg, gates
 
 __all__ = ["QSystem", "Qubit"]
@@ -12,8 +13,8 @@ _M1 = np.outer(_1, _1)
 
 class QSystem:
     '''
-    Represents a multi-particle Hilbert space for several qubuts comprising a single system of a quantum datastream.
-    Designed to have similar syntax to QubitSytem, but instantiation is much faster
+    Represents a multi-body, maximally-entangleable quantum system. Contains references to constituent qubits and
+    (if applicable) its parent ``QStream``. Quantum state is represented as a density matrix in the computational basis.
     '''
 
     def __init__(self, num_qubits, index = None, state = None):
@@ -21,6 +22,7 @@ class QSystem:
         Instatiate the quantum state for an n-qubit system
 
         :param int num_qubits: number of qubits in the system, treated as maximally entangled
+        :param int index: index of the QSystem within the parent QStream
         :param np.array state: density matrix representing the quantum state. By default, |000...0><0...000| is used
         '''
         self.num_qubits = num_qubits
@@ -42,7 +44,7 @@ class QSystem:
     @classmethod
     def from_stream(cls, qstream, index):
         '''
-        Instantiate a QSystem from a given point in a parent QStream
+        Instantiate a QSystem from a given index in a parent QStream
 
         :param QStream qstream: the parent stream
         :param int index: the index in the parent stream corresponding to this system
@@ -83,9 +85,9 @@ class QSystem:
 
     def apply(self, operator):
         '''
-        Apply an n-qubit operator to this system's n-qubit quantum state: U|psi><psi|U^+ (U^+ = U for Hermitian)
+        Apply an N-qubit unitary operator to this system's N-qubit quantum state
 
-        :param np.array operator: the *Hermitian* n-qubit operator to apply
+        :param np.array operator: the unitary N-qubit operator to apply
         :return: nothing, the qsystem state is mutated
         '''
         # Apply the operator
@@ -96,7 +98,7 @@ class QSystem:
 
 class Qubit:
     '''
-    Represents a single physical qubit, which is a wrapper for part of a pre-allocated nonlocal QSystem
+    A wrapper class representing a single qubit in an existing quantum system.
     '''
 
     def __init__(self, qsystem, index):
@@ -123,29 +125,20 @@ class Qubit:
 
     def measure(self):
         '''
-        Measure a qubit, mutating its state in-place
+        Measure a qubit, modifying the density matrix of its parent ``QSystem`` in-place
 
         :return: the measured value
         '''
         return self.qsystem.measure_qubit(self.index)
 
-    def getState(self):
-        '''
-        Traces over the remaining portions of the qsystem to return this qubit's state expressed as a density matrix.
-
-        :return: The (mixed) density matrix describing this qubit's state
-        '''
-        # TODO: partial trace in numpy?
-        pass
-
-    def apply(self, operator, cacheID = None):
+    def apply(self, operator, id = None):
         '''
         Apply a single-qubit operator to this qubit, tensoring with I and passing to the qsystem.apply() method
 
         :param np.array operator: a single qubit (2x2) complex-valued matrix
         :param str cacheID: a character or string to cache the expanded operator by (e.g. Hadamard qubit 2 -> "IHII...")
         '''
-        self.qsystem.apply(gates.expand(operator, self.index, self.qsystem.num_qubits, cacheID))
+        self.qsystem.apply(gates.expand(operator, self.index, self.qsystem.num_qubits, id))
 
     def serialize(self):
         '''

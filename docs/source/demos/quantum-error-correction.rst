@@ -3,12 +3,14 @@
 Quantum Error Correction
 ========================
 
-When qubits are transmitted over quantum channels, they are subject to a complex set of errors which can cause them to decohere, depolarize, or simply vanish completely. For quantum information transfer to be feasible, the information must be encoded in a error-resistent format using any of a variety of quantum error correction models. In this demonstration, we show how to use SQUANCH's channel and error modules to simulate quantum errors in a transmitted message, which we correct for using the `Shor Code <https://en.wikipedia.org/wiki/Quantum_error_correction#The_Shor_code>`_ This error correction model encodes a single logical qubit into the product of 9 physical qubits and is capable of correcting for arbitrary single-qubit errors. A circuit diagram of the protocol we will implement is shown below, where :math:`E` represents a quantum channel which can arbitrarily corrupt a single qubit:
+When qubits are transmitted over quantum channels, they are subject to a complex set of errors which can cause them to decohere, depolarize, or simply vanish completely. For quantum information transfer to be feasible, the information must be encoded in a error-resistant format using any of a variety of quantum error correction models. In this demonstration, we show how to use SQUANCH’s channel and error modules to simulate quantum errors in a transmitted message, which we correct for using the `Shor Code <https://en.wikipedia.org/wiki/Quantum_error_correction#The_Shor_code>`_. This error correction model encodes a single logical qubit into the product of 9 physical qubits and is capable of correcting for arbitrary single-qubit errors. A circuit diagram for this protocol is shown below, where :math:`E` represents a quantum channel which can arbitrarily corrupt a single qubit.
 
-.. image:: https://upload.wikimedia.org/wikipedia/commons/a/a9/Shore_code.svg
+.. image:: ../img/shor-code-circuit.png
 
 Protocol
 --------
+
+In this demo, we have two pairs of agents: Alice and Bob will communicate a message which is error-protected using the Shor code, and DumbAlice an DumbBob will transmit the message without error correction. Formally, for each state :math:`|\psi\rangle` to be transmitted through the channel, the following procedure is simulated:
 
 	1. Alice has some state :math:`|\psi\rangle=\alpha_0|0\rangle+\alpha_1|1\rangle`, which she wants to send to Bob through a noisy quantum channel. She encodes her state as :math:`|\psi \rangle \rightarrow \alpha_0 \frac{1}{2\sqrt{2}}(|000\rangle + |111\rangle) \otimes (|000\rangle + |111\rangle) \otimes (|000\rangle + |111\rangle) + \alpha_1\frac{1}{2\sqrt{2}}(|000\rangle - |111\rangle) \otimes (|000\rangle - |111\rangle) \otimes (|000\rangle - |111\rangle)` using the circuit diagram above.
 
@@ -17,6 +19,8 @@ Protocol
 	3. Alice and DumbAlice send their qubits through the quantum channel to Bob and DumbBob, respectively. The channel may apply an arbitrary unitary operation to a single physical qubit in each group of 9.
 
 	4. Bob and DumbBob receive their qubits. Bob decodes his using the Shor decoding circuit. DumbBob is dumb, and thus does nothing. For the purposes of this demonstration, the qubits will be measured and the results assembled to form a message.
+
+Transmitting an image is unsuitable for this scenario due to the larger size of the Hilbert space involved compared to the previous two demonstrations. (Each ``QSystem.state`` for N=9 uses 2097264 bytes, compared to 240 bytes for N=2.) Instead, Alice and DumbAlice will transmit the bitwise representation of a short message encoded as :math:`\sigma_z`-eigenstates, and Bob and DumbBob will attempt to re-assemble the message.
 
 Implementation
 --------------
@@ -54,7 +58,7 @@ First, let's define what each of the agents do. Let's start with Alice and DumbA
 			return psi, q1, q2, q3, q4, q5, q6, q7, q8
 
 		def run(self):
-			for qsys in self.stream:
+			for qsys in self.qstream:
 				# send the encoded qubits to Bob
 				for qubit in self.shor_encode(qsys):
 					self.qsend(bob, qubit)
@@ -64,7 +68,7 @@ First, let's define what each of the agents do. Let's start with Alice and DumbA
 	class DumbAlice(Agent):
 		'''DumbAlice sends a state to Bob but forgets to error-correct!'''
 		def run(self):
-			for qsys in self.stream:
+			for qsys in self.qstream:
 				for qubit in qsys.qubits:
 					self.qsend(dumb_bob, qubit)
 
@@ -95,7 +99,7 @@ Now let's define Bob's behavior:
 
 		def run(self):
 			measurement_results = []
-			for _ in self.stream:
+			for _ in self.qstream:
 				# Bob receives 9 qubits representing Alice's encoded state
 				received = [self.qrecv(alice) for _ in range(9)]
 				# Decode and measure the original state
@@ -109,7 +113,7 @@ Now let's define Bob's behavior:
 		'''DumbBob receives a state from Alice but does not error-correct'''
 		def run(self):
 			measurement_results = []
-			for _ in self.stream:
+			for _ in self.qstream:
 				received = [self.qrecv(dumb_alice) for _ in range(9)]
 				psi_true = received[0]
 				measurement_results.append(psi_true.measure())
@@ -189,30 +193,28 @@ Now let's prepare a set of states for Alice to transmit to Bob. Since each qsyst
 	msg = "Peter Shor once lived in Ruddock 238! But who was Airman?"
 	bits = to_bits(msg)
 
-	# Allocate memory and output
-	mem = Agent.shared_hilbert_space(9, len(bits)) # 9 qubits per encoded state
-	out = Agent.shared_output()
-
 	# Encode the message as spin eigenstates
-	stream = QStream.from_array(mem)
-	for bit, qsystem in zip(bits, stream):
-		if bit == 1:
-			X(qsystem.qubit(0))
+    qstream = QStream(9, len(bits)) # 9 qubits per encoded state
+    for bit, qsystem in zip(bits, qstream):
+        if bit == 1:
+            X(qsystem.qubit(0))
+
 
 Finally, we need to instantiate Alice, DumbAlice, Bob, and DumbBob. We'll make a copy of ``mem`` for DumbAlice and DumbBob to use since they can't be trusted with the real thing. (Otherwise, manipulations done by DumbAlice would affect Bob's memory/QStream/qubits.)
 
 .. code:: python
 
-	# Alice and Bob will use error correction
-	alice = Alice(mem, out)
-	bob = Bob(mem, out)
-	alice.qconnect(bob)#, ShorQChannel)
+    # Alice and Bob will use error correction
+    out = Agent.shared_output()
+    alice = Alice(qstream, out)
+    bob = Bob(qstream, out)
+    alice.qconnect(bob, ShorQChannel)
 
-	# Dumb agents won't use error correction
-	mem2 = copy.deepcopy(mem)
-	dumb_alice = DumbAlice(mem2, out)
-	dumb_bob = DumbBob(mem2, out)
-	dumb_alice.qconnect(dumb_bob, ShorQChannel)
+    # Dumb agents won't use error correction
+    qstream2 = copy.deepcopy(qstream)
+    dumb_alice = DumbAlice(qstream2, out)
+    dumb_bob = DumbBob(qstream2, out)
+    dumb_alice.qconnect(dumb_bob, ShorQChannel)
 
 Finally, let's run the simulation!
 

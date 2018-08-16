@@ -1,4 +1,5 @@
 import numpy as np
+
 from squanch import gates
 
 __all__ = ["QError", "AttenuationError", "RandomUnitaryError", "SystematicUnitaryError"]
@@ -17,7 +18,8 @@ class QError:
 
     def apply(self, qubit):
         '''
-        Generic apply method; overwrite in child methods while maintaining the Qubit->(Qubit | None) signature
+        Applies the error to the transmitted qubit. Overwrite this method in child classes while maintaining the
+        Qubit->(Qubit | None) signature
 
         :param Qubit qubit: the qubit being withdrawn from the quantum channel with channel.get(); possibly None
         :return: the modified qubit

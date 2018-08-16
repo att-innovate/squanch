@@ -4,6 +4,5 @@
 ----------------------------------------
 .. automodule:: squanch.gates
     :members:
-    :undoc-members:
     :special-members:
     :show-inheritance:

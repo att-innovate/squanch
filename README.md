@@ -2,33 +2,25 @@
 
 <!-- images are hard-linked so they will show up on pypi page -->
 
-<img align="right" src="https://github.com/att-innovate/squanch/blob/master/docs/source/img/superdenseAEB.png" width=400>
+The _Simulator for Quantum Networks and Channels_ (`SQUANCH`) is an open-source Python library for creating parallelized simulations of distributed quantum information processing. The framework includes many features of a general-purpose quantum computing simulator, but it is optimized specifically for simulating quantum networks. It includes functionality to allow users to easily design complex multi-party quantum networks, extensible classes for modeling noisy quantum channels, and a multiprocessed NumPy backend for performant simulations.
 
-SQUANCH (Simulator for QUAntum Networks and CHannels) is an open-source Python framework for creating performant and 
-parallelized simulations of distributed quantum information processing. Although it can be used as a general-purpose 
-quantum computing simulation library, SQUANCH is designed specifically for simulating quantum *networks*, acting as a 
-sort of "quantum playground" to test ideas for quantum networking protocols. The package includes flexible modules that 
-allow you to easily design and simulate complex multi-party quantum networks, extensible classes for implementing quantum 
-and classical error models for testing error correction protocols, and a multi-threaded framework for manipulating quantum
-information in a performant manner.
-
-SQUANCH is developed as part of the Intelligent Quantum Networks and Technologies ([INQNET](http://inqnet.caltech.edu)) 
-program, a [collaboration](http://about.att.com/story/beyond_quantum_computing.html) between AT&T and the California Institute of Technology. 
+`SQUANCH` is developed as part of the Intelligent Quantum Networks and Technologies ([INQNET](http://inqnet.caltech.edu)) program, a [collaboration](http://about.att.com/story/beyond_quantum_computing.html) between AT&T and the California Institute of Technology. 
 
 ## Documentation
 
-Documentation for this package is available at the [documentation website](https://att-innovate.github.io/squanch/) or 
-as a [pdf manual](/docs/SQUANCH.pdf). You can also view the presentation given at the 2017 INQNET Symposium [here](https://indico.hep.caltech.edu/indico/getFile.py/access?sessionId=1&resId=1&materialId=0&confId=131).
+Documentation for this package is available at the [documentation website](https://att-innovate.github.io/squanch/) or as a [pdf manual](/docs/SQUANCH.pdf). We encourage interested users to read the whitepaper for the `SQUANCH` platform, "A distributed simulation framework for quantum networks and channels" (arXiv: [LINK HERE](https://arxiv.org/abs/BLAH)), which provides an overview of the framework and a primer on quantum information.
+
+![](module overview link)
 
 ## Installation 
 
-You can install SQUANCH directly using the Python package manager pip:
+You can install SQUANCH directly using the Python package manager, `pip`:
 
 ```
 pip install squanch
 ```
 
-If you don't have pip, you can get it using `easy_install pip`.
+If you don't have `pip`, you can get it using `easy_install pip`.
 
 ## Demonstrations
 
@@ -39,82 +31,102 @@ Demonstrations of various quantum protocols can be found in the [demos](/demos) 
 - [Man-in-the-middle attack](https://att-innovate.github.io/squanch/demos/man-in-the-middle.html)
 - [Quantum error correction](https://att-innovate.github.io/squanch/demos/quantum-error-correction.html)
 
-As a simple example to put in this readme, let's consider a simulation of
-a transmission of classical data via [quantum superdense coding](https://en.wikipedia.org/wiki/Superdense_coding). In this
-scenario, we have three agents, Alice, Bob, and Charlie. Charlie will distribute Bell pairs between Alice and Bob, then Alice will 
-send data to Bob by encoding two bits in the Pauli-X and -Z operations for each of her photons. Bob receives Alice's photons and 
-disentangles them to reconstruct her information, as shown in the following diagram.
+### Example: quantum interception attack
 
-![](https://github.com/att-innovate/squanch/blob/master/docs/source/img/superdenseABC.png)
+As an example to put in this readme, let's consider a scenario where Alice wants to send data to Bob. For security, she transmits her message through [quantum superdense coding](https://en.wikipedia.org/wiki/Superdense_coding). In this scenario, we have four [`Agents`](https://att-innovate.github.io/squanch/getting-started.html#using-agents-in-your-simulations), who act as follows:
 
-Simulating complex scenarios with multiple agents like this one is what SQUANCH is designed to do. The quantum states of large
-numbers of particles can be efficiently dealt with using `QStream` objects, and the behavior of each agent can be defined by 
-extending the built-in `Agent` class. The entire simulation runs in parallel in separate processes for each agent.
-The code necessary to simulate this scenario is given below.
+- Charlie generates entangled pairs of qubits, which he sends to Alice and Bob.
+- Alice receives Charlie's qubit. She encodes two bits of her data in it and sends it Bob.
+- Bob receives the qubits from Charlie and Alice. He operates jointly on them and measures them to reconstruct Alice's two bits of information.
+- However, the fourth agent, Eve, wants to know Alice's data. She intercepts every qubit Alice sends to Bob, measures it, and re-transmits it to Bob, hoping he won't notice.
+
+This scenario is represented as a quantum circuit diagram, shown below.
+
+![](link here)
+
+An implementation of this scenario in `SQUANCH` is given below.
 
 ```python
 import numpy as np
 import matplotlib.image as image
-import matplotlib.pyplot as plt
 from squanch import *
 
-# Alice sends information to Bob via superdense coding
-class Alice(Agent):
-    def run(self):
-        for _ in self.stream:
-            bit1 = self.data.pop(0)
-            bit2 = self.data.pop(0)
-            q = self.qrecv(charlie)
-            if q is not None:
-                if bit2 == 1: X(q)
-                if bit1 == 1: Z(q)
-            self.qsend(bob, q)
-
-# Bob receives Alice's transmissions and reconstructs her information
-class Bob(Agent):
-    def run(self):
-        bits = []
-        for _ in self.stream:
-            a = self.qrecv(alice)
-            c = self.qrecv(charlie)
-            if a is not None and c is not None:
-                CNOT(a, c)
-                H(a)
-                bits.extend([a.measure(), c.measure()])
-            else:
-                bits.extend([0,0])
-        self.output(bits)
-
-# Charlie distributes Bell pairs between Alice and Bob
 class Charlie(Agent):
+    '''Charlie sends Bell pairs to Alice and Bob'''
     def run(self):
-        for qsys in self.stream:
+        for qsys in self.qstream:
             a, b = qsys.qubits
             H(a)
             CNOT(a, b)
             self.qsend(alice, a)
             self.qsend(bob, b)
+            
+class Alice(Agent):
+    '''Alice tries to send data to Bob, but Eve intercepts'''
+    def run(self):
+        for _ in self.qstream:
+            bit1 = self.data.pop(0)
+            bit2 = self.data.pop(0)
+            q = self.qrecv(charlie)
+            if bit2 == 1: X(q)
+            if bit1 == 1: Z(q)
+            # Alice unknowingly sends the qubit to Eve
+            self.qsend(eve, q) 
+            
+class Eve(Agent):
+    '''Eve naively tries to intercept Alice's data'''
+    def run(self):
+        bits = [] 
+        for _ in self.qstream:
+            a = self.qrecv(alice)
+            bits.append(a.measure())
+            self.qsend(bob, a)
+        self.output(bits)
+            
+class Bob(Agent):
+    '''Bob receives Eve's intercepted data'''
+    def run(self):
+        bits = []
+        for _ in self.qstream:
+            a = self.qrecv(eve)
+            c = self.qrecv(charlie)
+            CNOT(a, c)
+            H(a)
+            bits.extend([a.measure(), c.measure()])
+        self.output(bits)
+    
+# Load Alice's data (an image) and serialize it to a bitstream
+img = image.imread("docs/source/img/foundryLogo.bmp") 
+bitstream = list(np.unpackbits(img))
 
-# Load an image and serialize it to a bitstream
-img = image.imread("/docs/source/img/foundryLogo.bmp")
-bits = list(np.unpackbits(img))
-
-# Allocate a shared Hilbert space and output object to pass to agents
-mem = Agent.shared_hilbert_space(2, int(len(bits) / 2))
+# Prepare an appropriately sized quantum stream
+qstream = QStream(2, int(len(bitstream) / 2))
 out = Agent.shared_output()
 
-# Make agent instances and connect them over simulated fiber optic lines
-alice = Alice(mem, out, data = bits)
-bob = Bob(mem, out)
-charlie = Charlie(mem, out)
-alice.qconnect(bob, FiberOpticQChannel, length = 1.0)
-charlie.qconnect(alice, FiberOpticQChannel, length = 0.5)
-charlie.qconnect(bob, FiberOpticQChannel, length = 0.5)
+# Instantiate agents
+alice = Alice(qstream, out, data=bitstream)
+bob = Bob(qstream, out)
+charlie = Charlie(qstream, out)
+eve = Eve(qstream, out)
 
-# Run the simulation and display what Bob receives
-Simulation(alice, bob).run()
-received_img = np.reshape(np.packbits(out["Bob"]), img.shape)
-plt.imshow(received_img)
+# Connect the agents to form the network
+alice.qconnect(bob)
+alice.qconnect(eve)
+alice.qconnect(charlie)
+bob.qconnect(charlie)
+bob.qconnect(eve)
+
+# Run the simulation
+Simulation(alice, eve, bob, charlie).run()
+
+# Display the images Alice sent, Eve intercepted, and Bob received
+# (Plotting code omitted for brevity; results shown below)
 ``` 
 
-![Alice transmitting an image to Bob over 1km simulated fiber optic cable.](https://github.com/att-innovate/squanch/blob/master/docs/source/img/transmissionDemo.png)
+![Images sent by Alice, intercepted by Eve, and received by Bob](link here)
+
+## Citation
+
+If you are doing research using `SQUANCH`, please cite our whitepaper:
+
+    B. Bartlett, "A distributed simulation framework for quantum networks and channels," arXiv: ####.##### [quant-ph], Aug. 2018.

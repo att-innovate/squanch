@@ -4,6 +4,5 @@
 ----------------------------------------
 .. automodule:: squanch.errors
    :members:
-   :undoc-members:
    :special-members:
    :show-inheritance:

@@ -1,9 +1,8 @@
-import sys
-import numpy as np
 import multiprocessing
-import ctypes
-from multiprocessing import sharedctypes
-from squanch import channels, qstream
+import sys
+
+from squanch import channels
+from squanch.qstream import QStream
 
 __all__ = ["Agent"]
 
@@ -13,17 +12,17 @@ class Agent(multiprocessing.Process):
     Represents an entity (Alice, Bob, etc.) that can send messages over classical and quantum communication channels.
     Agents have the following properties:
 
-    * Incoming and outgoing classical communciation lines to other agents
-    * Incoming and outgoing quantum channels to other agents through which entangled pairs may be distributed
-    * Ideal classical memory
-    * Quantum memory with some characteristic corruption timescale
+    * Incoming and outgoing classical and quantum channels connecting them to other agents
+    * Classical memory, implemented simply as a Python dictionary
+    * Quantum memory, implemented as a Python dictionary of qubits stored in keys of agent names
+    * Runtime logic in the form of an Agent.run() method
     '''
 
-    def __init__(self, hilbert_space, out = None, name = None, data = None):
+    def __init__(self, qstream, out = None, name = None, data = None):
         '''
         Instantiate an Agent from a unique identifier and a shared memory pool
 
-        :param np.array hilbert_space: the shared memory pool representing the Hilbert space of the qstream
+        :param QStream qstream: the QStream object that the agent operates on
         :param dict out: shared output dictionary to pass to Agent processes to allow for "returns". Default: {}
         :param str name: the unique identifier for the Agent. Default: class name
         :param any data: data to pass to the Agent's process, stored in ``self.data``. Default: None
@@ -46,8 +45,8 @@ class Agent(multiprocessing.Process):
             out = {}
         out[self.name] = None
         out[self.name + ":progress"] = 0
-        out[self.name + ":progress_max"] = hilbert_space.shape[0]
-        self.stream = qstream.QStream.from_array(hilbert_space, agent = self)
+        out[self.name + ":progress_max"] = qstream.state.shape[0]
+        self.qstream = QStream.from_array(qstream.state, agent = self)
         self.out = out
 
         # Communication channels are dicts; keys: agent objects, values: channel objects
@@ -68,7 +67,7 @@ class Agent(multiprocessing.Process):
 
     def __hash__(self):
         '''
-        Agents are hashed by their names, which is why they must be unique.
+        Agents are hashed by their (unique) names
         '''
         return hash(self.name)
 
@@ -80,37 +79,22 @@ class Agent(multiprocessing.Process):
 
     def __ne__(self, other):
         '''
-        Overridden inequality operator, for good practice.
+        Agents are compared for inequality by their names
         '''
         return not (self == other)
 
     @staticmethod
     def shared_output():
         '''
-        Generate a shared output dictionary to distribute among agents in separate processes
+        Generate a output dictionary stored in a shared memory pool to distribute among agents in separate processes
 
         :return: an empty multiprocessed Manager.dict()
         '''
         return multiprocessing.Manager().dict()
 
-    @staticmethod
-    def shared_hilbert_space(system_size, num_systems):
-        '''
-        Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes
-
-        :param int system_size: number of entangled qubits in each quantum system; each has dimension 2^system_size
-        :param int num_systems: number of small quantum systems in the data stream
-        :return: a blank, sharable, num_systems * 2^system_size * 2^system_size array of np.complex64 values
-        '''
-        dim = 2 ** system_size
-        mallocced = sharedctypes.RawArray(ctypes.c_double, num_systems * dim * dim)
-        array = np.frombuffer(mallocced, dtype = np.complex64).reshape((num_systems, dim, dim))
-        qstream.QStream.reformat(array)
-        return array
-
     def qconnect(self, other, channel = channels.QChannel, **kwargs):
         '''
-        Connect Alice and Bob bidirectionally via a simulated quantum channel
+        Connect Alice and Bob bidirectionally with a specified quantum channel model
 
         :param Agent other: the other agent to connect to
         :param QChannel channel: the quantum channel model to use
@@ -163,7 +147,7 @@ class Agent(multiprocessing.Process):
 
     def cconnect(self, other, channel = channels.CChannel, **kwargs):
         '''
-        Connect Alice and Bob bidirectionally via a simulated classical channel
+        Connect Alice and Bob bidirectionally with a specified classical channel model
 
         :param Agent other: the other agent to connect to
         :param CChannel channel: the classical channel model to use
@@ -206,8 +190,7 @@ class Agent(multiprocessing.Process):
         return thing
 
     def run(self):
-        '''This method should be overridden in extended class instances, and cannot take any arguments or
-        return any values.'''
+        '''Runtime logic for the Agent; this method should be overridden in child classes.'''
         pass
 
     def output(self, thing):
@@ -222,7 +205,7 @@ class Agent(multiprocessing.Process):
         '''
         Update the progress of this agent in the shared output dictionary. Used in Simulation.progress_monitor().
 
-        :param value: the value to update the progress to (out of a max of len(self.stream))
+        :param value: the value to update the progress to (out of a max of len(self.qstream))
         '''
         self.out[self.name + ":progress"] = value
 

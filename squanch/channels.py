@@ -1,14 +1,15 @@
-import sys
 import multiprocessing
-from squanch.qubit import Qubit
+import sys
+
 from squanch import errors
+from squanch.qubit import Qubit
 
 __all__ = ["QChannel", "CChannel", "FiberOpticQChannel"]
 
 
 class QChannel:
     '''
-    Base class for a quantum channel
+    Base class for a quantum channel connecting two agents
     '''
 
     def __init__(self, from_agent, to_agent, length = 0.0, errors = ()):
@@ -56,7 +57,7 @@ class QChannel:
         indices, receive_time = self.queue.get()
         if indices is not None:
             system_index, qubit_index = indices
-            qubit = Qubit.from_stream(self.to_agent.stream, system_index, qubit_index)
+            qubit = Qubit.from_stream(self.to_agent.qstream, system_index, qubit_index)
         else:
             qubit = None
 
@@ -70,7 +71,7 @@ class QChannel:
 
 class CChannel:
     '''
-    Base class for a classical channel
+    Base class for a classical channel connecting two agents
     '''
 
     def __init__(self, from_agent, to_agent, length = 0.0):

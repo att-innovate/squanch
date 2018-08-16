@@ -32,5 +32,6 @@ qutip/cy/openmp/*.cpp
 
 *.qo
 
+docs_whitepaper
 deprecated
 .ipynb_checkpoints

@@ -3,7 +3,9 @@
 Man-In-The-Middle Attack
 ========================
 
-This demonstration is a modified version of the :ref:`superdense coding <superdenseCodingDemo>` demonstration where we show how quantum networks can be resistant to interception attacks.
+In this demo, we show how quantum networks can be resistant to interception ("man-in-the-middle") attacks by using a modified version of the :ref:`superdense coding <superdenseCodingDemo>`. As in the superdense coding demo, Charlie will distribute Bell pairs to Alice and Bob, and Alice will attempt to send a classical message to Bob. However, a fourth party, Eve, will try to naively intercept the message Alice sends to Bob. Eve will measure each qubit from Alice, record the result, and re-transmit the qubit to Bob. This scenario is illustrated in the circuit diagram shown below.
+
+.. image:: ../img/man-in-middle-circuit.png
 
 Protocol
 --------
@@ -39,7 +41,7 @@ As before, we'll define the behavior of Alice, Bob, and Charlie. The only differ
 	class Alice(Agent):
 		'''Alice sends information to Bob via superdense coding'''
 		def run(self):
-			for _ in self.stream:
+			for _ in self.qstream:
 				bit1 = self.data.pop(0)
 				bit2 = self.data.pop(0)
 				q = self.qrecv(charlie)
@@ -52,7 +54,7 @@ As before, we'll define the behavior of Alice, Bob, and Charlie. The only differ
 		'''Bob receives Alice's transmissions and reconstructs her information'''
 		def run(self):
 			bits = []
-			for _ in self.stream:
+			for _ in self.qstream:
 				a = self.qrecv(eve) # Bob receives his qubit from Eve
 				c = self.qrecv(charlie)
 				if a is not None and c is not None:
@@ -66,7 +68,7 @@ As before, we'll define the behavior of Alice, Bob, and Charlie. The only differ
 	class Charlie(Agent):
 		'''Charlie distributes Bell pairs between Alice and Bob.'''
 		def run(self):
-			for qsys in self.stream:
+			for qsys in self.qstream:
 				a, b = qsys.qubits
 				H(a)
 				CNOT(a, b)
@@ -81,33 +83,33 @@ Now we'll add behavior for Eve to record and re-transmit Alice's qubits:
 		'''Eve naively tries to intercept Alice's message'''
 		def run(self):
 			bits = []
-			for _ in self.stream:
+			for _ in self.qstream:
 				a = self.qrecv(alice)
 				if a is not None:
 					bits.append(a.measure())
 				else:
 					bits.append(0)
 				self.qsend(bob, a)
-				self.increment_progress()
 			self.output(bits)
 
-Next, we'll load an image and convert it to black and white and flatten it into a bitstream using some helper functions (see the corresponding Jupyter notebook in `demos` for details). We'll allocate memory for an appropriately large `QStream` and make a shared output dictionary to allow the agents to return data.
+Next, we'll load an image and convert it to black and white and flatten it into a bitstream using some helper functions (see the corresponding Jupyter notebook in `demos` for details). We'll allocate an appropriately large `QStream` and make a shared output dictionary to allow the agents to return data.
 
 .. code:: python
 
 	# Load an image and serialize it to a bitstream
-	img = image_to_black_and_white("../docs/source/img/squanchLogo.jpg")
-	bitstream = list(img.flatten())
+    img = image_to_black_and_white("../docs/source/img/squanchLogo.jpg")
+    bitstream = list(img.flatten())
 
-	# Allocate a shared Hilbert space and output object to pass to agents
-	mem = Agent.shared_hilbert_space(2, int(len(bitstream) / 2))
-	out = Agent.shared_output()
+    # Make the QStream for the agents to operate on
+    qstream = QStream(2, int(len(bitstream) / 2))
 
-	# Make agent instances
-	alice = Alice(mem, out, data = bitstream)
-	bob = Bob(mem, out)
-	charlie = Charlie(mem, out)
-	eve = Eve(mem, out)
+    # Make agent instances
+    out = Agent.shared_output()
+
+    alice = Alice(qstream, out, data = bitstream)
+    bob = Bob(qstream, out)
+    charlie = Charlie(qstream, out)
+    eve = Eve(qstream, out)
 
 Like in the superdense coding demonstration, we'll connect the agents with fiber optic lines to simulate attenuation errors.
 

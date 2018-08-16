@@ -10,6 +10,16 @@ SQUANCH (Simulator for QUAntum Networks and CHannels) is an open-source Python f
 
 SQUANCH is developed as part of the Intelligent Quantum Networks and Technologies (`INQNET <http://inqnet.caltech.edu>`_) program, a collaboration between AT&T and the California Institute of Technology. The source is hosted on `GitHub <https://github.com/att-innovate/squanch>`_.
 
+SQUANCH Whitepaper
+^^^^^^^^^^^^^^^^^^
+
+We encourage interested users to read the whitepaper for the SQUANCH platform, "A distributed simulation framework for quantum networks and channels" (`arXiv: LINK HERE <https://arxiv.org/abs/BLAH>`_), which provides an overview of the framework and a primer on quantum information.
+
+SQUANCH Manual
+^^^^^^^^^^^^^^
+
+This documentation is also available in PDF format `here <https://github.com/att-innovate/squanch/blob/master/docs/SQUANCH.pdf>`_.
+
 
 Design Overview
 ---------------
@@ -40,7 +50,7 @@ Memory Structure and Time Synchronization
 
 For optimal performance and for conceptual realism, agents (nodes in a network) run concurrently in separate processes that can only communicate by sending information through channels. Since separate processes normally have separate memory pools, this requires an interesting memory structure, since two agents running in separate processes must manipulate the same set of matrices in memory which represent the non-local combined quantum state shared between them. In other words, if Alice and Bob share an entangled pair, Alice's particle needs to be aware of the measurements performed on Bob's particle.
 
-This is solved in SQUANCH by explicitly allocating an appropriately sized block of shared memory using the ``shared_hilbert_space()`` function in the ``Agent`` module. This creates a 1D array of c-type doubles (which have the same size as the ``numpy.complex64`` values that are used to express density matrices in SQUANCH), which is casted and reshaped to a 3D complex-valued NumPy array. Agents can then instantiate separate ``QStream`` s that all point to the same physical memory location to represent their state. Since ``Qubit`` objects must be serialized to pass through Python's multiprocessing queues, channels serialized qubits to their (system, qubit) indices and reinstance the qubit for the receiving agent, insuring that they reference the correct location in memory.
+This is solved in SQUANCH by explicitly allocating an appropriately sized block of shared memory using the ``sharedctypes`` module, creating a 1D array of c-type doubles (which have the same size as the ``numpy.complex64`` values that are used to express density matrices in SQUANCH), which is casted and reshaped to a 3D complex-valued NumPy array. Agents can then instantiate separate ``QStream`` s that all point to the same physical memory location to represent their state. Since ``Qubit`` objects must be serialized to pass through Python's multiprocessing queues, channels serialized qubits to their (system, qubit) indices and reinstance the qubit for the receiving agent, insuring that they reference the correct location in memory.
 
 SQUANCH includes rudimentary built-in timing features for agents to allow users to characterize the efficiency of protocols, taking specified values of photon pulse widths, signal travel speeds, length of channels, etc. into account. Agents maintain separate clocks which are synchronized upon exchanging dependent information. For example, suppose Alice and Bob are sparated by 300m, and Alice transfers :math:`10^5` qubits with a 10ps pulse width to Bob. Alice's clock at the beginning of the transmission is :math:`1.5 \mu s`, and Bob's clock is :math:`2.0 \mu s`. After the transmission, Alice's clock reads :math:`1.5 + 10^5 \cdot 10^{-5} = 2.5 \mu s`, and Bob's accounts for a speed of light delay to update to :math:`2.0 + 10^5 \cdot 10^{-5} + \frac{300m}{c} = 4 \mu s`.
 

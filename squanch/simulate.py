@@ -1,8 +1,22 @@
-import tqdm
-import time
 import threading
+import time
+
+import tqdm
 
 __all__ = ["Simulation"]
+
+
+def is_notebook():
+    try:
+        shell = get_ipython().__class__.__name__
+        if shell == 'ZMQInteractiveShell':
+            return True  # Jupyter notebook or qtconsole
+        elif shell == 'TerminalInteractiveShell':
+            return False  # Terminal running IPython
+        else:
+            return False  # Other type (?)
+    except NameError:
+        return False  # Probably standard Python interpreter
 
 
 class Simulation:
@@ -21,11 +35,7 @@ class Simulation:
         '''
         self.out = args[0].out
         self.agents = args
-        try:  # figure out if we're in a Jupyter notebook or not
-            __IPYTHON__
-            self.is_ipython = True
-        except:
-            self.is_ipython = False
+        self.is_notebook = is_notebook()
 
     def progress_monitor(self, poison_pill):
         '''
@@ -37,12 +47,12 @@ class Simulation:
         progress = {}
         progress_max = {}
         for agent in self.agents:
-            if self.is_ipython:
-                pbars[agent.name] = tqdm.tqdm_notebook(total = len(agent.stream), desc = agent.name)
+            if self.is_notebook:
+                pbars[agent.name] = tqdm.tqdm_notebook(total = len(agent.qstream), desc = agent.name)
             else:
-                pbars[agent.name] = tqdm.tqdm(total = len(agent.stream), desc = agent.name)
+                pbars[agent.name] = tqdm.tqdm(total = len(agent.qstream), desc = agent.name)
             progress[agent.name] = 0
-            progress_max[agent.name] = len(agent.stream)
+            progress_max[agent.name] = len(agent.qstream)
 
         # Loop and update progress
         while not poison_pill.isSet():

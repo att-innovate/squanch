@@ -3,12 +3,16 @@
 Superdense Coding
 =================
 
-Superdense coding is a process whereby two parties sharing an entangled pair can send two classical bits using only a single qubit. Conecptually, it is the inverse of :ref:`quantum teleportation <teleportationDemo>`.
+Superdense coding is a process whereby two parties connected via a quantum channel and sharing an entangled pair can send two classical bits of information using only a single qubit. Conceptually, superdense coding is the inverse of :ref:`quantum teleportation <teleportationDemo>`.
+
+In this demonstration, we'll implement the three-party superdense coding protocol depicted in the circuit diagram shown below. Charlie distributes entangled particles to Alice and Bob. Alice encodes her information in her particles and sends them to Bob, who decodes the information by matching Alice’s qubits with his half of the shared state received from Charlie.
+
+For this demonstration, Alice will send data to Bob in the form of a serialized bitstream representing an image. We'll use the built-in timing functionality to track the simulated time for each agent to complete their part of the protocol. Since superdense coding could be used as a networking protocol in the foreseeable future, even very rudimentary simulated timing data could be useful to quantify the performance of the algorithm, especially if data validation and error correction through multiple transmission attempts is simulated. We assume a photon pulse interval of 1ns and a spatial separation between Alice and Bob of 1km, with Charlie at the midpoint. All agents are connected with the ``FiberOpticQChannel`` model, which simulates 0.16 dB/km attenuation errors by randomly changing transmitted qubits to ``None``. Any dropped qubits lost to attenuation will have their bits replaced with 0.
 
 Protocol
 --------
 
-.. image:: https://upload.wikimedia.org/wikipedia/commons/b/b7/Superdense_coding.png
+.. image:: ../img/superdense-circuit.png
 
 We'll be using the above circuit diagram to describe a three-party quantum superdense coding protocol. There are three agents: Charlie distributes entangled particles to Alice and Bob, Alice encodes her information in her particles and sends them to Bob, who decodes the information by matching Alice's qubits with his own qubits received from Charlie.
 
@@ -44,7 +48,7 @@ Now, as usual, we'll want to define child `Agent` classes that implement the beh
 	class Charlie(Agent):
 		'''Charlie distributes Bell pairs between Alice and Bob.'''
 		def run(self):
-			for qsys in self.stream:
+			for qsys in self.qstream:
 				a, b = qsys.qubits
 				H(a)
 				CNOT(a, b)
@@ -59,7 +63,7 @@ For Alice, we'll want to include the transmission behavior. We'll pass in the da
 	class Alice(Agent):
 		'''Alice sends information to Bob via superdense coding'''
 		def run(self):
-			for _ in self.stream:
+			for _ in self.qstream:
 				bit1 = self.data.pop(0)
 				bit2 = self.data.pop(0)
 				q = self.qrecv(charlie)
@@ -69,7 +73,7 @@ For Alice, we'll want to include the transmission behavior. We'll pass in the da
 				self.qsend(bob, q)
             self.output({"t": self.time})
 
-Finally, for Bob, we'll want to include the disentangling and measurement behavior, and we'll want to output his measured data using `self.output`, which passes it to the parent process through the `sharedOutputDict` that is provided to agents on instantiation.
+Finally, for Bob, we'll want to include the disentangling and measurement behavior, and we'll want to output his measured data using `self.output`, which passes it to the parent process through the `shared_output` that is provided to agents on instantiation.
 
 .. code:: python
 
@@ -77,7 +81,7 @@ Finally, for Bob, we'll want to include the disentangling and measurement behavi
 		'''Bob receives Alice's transmissions and reconstructs her information'''
 		def run(self):
 			bits = []
-			for _ in self.stream:
+			for _ in self.qstream:
 				a = self.qrecv(alice)
 				c = self.qrecv(charlie)
 				if a is not None and c is not None:
@@ -88,29 +92,29 @@ Finally, for Bob, we'll want to include the disentangling and measurement behavi
 					bits.extend([0,0])
             self.output({"t": self.time, "bits": bits})
 
-Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we'll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we'll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)
+Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we'll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits) using the `data` keyword argument, and we'll need to provide the agents with the `QStream` they will work on. If we want to get anything from the agents after their processes have finished, we'll also need to pass as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared output dictionaries must be passed to them.)
 
 .. code:: python 
 
-	# Load an image and serialize it to a bitstream
-	img = image.imread("../docs/source/img/foundryLogo.bmp")
-	bitstream = list(np.unpackbits(img))
+    # Load an image and serialize it to a bitstream
+    img = image.imread("../docs/source/img/foundryLogo.bmp")
+    bitstream = list(np.unpackbits(img))
 
-	# Allocate a shared Hilbert space and output object to pass to agents
-	mem = Agent.shared_hilbert_space(2, int(len(bitstream) / 2))
-	out = Agent.shared_output()
+    # Initialize the qstream
+    qstream = QStream(2, int(len(bitstream) / 2))
 
-	# Make agent instances
-	alice = Alice(mem, out, data = bitstream)
-	bob = Bob(mem, out)
-	charlie = Charlie(mem, out)
+    # Make agent instances
+    out = Agent.shared_output()
+    alice = Alice(qstream, out, data = bitstream)
+    bob = Bob(qstream, out)
+    charlie = Charlie(qstream, out)
 
     # Set photon transmission rate
     alice.pulse_length = 1e-9
     bob.pulse_length = 1e-9
     charlie.pulse_length = 1e-9
 
-For agents to communicate with each other, they must be connected via quantum or classical channels. The `Agent.qconnect` and `Agent.cconnect` methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.
+For agents to communicate with each other, they must be connected via quantum or classical channels. The `Agent.qconnect` and `Agent.cconnect` methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cable model which simulates attenuation errors. (For more on channel and error models, see the :ref:`quantum error correction demo <quantumErrorCorrectionDemo>`.) Let's say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.
 
 .. code:: python 
 
