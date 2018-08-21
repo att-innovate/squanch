@@ -299,7 +299,7 @@ Here's a demonstration of a simple message tranmsision protocol using qubits as 
         return msg
 
     msg = "Hello, Bob!"
-    bits = string_to_bits(message)
+    bits = string_to_bits(msg)
 
 To program the agents themselves, we extend the Agent base class and overwrite the ``run()`` function:
 
@@ -307,7 +307,7 @@ To program the agents themselves, we extend the Agent base class and overwrite t
 
     class Alice(Agent):
         def run(self):
-            for qsys, bit in zip(self.stream, self.data):
+            for qsys, bit in zip(self.qstream, self.data):
                 q, = qsys.qubits
                 if bit == "1": X(q)
                 self.qsend(bob, q)
@@ -316,20 +316,20 @@ To program the agents themselves, we extend the Agent base class and overwrite t
     class Bob(Agent):
         def run(self):
             bits = ""
-            for _ in self.stream:
+            for _ in self.qstream:
                 q = self.qrecv(alice)
                 bits += str(q.measure())
             self.output(bits)
 
-To instantiate and run the agents, we need to allocate memory for `QStream` using `Agent.shared_hilbert_space` and a shared output dictionary with `Agent.shared_output`. Explicitly allocating and passing memory and output dictionaries to agents is necessary because each agent runs in its own separate process, which (generally) have separate memory pools. (See :ref:`Agent <agent>` API for more details.)  We then connect the agents with a quantum channel:
+To instantiate and run the agents, we need to provide them with a `QStream` to operate on, and if we want them to return values, we'll need to give them a shared output dictionary with `Agent.shared_output`. Explicitly passing output dictionaries to agents is necessary because each agent runs in its own separate process, which (generally) have separate memory pools. (See :ref:`Agent <agent>` API for more details.)  We then connect the agents with a quantum channel:
 
 .. code:: python 
 
-    mem = Agent.shared_hilbert_space(1, len(msgBits))
+    qstream = QStream(1, len(msgBits))
     out = Agent.shared_output()
 
-    alice = Alice(mem, data = bits)
-    bob = Bob(mem, out = out)
+    alice = Alice(qstream, data = bits)
+    bob = Bob(qstream, out = out)
 
     alice.qconnect(bob)
 

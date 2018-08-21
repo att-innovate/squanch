@@ -4,6 +4,5 @@
 ----------------------------------
 .. automodule:: squanch.agent
    :members:
-   :undoc-members:
    :special-members:
    :show-inheritance:

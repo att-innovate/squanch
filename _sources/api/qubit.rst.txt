@@ -4,6 +4,5 @@
 ---------------------------------------
 .. automodule:: squanch.qubit
     :members:
-    :undoc-members:
     :special-members:
     :show-inheritance:

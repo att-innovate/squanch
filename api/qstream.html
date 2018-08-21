@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>QStream – Working with quantum datastreams &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>QStream – Working with quantum datastreams &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -30,7 +30,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Qubit – Qubits and quantum systems" href="qubit.html" />
-    <link rel="prev" title="Simulate – Plug-and-play agent simulation" href="simulate.html" /> 
+    <link rel="prev" title="Simulate – Parallelized quantum network simulation" href="simulate.html" /> 
 
   
   <script src="../_static/js/modernizr.min.js"></script>
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -94,7 +94,7 @@
 <li class="toctree-l2"><a class="reference internal" href="errors.html"><code class="docutils literal notranslate"><span class="pre">Errors</span></code> – Quantum errors in channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gates.html"><code class="docutils literal notranslate"><span class="pre">Gates</span></code> – Manipulating quantum states</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linalg.html"><code class="docutils literal notranslate"><span class="pre">Linalg</span></code> – Useful linear algebra functions for QM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Plug-and-play agent simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Parallelized quantum network simulation</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">QStream</span></code> – Working with quantum datastreams</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qubit.html"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems</a></li>
 </ul>
@@ -171,13 +171,8 @@
 <dt id="squanch.qstream.QStream">
 <em class="property">class </em><code class="descclassname">squanch.qstream.</code><code class="descname">QStream</code><span class="sig-paren">(</span><em>system_size</em>, <em>num_systems</em>, <em>array=None</em>, <em>agent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qstream.html#QStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qstream.QStream" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Efficiently handle a large number of small entangled quantum systems to avoid having to perform many class
-instantiations when simulating transmission of data through quantum channels</p>
-<dl class="attribute">
-<dt id="squanch.qstream.QStream.__dict__">
-<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.qstream', '__doc__': '\n    Efficiently handle a large number of small entangled quantum systems to avoid having to perform many class\n    instantiations when simulating transmission of data through quantum channels\n    ', '__init__': &lt;function QStream.__init__&gt;, '__iter__': &lt;function QStream.__iter__&gt;, '__len__': &lt;function QStream.__len__&gt;, 'from_array': &lt;classmethod object&gt;, 'reformat': &lt;staticmethod object&gt;, 'system': &lt;function QStream.system&gt;, 'next': &lt;function QStream.next&gt;, '__dict__': &lt;attribute '__dict__' of 'QStream' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'QStream' objects&gt;})</em><a class="headerlink" href="#squanch.qstream.QStream.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Efficiently represents many separable quantum subsystems in a contiguous block of shared memory.
+<code class="docutils literal notranslate"><span class="pre">QSystem``s</span> <span class="pre">and</span> <span class="pre">``Qubit``s</span> <span class="pre">can</span> <span class="pre">be</span> <span class="pre">instantiated</span> <span class="pre">from</span> <span class="pre">the</span> <span class="pre">``state</span></code> of this class.</p>
 <dl class="method">
 <dt id="squanch.qstream.QStream.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>system_size</em>, <em>num_systems</em>, <em>array=None</em>, <em>agent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qstream.html#QStream.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qstream.QStream.__init__" title="Permalink to this definition">¶</a></dt>
@@ -202,7 +197,7 @@ separate processes</li>
 <dl class="method">
 <dt id="squanch.qstream.QStream.__iter__">
 <code class="descname">__iter__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qstream.html#QStream.__iter__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qstream.QStream.__iter__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Custom iterator method for streams</p>
+<dd><p>Iterates over the <a href="#id1"><span class="problematic" id="id2">``</span></a>QSystem``s in this class instance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -228,11 +223,6 @@ separate processes</li>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="squanch.qstream.QStream.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.qstream'</em><a class="headerlink" href="#squanch.qstream.QStream.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="squanch.qstream.QStream.__weakref__">
 <code class="descname">__weakref__</code><a class="headerlink" href="#squanch.qstream.QStream.__weakref__" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
@@ -241,7 +231,7 @@ separate processes</li>
 <dl class="classmethod">
 <dt id="squanch.qstream.QStream.from_array">
 <em class="property">classmethod </em><code class="descname">from_array</code><span class="sig-paren">(</span><em>array</em>, <em>reformat=False</em>, <em>agent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qstream.html#QStream.from_array"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qstream.QStream.from_array" title="Permalink to this definition">¶</a></dt>
-<dd><p>Instantiates a quantum datastream object from a (typically shared) pre-allocated array</p>
+<dd><p>Instantiates a quantum datastream object from an existing state array</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -287,6 +277,27 @@ separate processes</li>
 </table>
 </dd></dl>
 
+<dl class="staticmethod">
+<dt id="squanch.qstream.QStream.shared_hilbert_space">
+<em class="property">static </em><code class="descname">shared_hilbert_space</code><span class="sig-paren">(</span><em>num_systems</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qstream.html#QStream.shared_hilbert_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qstream.QStream.shared_hilbert_space" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>system_size</strong> (<em>int</em>) – number of entangled qubits in each quantum system; each has dimension 2^system_size</li>
+<li><strong>num_systems</strong> (<em>int</em>) – number of small quantum systems in the data stream</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a blank, sharable, num_systems * 2^system_size * 2^system_size array of np.complex64 values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="squanch.qstream.QStream.system">
 <code class="descname">system</code><span class="sig-paren">(</span><em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qstream.html#QStream.system"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qstream.QStream.system" title="Permalink to this definition">¶</a></dt>
@@ -318,7 +329,7 @@ separate processes</li>
         <a href="qubit.html" class="btn btn-neutral float-right" title="Qubit – Qubits and quantum systems" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="simulate.html" class="btn btn-neutral" title="Simulate – Plug-and-play agent simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="simulate.html" class="btn btn-neutral" title="Simulate – Parallelized quantum network simulation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -349,7 +360,7 @@ separate processes</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

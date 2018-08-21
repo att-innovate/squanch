@@ -4,5 +4,4 @@
 ----------------------------------------------------
 .. automodule:: squanch.linalg
     :members:
-    :undoc-members:
     :show-inheritance:

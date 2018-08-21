@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Quantum Teleportation &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Quantum Teleportation &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -168,18 +168,19 @@
             
   <div class="section" id="quantum-teleportation">
 <span id="teleportationdemo"></span><h1>Quantum Teleportation<a class="headerlink" href="#quantum-teleportation" title="Permalink to this headline">¶</a></h1>
-<p>Quantum teleportation allows two parties that share an entangled pair to transfer an arbitrary quantum state using classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conecptually, quantum teleportation is the inverse of <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a>.</p>
+<p>Quantum teleportation allows two parties that share an entangled pair to transfer an arbitrary quantum state using only classical communication. This process has tremendous applicability to quantum networks, transferring fragile quantum states between distant nodes. Conceptually, quantum teleportation is the inverse of <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a>.</p>
+<p>In general, all quantum teleportation experiments have the same underlying structure. Two distant parties, Alice and Bob, are connected via a classical information channel and share a maximally entangled state. Alice has an unknown state <span class="math notranslate">\(|\psi\rangle\)</span> which she wishes to send to Bob. She performs a joint projective measurement of her state and her half of the entangled state and communicates the outcomes to Bob, who operates on his half of the entangled state accordingly to reconstruct <span class="math notranslate">\(|\psi\rangle\)</span>.</p>
 <p>The source code for this demo is included in the <cite>demos</cite> directory of the SQUANCH repository.</p>
 <div class="section" id="protocol">
 <h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
-<img alt="https://www.media.mit.edu/quanta/qasm2circ/test2.png" src="https://www.media.mit.edu/quanta/qasm2circ/test2.png" />
+<img alt="../_images/teleportation-circuit.png" src="../_images/teleportation-circuit.png" />
 <p>In this demo, we’ll implement a simple two-party quantum teleportation protocol using the above circuit diagram.</p>
 <blockquote>
 <div><ol class="arabic simple">
-<li>Alice generates an EPR pair; for this protocol, we’ll use the state <span class="math notranslate">\(\lvert q_1 q_2 \rangle = \frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )\)</span>. She will keep one particle in the pair and send the other one to Bob.</li>
-<li>Alice entangles her qubit <span class="math notranslate">\(q_0\)</span> with her ancilla <span class="math notranslate">\(q_1\)</span> by applying controlled-not and Hadamard operators.</li>
-<li>Alice measures both of her qubits and communicates the results (two bits) to Bob through a classical channel. Bob’s qubit is now in one of four possible states, one of which is <span class="math notranslate">\(\lvert q_0 \rangle\)</span>. Bob will use Alice’s two bits to determine what operations to apply to recover <span class="math notranslate">\(\lvert q_0 \rangle\)</span>.</li>
-<li>Bob applies a Pauli-X operator to his qubit if Alice’s ancilla collapsed to <span class="math notranslate">\(\lvert q_1 \rangle = \lvert 1 \rangle\)</span>, and he applies a Pauli-Z operator to his qubit if her qubit collapsed to <span class="math notranslate">\(\lvert q_0 \rangle = \lvert 1 \rangle\)</span>.</li>
+<li>Alice generates an entangled two-particle state <span class="math notranslate">\(\lvert AB \rangle = \frac{1}{\sqrt{2}} \left (\lvert 00 \rangle + \lvert 11 \rangle \right )\)</span>, keeping half of the state and sending the other half to Bob.</li>
+<li>Alice entangles her qubit <span class="math notranslate">\(|\psi\rangle\)</span> with her ancilla <span class="math notranslate">\(A\)</span> by applying controlled-not and Hadamard operators.</li>
+<li>Alice jointly measures <span class="math notranslate">\(|\psi\rangle\)</span> and <span class="math notranslate">\(A\)</span> and communicates the outcomes to Bob through a classical channel. Bob’s qubit is now in one of four possible Bell states, one of which is <span class="math notranslate">\(|\psi\rangle\)</span>, and he will use Alice’s two bits to recover <span class="math notranslate">\(|\psi\rangle\)</span></li>
+<li>Bob applies a Pauli-X operator to his qubit if Alice’s ancilla collapsed to <span class="math notranslate">\(\lvert A \rangle \mapsto \lvert 1 \rangle\)</span>, and he applies a Pauli-Z operator to his qubit if her qubit collapsed to <span class="math notranslate">\(\lvert \psi \rangle \mapsto \lvert 1 \rangle\)</span>. He has thus transformed <span class="math notranslate">\(|B\rangle \mapsto |\psi\rangle\)</span>.</li>
 </ol>
 </div></blockquote>
 </div>
@@ -212,7 +213,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">csend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="p">[</span><span class="n">bob_should_apply_x</span><span class="p">,</span> <span class="n">bob_should_apply_z</span><span class="p">])</span>
 
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">qsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">qsystem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">qsystem</span><span class="o">.</span><span class="n">qubits</span> <span class="c1"># q is state to teleport, a and b are Bell pair</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">distribute_bell_pair</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">teleport</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
@@ -225,7 +226,7 @@
 
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">measurement_results</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="c1"># Bob receives a qubit from Alice</span>
                         <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
                         <span class="c1"># Bob receives classical instructions from alice</span>
@@ -238,31 +239,30 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">measurement_results</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Now we want to prepare a set of states for Alice to teleport to Bob. Since each trial requires a set of three qubits, we’ll allocate space for a <span class="math notranslate">\(3 \times 10\)</span> <cite>QStream</cite>. We’ll also create a shared output dictionary to allow agents to communicate between processes. Explicitly allocating and passing memory to agents is necessary because each agent spawns and runs in a separate process, which (generally) have separate memory pools. (See <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> API for more details.)</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Allocate memory and output structures</span>
-<span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="c1"># 3 qubits per trial, 10 trials</span>
-<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
-
-<span class="c1"># Prepare the initial states</span>
-<span class="n">stream</span> <span class="o">=</span> <span class="n">QStream</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+<p>Now we want to prepare a set of states for Alice to teleport to Bob. Since each trial requires a set of three qubits, we’ll allocate space for a <span class="math notranslate">\(3 \times 10\)</span> <cite>QStream</cite>. We’ll encode the message as spin eigenstates in the <cite>QStream</cite>:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Prepare the initial states</span>
+<span class="n">qstream</span> <span class="o">=</span> <span class="n">QStream</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">10</span><span class="p">)</span> <span class="c1"># 3 qubits per trial, 10 trials</span>
 <span class="n">states_to_teleport</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
-<span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">qsystem</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">states_to_teleport</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
-        <span class="n">q</span> <span class="o">=</span> <span class="n">qsystem</span><span class="o">.</span><span class="n">qubit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">X</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="c1"># flip the qubits corresponding to 1 states</span>
+<span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">qsystem</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">states_to_teleport</span><span class="p">,</span> <span class="n">qstream</span><span class="p">):</span>
+    <span class="n">q</span> <span class="o">=</span> <span class="n">qsystem</span><span class="o">.</span><span class="n">qubit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="n">X</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="c1"># flip the qubits corresponding to 1 states</span>
 </pre></div>
 </div>
-<p>For agents to communicate with each other, they must be connected via quantum or classical channels. The <cite>Agent.qconnect</cite> and <cite>Agent.cconnect</cite> methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take a channel model and kwargs as optional arguments. In this example, we won’t worry about a channel model and will just use the default QChannel and CChannel options. Let’s create instances for Alice and Bob and connect them appropriately</p>
+<p>Now let’s make the agent instances. We create a shared output dictionary to allow agents to communicate between processes. Explicitly allocating and passing an output object to agents is necessary because each agent spawns and runs in a separate process, which (generally) have separate memory pools. (See <a class="reference internal" href="../api/agent.html#agent"><span class="std std-ref">Agent</span></a> API for more details.) For agents to communicate with each other, they must be connected via quantum or classical channels. The <cite>Agent.qconnect</cite> and <cite>Agent.cconnect</cite> methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take a channel model and kwargs as optional arguments. In this example, we won’t worry about a channel model and will just use the default QChannel and CChannel options. Let’s create instances for Alice and Bob and connect them appropriately</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Make and connect the agents</span>
-<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
-<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 <span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span> <span class="c1"># add a quantum channel</span>
 <span class="n">alice</span><span class="o">.</span><span class="n">cconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span> <span class="c1"># add a classical channel</span>
 </pre></div>
 </div>
 <p>Finally, we call <cite>agent.start()</cite> for each agent to signal the process to start running, and <cite>agent.join()</cite> to wait for all agents to finish before proceeding in the program.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Run everything</span>
-<span class="n">alice</span><span class="o">.</span><span class="n">start</span><span class="p">();</span> <span class="n">bob</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
-<span class="n">alice</span><span class="o">.</span><span class="n">join</span><span class="p">();</span> <span class="n">bob</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">bob</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+<span class="n">alice</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+<span class="n">bob</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Teleported states </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">states_to_teleport</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Received states   </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Bob&quot;</span><span class="p">]))</span>
@@ -278,20 +278,17 @@
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">angles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>  <span class="c1"># RX angles to apply</span>
 <span class="n">num_trials</span> <span class="o">=</span> <span class="mi">250</span>  <span class="c1"># number of trials for each angle</span>
 
-<span class="c1"># Allocate memory and output structures</span>
-<span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span> <span class="o">*</span> <span class="n">num_trials</span><span class="p">)</span>
-<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
-
 <span class="c1"># Prepare the initial states in the stream</span>
-<span class="n">stream</span> <span class="o">=</span> <span class="n">QStream</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">mem</span><span class="p">)</span>
+<span class="n">qstream</span> <span class="o">=</span> <span class="n">QStream</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span> <span class="o">*</span> <span class="n">num_trials</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">angle</span> <span class="ow">in</span> <span class="n">angles</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_trials</span><span class="p">):</span>
-                <span class="n">q</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">next</span><span class="p">()</span><span class="o">.</span><span class="n">qubits</span>
-                <span class="n">RX</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_trials</span><span class="p">):</span>
+        <span class="n">q</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">qstream</span><span class="o">.</span><span class="n">next</span><span class="p">()</span><span class="o">.</span><span class="n">qubits</span>
+        <span class="n">RX</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">angle</span><span class="p">)</span>
 
 <span class="c1"># Make the agents and connect with quantum and classical channels</span>
-<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
-<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
 <span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span>
 <span class="n">alice</span><span class="o">.</span><span class="n">cconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span>
 
@@ -361,7 +358,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

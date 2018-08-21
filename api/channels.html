@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Channels – Simulating realistic quantum channels &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Channels – Simulating realistic quantum channels &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -94,7 +94,7 @@
 <li class="toctree-l2"><a class="reference internal" href="errors.html"><code class="docutils literal notranslate"><span class="pre">Errors</span></code> – Quantum errors in channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gates.html"><code class="docutils literal notranslate"><span class="pre">Gates</span></code> – Manipulating quantum states</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linalg.html"><code class="docutils literal notranslate"><span class="pre">Linalg</span></code> – Useful linear algebra functions for QM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Plug-and-play agent simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Parallelized quantum network simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qstream.html"><code class="docutils literal notranslate"><span class="pre">QStream</span></code> – Working with quantum datastreams</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qubit.html"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems</a></li>
 </ul>
@@ -171,12 +171,7 @@
 <dt id="squanch.channels.QChannel">
 <em class="property">class </em><code class="descclassname">squanch.channels.</code><code class="descname">QChannel</code><span class="sig-paren">(</span><em>from_agent</em>, <em>to_agent</em>, <em>length=0.0</em>, <em>errors=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/channels.html#QChannel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.channels.QChannel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base class for a quantum channel</p>
-<dl class="attribute">
-<dt id="squanch.channels.QChannel.__dict__">
-<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.channels', '__doc__': '\n    Base class for a quantum channel\n    ', '__init__': &lt;function QChannel.__init__&gt;, 'put': &lt;function QChannel.put&gt;, 'get': &lt;function QChannel.get&gt;, '__dict__': &lt;attribute '__dict__' of 'QChannel' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'QChannel' objects&gt;})</em><a class="headerlink" href="#squanch.channels.QChannel.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Base class for a quantum channel connecting two agents</p>
 <dl class="method">
 <dt id="squanch.channels.QChannel.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>from_agent</em>, <em>to_agent</em>, <em>length=0.0</em>, <em>errors=()</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/channels.html#QChannel.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.channels.QChannel.__init__" title="Permalink to this definition">¶</a></dt>
@@ -196,11 +191,6 @@
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="squanch.channels.QChannel.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.channels'</em><a class="headerlink" href="#squanch.channels.QChannel.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="squanch.channels.QChannel.__weakref__">
@@ -242,12 +232,7 @@
 <dt id="squanch.channels.CChannel">
 <em class="property">class </em><code class="descclassname">squanch.channels.</code><code class="descname">CChannel</code><span class="sig-paren">(</span><em>from_agent</em>, <em>to_agent</em>, <em>length=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/channels.html#CChannel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.channels.CChannel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Base class for a classical channel</p>
-<dl class="attribute">
-<dt id="squanch.channels.CChannel.__dict__">
-<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.channels', '__doc__': '\n    Base class for a classical channel\n    ', '__init__': &lt;function CChannel.__init__&gt;, 'put': &lt;function CChannel.put&gt;, 'get': &lt;function CChannel.get&gt;, '__dict__': &lt;attribute '__dict__' of 'CChannel' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'CChannel' objects&gt;})</em><a class="headerlink" href="#squanch.channels.CChannel.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Base class for a classical channel connecting two agents</p>
 <dl class="method">
 <dt id="squanch.channels.CChannel.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>from_agent</em>, <em>to_agent</em>, <em>length=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/channels.html#CChannel.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.channels.CChannel.__init__" title="Permalink to this definition">¶</a></dt>
@@ -266,11 +251,6 @@
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="squanch.channels.CChannel.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.channels'</em><a class="headerlink" href="#squanch.channels.CChannel.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="squanch.channels.CChannel.__weakref__">
@@ -332,11 +312,6 @@
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="squanch.channels.FiberOpticQChannel.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.channels'</em><a class="headerlink" href="#squanch.channels.FiberOpticQChannel.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 </dd></dl>
 
 </div>
@@ -383,7 +358,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

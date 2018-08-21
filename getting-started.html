@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Getting Started &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Getting Started &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -405,13 +405,13 @@
     <span class="k">return</span> <span class="n">msg</span>
 
 <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Hello, Bob!&quot;</span>
-<span class="n">bits</span> <span class="o">=</span> <span class="n">string_to_bits</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+<span class="n">bits</span> <span class="o">=</span> <span class="n">string_to_bits</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To program the agents themselves, we extend the Agent base class and overwrite the <code class="docutils literal notranslate"><span class="pre">run()</span></code> function:</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Alice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">qsys</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">qsys</span><span class="p">,</span> <span class="n">bit</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">):</span>
             <span class="n">q</span><span class="p">,</span> <span class="o">=</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span>
             <span class="k">if</span> <span class="n">bit</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="n">X</span><span class="p">(</span><span class="n">q</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>
@@ -420,18 +420,18 @@
 <span class="k">class</span> <span class="nc">Bob</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">bits</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
             <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
             <span class="n">bits</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">q</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To instantiate and run the agents, we need to allocate memory for <cite>QStream</cite> using <cite>Agent.shared_hilbert_space</cite> and a shared output dictionary with <cite>Agent.shared_output</cite>. Explicitly allocating and passing memory and output dictionaries to agents is necessary because each agent runs in its own separate process, which (generally) have separate memory pools. (See <a class="reference internal" href="api/agent.html#agent"><span class="std std-ref">Agent</span></a> API for more details.)  We then connect the agents with a quantum channel:</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">msgBits</span><span class="p">))</span>
+<p>To instantiate and run the agents, we need to provide them with a <cite>QStream</cite> to operate on, and if we want them to return values, we’ll need to give them a shared output dictionary with <cite>Agent.shared_output</cite>. Explicitly passing output dictionaries to agents is necessary because each agent runs in its own separate process, which (generally) have separate memory pools. (See <a class="reference internal" href="api/agent.html#agent"><span class="std std-ref">Agent</span></a> API for more details.)  We then connect the agents with a quantum channel:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">qstream</span> <span class="o">=</span> <span class="n">QStream</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">msgBits</span><span class="p">))</span>
 <span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
 
-<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bits</span><span class="p">)</span>
-<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bits</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">)</span>
 
 <span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span>
 </pre></div>
@@ -508,7 +508,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Superdense Coding &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Superdense Coding &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -168,10 +168,12 @@
             
   <div class="section" id="superdense-coding">
 <span id="superdensecodingdemo"></span><h1>Superdense Coding<a class="headerlink" href="#superdense-coding" title="Permalink to this headline">¶</a></h1>
-<p>Superdense coding is a process whereby two parties sharing an entangled pair can send two classical bits using only a single qubit. Conecptually, it is the inverse of <a class="reference internal" href="quantum-teleportation.html#teleportationdemo"><span class="std std-ref">quantum teleportation</span></a>.</p>
+<p>Superdense coding is a process whereby two parties connected via a quantum channel and sharing an entangled pair can send two classical bits of information using only a single qubit. Conceptually, superdense coding is the inverse of <a class="reference internal" href="quantum-teleportation.html#teleportationdemo"><span class="std std-ref">quantum teleportation</span></a>.</p>
+<p>In this demonstration, we’ll implement the three-party superdense coding protocol depicted in the circuit diagram shown below. Charlie distributes entangled particles to Alice and Bob. Alice encodes her information in her particles and sends them to Bob, who decodes the information by matching Alice’s qubits with his half of the shared state received from Charlie.</p>
+<p>For this demonstration, Alice will send data to Bob in the form of a serialized bitstream representing an image. We’ll use the built-in timing functionality to track the simulated time for each agent to complete their part of the protocol. Since superdense coding could be used as a networking protocol in the foreseeable future, even very rudimentary simulated timing data could be useful to quantify the performance of the algorithm, especially if data validation and error correction through multiple transmission attempts is simulated. We assume a photon pulse interval of 1ns and a spatial separation between Alice and Bob of 1km, with Charlie at the midpoint. All agents are connected with the <code class="docutils literal notranslate"><span class="pre">FiberOpticQChannel</span></code> model, which simulates 0.16 dB/km attenuation errors by randomly changing transmitted qubits to <code class="docutils literal notranslate"><span class="pre">None</span></code>. Any dropped qubits lost to attenuation will have their bits replaced with 0.</p>
 <div class="section" id="protocol">
 <h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
-<img alt="https://upload.wikimedia.org/wikipedia/commons/b/b7/Superdense_coding.png" src="https://upload.wikimedia.org/wikipedia/commons/b/b7/Superdense_coding.png" />
+<img alt="../_images/superdense-circuit.png" src="../_images/superdense-circuit.png" />
 <p>We’ll be using the above circuit diagram to describe a three-party quantum superdense coding protocol. There are three agents: Charlie distributes entangled particles to Alice and Bob, Alice encodes her information in her particles and sends them to Bob, who decodes the information by matching Alice’s qubits with his own qubits received from Charlie.</p>
 <blockquote>
 <div><ol class="arabic simple">
@@ -198,7 +200,7 @@
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Charlie</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Charlie distributes Bell pairs between Alice and Bob.&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span>
                         <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
                         <span class="n">CNOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
@@ -211,7 +213,7 @@
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Alice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Alice sends information to Bob via superdense coding&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">bit1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">bit2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
@@ -222,12 +224,12 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">({</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">})</span>
 </pre></div>
 </div>
-<p>Finally, for Bob, we’ll want to include the disentangling and measurement behavior, and we’ll want to output his measured data using <cite>self.output</cite>, which passes it to the parent process through the <cite>sharedOutputDict</cite> that is provided to agents on instantiation.</p>
+<p>Finally, for Bob, we’ll want to include the disentangling and measurement behavior, and we’ll want to output his measured data using <cite>self.output</cite>, which passes it to the parent process through the <cite>shared_output</cite> that is provided to agents on instantiation.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Bob</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Bob receives Alice&#39;s transmissions and reconstructs her information&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">bits</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
                         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -239,19 +241,19 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">({</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="s2">&quot;bits&quot;</span><span class="p">:</span> <span class="n">bits</span><span class="p">})</span>
 </pre></div>
 </div>
-<p>Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we’ll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits), and we’ll also need to provide the agents with appropriate arguments for the Hilbert space they will share as well as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared memory structures must be passed to them.)</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Load an image and serialize it to a bitstream</span>
-    <span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/foundryLogo.bmp&quot;</span><span class="p">)</span>
-    <span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+<p>Now, we want to instantiate Alice, Bob, and Charlie, and run the protocol. To do this, we’ll need to pass in the data that Alice will send to Bob (which will be an image serialized to a 1D array of bits) using the <cite>data</cite> keyword argument, and we’ll need to provide the agents with the <cite>QStream</cite> they will work on. If we want to get anything from the agents after their processes have finished, we’ll also need to pass as an output structure to push their data to. (This is necessary because all agents run in separate processes, so explicitly shared output dictionaries must be passed to them.)</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load an image and serialize it to a bitstream</span>
+<span class="n">img</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/foundryLogo.bmp&quot;</span><span class="p">)</span>
+<span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unpackbits</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
 
-    <span class="c1"># Allocate a shared Hilbert space and output object to pass to agents</span>
-    <span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+<span class="c1"># Initialize the qstream</span>
+<span class="n">qstream</span> <span class="o">=</span> <span class="n">QStream</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
 
-    <span class="c1"># Make agent instances</span>
-    <span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
-    <span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-    <span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="c1"># Make agent instances</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 
 <span class="c1"># Set photon transmission rate</span>
 <span class="n">alice</span><span class="o">.</span><span class="n">pulse_length</span> <span class="o">=</span> <span class="mf">1e-9</span>
@@ -259,7 +261,7 @@
 <span class="n">charlie</span><span class="o">.</span><span class="n">pulse_length</span> <span class="o">=</span> <span class="mf">1e-9</span>
 </pre></div>
 </div>
-<p>For agents to communicate with each other, they must be connected via quantum or classical channels. The <cite>Agent.qconnect</cite> and <cite>Agent.cconnect</cite> methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cabel model which simulates attenuation errors. Let’s say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.</p>
+<p>For agents to communicate with each other, they must be connected via quantum or classical channels. The <cite>Agent.qconnect</cite> and <cite>Agent.cconnect</cite> methods add a bidirectional quantum or classical channel, repsectively, to two agent instances and take as arguments a channel model and associated keyword arguments. SQUANCH includes several built-in rudimentary channel models, including a fiber optic cable model which simulates attenuation errors. (For more on channel and error models, see the <a class="reference internal" href="quantum-error-correction.html#quantumerrorcorrectiondemo"><span class="std std-ref">quantum error correction demo</span></a>.) Let’s say that Alice and Bob are separated by a 1km fiber optic cable, and Charlie is at the midpoint, 0.5km away from each.</p>
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Connect the agents with simulated fiber optic lines; see squanch.channels module</span>
 <span class="n">alice</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
 <span class="n">charlie</span><span class="o">.</span><span class="n">qconnect</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="n">FiberOpticQChannel</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -344,7 +346,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

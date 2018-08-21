@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>squanch.agent &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>squanch.agent &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -57,7 +57,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -155,7 +155,8 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 <span class="kn">import</span> <span class="nn">ctypes</span>
 <span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">sharedctypes</span>
-<span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="n">channels</span><span class="p">,</span> <span class="n">qstream</span>
+<span class="kn">from</span> <span class="nn">squanch</span> <span class="k">import</span> <span class="n">channels</span>
+<span class="kn">from</span> <span class="nn">squanch.qstream</span> <span class="k">import</span> <span class="n">QStream</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Agent&quot;</span><span class="p">]</span>
 
@@ -165,17 +166,17 @@
 <span class="sd">    Represents an entity (Alice, Bob, etc.) that can send messages over classical and quantum communication channels.</span>
 <span class="sd">    Agents have the following properties:</span>
 
-<span class="sd">    * Incoming and outgoing classical communciation lines to other agents</span>
-<span class="sd">    * Incoming and outgoing quantum channels to other agents through which entangled pairs may be distributed</span>
-<span class="sd">    * Ideal classical memory</span>
-<span class="sd">    * Quantum memory with some characteristic corruption timescale</span>
+<span class="sd">    * Incoming and outgoing classical and quantum channels connecting them to other agents</span>
+<span class="sd">    * Classical memory, implemented simply as a Python dictionary</span>
+<span class="sd">    * Quantum memory, implemented as a Python dictionary of qubits stored in keys of agent names</span>
+<span class="sd">    * Runtime logic in the form of an Agent.run() method</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-<div class="viewcode-block" id="Agent.__init__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hilbert_space</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Agent.__init__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__init__">[docs]</a>    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qstream</span><span class="p">,</span> <span class="n">out</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Instantiate an Agent from a unique identifier and a shared memory pool</span>
 
-<span class="sd">        :param np.array hilbert_space: the shared memory pool representing the Hilbert space of the qstream</span>
+<span class="sd">        :param QStream qstream: the QStream object that the agent operates on</span>
 <span class="sd">        :param dict out: shared output dictionary to pass to Agent processes to allow for &quot;returns&quot;. Default: {}</span>
 <span class="sd">        :param str name: the unique identifier for the Agent. Default: class name</span>
 <span class="sd">        :param any data: data to pass to the Agent&#39;s process, stored in ``self.data``. Default: None</span>
@@ -198,8 +199,8 @@
             <span class="n">out</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:progress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:progress_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hilbert_space</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">qstream</span><span class="o">.</span><span class="n">QStream</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">hilbert_space</span><span class="p">,</span> <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:progress_max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">qstream</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span> <span class="o">=</span> <span class="n">QStream</span><span class="o">.</span><span class="n">from_array</span><span class="p">(</span><span class="n">qstream</span><span class="o">.</span><span class="n">state</span><span class="p">,</span> <span class="n">agent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span> <span class="o">=</span> <span class="n">out</span>
 
         <span class="c1"># Communication channels are dicts; keys: agent objects, values: channel objects</span>
@@ -220,7 +221,7 @@
 
 <div class="viewcode-block" id="Agent.__hash__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__hash__">[docs]</a>    <span class="k">def</span> <span class="nf">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Agents are hashed by their names, which is why they must be unique.</span>
+<span class="sd">        Agents are hashed by their (unique) names</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span></div>
 
@@ -232,37 +233,22 @@
 
 <div class="viewcode-block" id="Agent.__ne__"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.__ne__">[docs]</a>    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Overridden inequality operator, for good practice.</span>
+<span class="sd">        Agents are compared for inequality by their names</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span> <span class="o">==</span> <span class="n">other</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Agent.shared_output"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.shared_output">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">shared_output</span><span class="p">():</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Generate a shared output dictionary to distribute among agents in separate processes</span>
+<span class="sd">        Generate a output dictionary stored in a shared memory pool to distribute among agents in separate processes</span>
 
 <span class="sd">        :return: an empty multiprocessed Manager.dict()</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="k">return</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="Agent.shared_hilbert_space"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.shared_hilbert_space">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">shared_hilbert_space</span><span class="p">(</span><span class="n">system_size</span><span class="p">,</span> <span class="n">num_systems</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Allocate a portion of shareable c-type memory to create a numpy array that is sharable between processes</span>
-
-<span class="sd">        :param int system_size: number of entangled qubits in each quantum system; each has dimension 2^system_size</span>
-<span class="sd">        :param int num_systems: number of small quantum systems in the data stream</span>
-<span class="sd">        :return: a blank, sharable, num_systems * 2^system_size * 2^system_size array of np.complex64 values</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">dim</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">**</span> <span class="n">system_size</span>
-        <span class="n">mallocced</span> <span class="o">=</span> <span class="n">sharedctypes</span><span class="o">.</span><span class="n">RawArray</span><span class="p">(</span><span class="n">ctypes</span><span class="o">.</span><span class="n">c_double</span><span class="p">,</span> <span class="n">num_systems</span> <span class="o">*</span> <span class="n">dim</span> <span class="o">*</span> <span class="n">dim</span><span class="p">)</span>
-        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">frombuffer</span><span class="p">(</span><span class="n">mallocced</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">complex64</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="n">num_systems</span><span class="p">,</span> <span class="n">dim</span><span class="p">,</span> <span class="n">dim</span><span class="p">))</span>
-        <span class="n">qstream</span><span class="o">.</span><span class="n">QStream</span><span class="o">.</span><span class="n">reformat</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">array</span></div>
-
 <div class="viewcode-block" id="Agent.qconnect"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.qconnect">[docs]</a>    <span class="k">def</span> <span class="nf">qconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">QChannel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Connect Alice and Bob bidirectionally via a simulated quantum channel</span>
+<span class="sd">        Connect Alice and Bob bidirectionally with a specified quantum channel model</span>
 
 <span class="sd">        :param Agent other: the other agent to connect to</span>
 <span class="sd">        :param QChannel channel: the quantum channel model to use</span>
@@ -315,7 +301,7 @@
 
 <div class="viewcode-block" id="Agent.cconnect"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.cconnect">[docs]</a>    <span class="k">def</span> <span class="nf">cconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">,</span> <span class="n">channel</span> <span class="o">=</span> <span class="n">channels</span><span class="o">.</span><span class="n">CChannel</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Connect Alice and Bob bidirectionally via a simulated classical channel</span>
+<span class="sd">        Connect Alice and Bob bidirectionally with a specified classical channel model</span>
 
 <span class="sd">        :param Agent other: the other agent to connect to</span>
 <span class="sd">        :param CChannel channel: the classical channel model to use</span>
@@ -358,8 +344,7 @@
         <span class="k">return</span> <span class="n">thing</span></div>
 
 <div class="viewcode-block" id="Agent.run"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;This method should be overridden in extended class instances, and cannot take any arguments or</span>
-<span class="sd">        return any values.&#39;&#39;&#39;</span>
+        <span class="sd">&#39;&#39;&#39;Runtime logic for the Agent; this method should be overridden in child classes.&#39;&#39;&#39;</span>
         <span class="k">pass</span></div>
 
 <div class="viewcode-block" id="Agent.output"><a class="viewcode-back" href="../../api/agent.html#squanch.agent.Agent.output">[docs]</a>    <span class="k">def</span> <span class="nf">output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">thing</span><span class="p">):</span>
@@ -374,7 +359,7 @@
         <span class="sd">&#39;&#39;&#39;</span>
 <span class="sd">        Update the progress of this agent in the shared output dictionary. Used in Simulation.progress_monitor().</span>
 
-<span class="sd">        :param value: the value to update the progress to (out of a max of len(self.stream))</span>
+<span class="sd">        :param value: the value to update the progress to (out of a max of len(self.qstream))</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">out</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:progress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
@@ -417,7 +402,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

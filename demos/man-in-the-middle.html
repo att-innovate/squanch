@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Man-In-The-Middle Attack &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Man-In-The-Middle Attack &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -168,7 +168,8 @@
             
   <div class="section" id="man-in-the-middle-attack">
 <span id="maninthemiddledemo"></span><h1>Man-In-The-Middle Attack<a class="headerlink" href="#man-in-the-middle-attack" title="Permalink to this headline">¶</a></h1>
-<p>This demonstration is a modified version of the <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a> demonstration where we show how quantum networks can be resistant to interception attacks.</p>
+<p>In this demo, we show how quantum networks can be resistant to interception (“man-in-the-middle”) attacks by using a modified version of the <a class="reference internal" href="superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a>. As in the superdense coding demo, Charlie will distribute Bell pairs to Alice and Bob, and Alice will attempt to send a classical message to Bob. However, a fourth party, Eve, will try to naively intercept the message Alice sends to Bob. Eve will measure each qubit from Alice, record the result, and re-transmit the qubit to Bob. This scenario is illustrated in the circuit diagram shown below.</p>
+<img alt="../_images/man-in-middle-circuit.png" src="../_images/man-in-middle-circuit.png" />
 <div class="section" id="protocol">
 <h2>Protocol<a class="headerlink" href="#protocol" title="Permalink to this headline">¶</a></h2>
 <p>As in the superdense coding demo, Charlie will distribute Bell pairs to Alice and Bob, and Alice will attempt to send a classical message to Bob. However, a fourth party, Eve, will try to naiively intercept the message Alice sends to Bob. Eve will measure each qubit from Alice, record the result, and send the qubit to Bob. This scenario is illustrated below.</p>
@@ -195,7 +196,7 @@
 <div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Alice</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Alice sends information to Bob via superdense coding&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">bit1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">bit2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
@@ -208,7 +209,7 @@
         <span class="sd">&#39;&#39;&#39;Bob receives Alice&#39;s transmissions and reconstructs her information&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">bits</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">eve</span><span class="p">)</span> <span class="c1"># Bob receives his qubit from Eve</span>
                         <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">charlie</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">c</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -222,7 +223,7 @@
 <span class="k">class</span> <span class="nc">Charlie</span><span class="p">(</span><span class="n">Agent</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Charlie distributes Bell pairs between Alice and Bob.&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">qsys</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">qsys</span><span class="o">.</span><span class="n">qubits</span>
                         <span class="n">H</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
                         <span class="n">CNOT</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
@@ -235,31 +236,31 @@
         <span class="sd">&#39;&#39;&#39;Eve naively tries to intercept Alice&#39;s message&#39;&#39;&#39;</span>
         <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
                 <span class="n">bits</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">qstream</span><span class="p">:</span>
                         <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qrecv</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
                         <span class="k">if</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                                 <span class="n">bits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">measure</span><span class="p">())</span>
                         <span class="k">else</span><span class="p">:</span>
                                 <span class="n">bits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">qsend</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">increment_progress</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="n">bits</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Next, we’ll load an image and convert it to black and white and flatten it into a bitstream using some helper functions (see the corresponding Jupyter notebook in <cite>demos</cite> for details). We’ll allocate memory for an appropriately large <cite>QStream</cite> and make a shared output dictionary to allow the agents to return data.</p>
-<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load an image and serialize it to a bitstream</span>
+<p>Next, we’ll load an image and convert it to black and white and flatten it into a bitstream using some helper functions (see the corresponding Jupyter notebook in <cite>demos</cite> for details). We’ll allocate an appropriately large <cite>QStream</cite> and make a shared output dictionary to allow the agents to return data.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Load an image and serialize it to a bitstream</span>
 <span class="n">img</span> <span class="o">=</span> <span class="n">image_to_black_and_white</span><span class="p">(</span><span class="s2">&quot;../docs/source/img/squanchLogo.jpg&quot;</span><span class="p">)</span>
 <span class="n">bitstream</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">flatten</span><span class="p">())</span>
 
-<span class="c1"># Allocate a shared Hilbert space and output object to pass to agents</span>
-<span class="n">mem</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_hilbert_space</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
-<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+<span class="c1"># Make the QStream for the agents to operate on</span>
+<span class="n">qstream</span> <span class="o">=</span> <span class="n">QStream</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bitstream</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">))</span>
 
 <span class="c1"># Make agent instances</span>
-<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
-<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
-<span class="n">eve</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">mem</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">Agent</span><span class="o">.</span><span class="n">shared_output</span><span class="p">()</span>
+
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Alice</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">bitstream</span><span class="p">)</span>
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Bob</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">charlie</span> <span class="o">=</span> <span class="n">Charlie</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+<span class="n">eve</span> <span class="o">=</span> <span class="n">Eve</span><span class="p">(</span><span class="n">qstream</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Like in the superdense coding demonstration, we’ll connect the agents with fiber optic lines to simulate attenuation errors.</p>
@@ -326,7 +327,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Overview &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -86,7 +86,11 @@
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#a-simulator-for-quantum-networks-and-channels">A Simulator for Quantum Networks and Channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#a-simulator-for-quantum-networks-and-channels">A Simulator for Quantum Networks and Channels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#squanch-whitepaper">SQUANCH Whitepaper</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#squanch-manual">SQUANCH Manual</a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="#design-overview">Design Overview</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#information-representation-and-processing">Information Representation and Processing</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#agents-and-channels">Agents and Channels</a></li>
@@ -168,6 +172,14 @@
 <h2>A Simulator for Quantum Networks and Channels<a class="headerlink" href="#a-simulator-for-quantum-networks-and-channels" title="Permalink to this headline">¶</a></h2>
 <p>SQUANCH (Simulator for QUAntum Networks and CHannels) is an open-source Python framework for creating performant and parallelized simulations of distributed quantum information processing. Although it can be used as a general-purpose quantum computing simulation library, SQUANCH is designed specifically for simulating quantum <em>networks</em>, acting as a sort of “quantum playground” to test ideas in quantum transmission and networking protocols. The package includes flexible modules that allow you to intuitively design and simulate a multi-party quantum network, extensible quantum and classical error models which introduce realism and the need for error correction in your simulations, and a multi-threaded framework for manipulating quantum information in a performant manner.</p>
 <p>SQUANCH is developed as part of the Intelligent Quantum Networks and Technologies (<a class="reference external" href="http://inqnet.caltech.edu">INQNET</a>) program, a collaboration between AT&amp;T and the California Institute of Technology. The source is hosted on <a class="reference external" href="https://github.com/att-innovate/squanch">GitHub</a>.</p>
+<div class="section" id="squanch-whitepaper">
+<h3>SQUANCH Whitepaper<a class="headerlink" href="#squanch-whitepaper" title="Permalink to this headline">¶</a></h3>
+<p>We encourage interested users to read the whitepaper for the SQUANCH platform, “A distributed simulation framework for quantum networks and channels” (<a class="reference external" href="https://arxiv.org/abs/BLAH">arXiv: LINK HERE</a>), which provides an overview of the framework and a primer on quantum information.</p>
+</div>
+<div class="section" id="squanch-manual">
+<h3>SQUANCH Manual<a class="headerlink" href="#squanch-manual" title="Permalink to this headline">¶</a></h3>
+<p>This documentation is also available in PDF format <a class="reference external" href="https://github.com/att-innovate/squanch/blob/master/docs/SQUANCH.pdf">here</a>.</p>
+</div>
 </div>
 <div class="section" id="design-overview">
 <h2>Design Overview<a class="headerlink" href="#design-overview" title="Permalink to this headline">¶</a></h2>
@@ -187,7 +199,7 @@
 <div class="section" id="memory-structure-and-time-synchronization">
 <h3>Memory Structure and Time Synchronization<a class="headerlink" href="#memory-structure-and-time-synchronization" title="Permalink to this headline">¶</a></h3>
 <p>For optimal performance and for conceptual realism, agents (nodes in a network) run concurrently in separate processes that can only communicate by sending information through channels. Since separate processes normally have separate memory pools, this requires an interesting memory structure, since two agents running in separate processes must manipulate the same set of matrices in memory which represent the non-local combined quantum state shared between them. In other words, if Alice and Bob share an entangled pair, Alice’s particle needs to be aware of the measurements performed on Bob’s particle.</p>
-<p>This is solved in SQUANCH by explicitly allocating an appropriately sized block of shared memory using the <code class="docutils literal notranslate"><span class="pre">shared_hilbert_space()</span></code> function in the <code class="docutils literal notranslate"><span class="pre">Agent</span></code> module. This creates a 1D array of c-type doubles (which have the same size as the <code class="docutils literal notranslate"><span class="pre">numpy.complex64</span></code> values that are used to express density matrices in SQUANCH), which is casted and reshaped to a 3D complex-valued NumPy array. Agents can then instantiate separate <code class="docutils literal notranslate"><span class="pre">QStream</span></code> s that all point to the same physical memory location to represent their state. Since <code class="docutils literal notranslate"><span class="pre">Qubit</span></code> objects must be serialized to pass through Python’s multiprocessing queues, channels serialized qubits to their (system, qubit) indices and reinstance the qubit for the receiving agent, insuring that they reference the correct location in memory.</p>
+<p>This is solved in SQUANCH by explicitly allocating an appropriately sized block of shared memory using the <code class="docutils literal notranslate"><span class="pre">sharedctypes</span></code> module, creating a 1D array of c-type doubles (which have the same size as the <code class="docutils literal notranslate"><span class="pre">numpy.complex64</span></code> values that are used to express density matrices in SQUANCH), which is casted and reshaped to a 3D complex-valued NumPy array. Agents can then instantiate separate <code class="docutils literal notranslate"><span class="pre">QStream</span></code> s that all point to the same physical memory location to represent their state. Since <code class="docutils literal notranslate"><span class="pre">Qubit</span></code> objects must be serialized to pass through Python’s multiprocessing queues, channels serialized qubits to their (system, qubit) indices and reinstance the qubit for the receiving agent, insuring that they reference the correct location in memory.</p>
 <p>SQUANCH includes rudimentary built-in timing features for agents to allow users to characterize the efficiency of protocols, taking specified values of photon pulse widths, signal travel speeds, length of channels, etc. into account. Agents maintain separate clocks which are synchronized upon exchanging dependent information. For example, suppose Alice and Bob are sparated by 300m, and Alice transfers <span class="math notranslate">\(10^5\)</span> qubits with a 10ps pulse width to Bob. Alice’s clock at the beginning of the transmission is <span class="math notranslate">\(1.5 \mu s\)</span>, and Bob’s clock is <span class="math notranslate">\(2.0 \mu s\)</span>. After the transmission, Alice’s clock reads <span class="math notranslate">\(1.5 + 10^5 \cdot 10^{-5} = 2.5 \mu s\)</span>, and Bob’s accounts for a speed of light delay to update to <span class="math notranslate">\(2.0 + 10^5 \cdot 10^{-5} + \frac{300m}{c} = 4 \mu s\)</span>.</p>
 <p>A conceptual diagram of the memory structure and time synchronization protocol for two agents simulating information transfer via <a class="reference internal" href="demos/superdense-coding.html#superdensecodingdemo"><span class="std std-ref">superdense coding</span></a> is shown below.</p>
 <img alt="_images/agentMemoryDiagram.png" src="_images/agentMemoryDiagram.png" />
@@ -237,7 +249,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

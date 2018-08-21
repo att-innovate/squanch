@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Errors – Quantum errors in channels &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Errors – Quantum errors in channels &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -94,7 +94,7 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Errors</span></code> – Quantum errors in channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gates.html"><code class="docutils literal notranslate"><span class="pre">Gates</span></code> – Manipulating quantum states</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linalg.html"><code class="docutils literal notranslate"><span class="pre">Linalg</span></code> – Useful linear algebra functions for QM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Plug-and-play agent simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Parallelized quantum network simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qstream.html"><code class="docutils literal notranslate"><span class="pre">QStream</span></code> – Working with quantum datastreams</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qubit.html"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems</a></li>
 </ul>
@@ -172,11 +172,6 @@
 <em class="property">class </em><code class="descclassname">squanch.errors.</code><code class="descname">QError</code><span class="sig-paren">(</span><em>qchannel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/errors.html#QError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.errors.QError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A generalized quantum error model</p>
-<dl class="attribute">
-<dt id="squanch.errors.QError.__dict__">
-<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.errors', '__doc__': 'A generalized quantum error model', '__init__': &lt;function QError.__init__&gt;, 'apply': &lt;function QError.apply&gt;, '__dict__': &lt;attribute '__dict__' of 'QError' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'QError' objects&gt;})</em><a class="headerlink" href="#squanch.errors.QError.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="squanch.errors.QError.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>qchannel</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/errors.html#QError.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.errors.QError.__init__" title="Permalink to this definition">¶</a></dt>
@@ -192,11 +187,6 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="squanch.errors.QError.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.errors'</em><a class="headerlink" href="#squanch.errors.QError.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="squanch.errors.QError.__weakref__">
 <code class="descname">__weakref__</code><a class="headerlink" href="#squanch.errors.QError.__weakref__" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
@@ -205,7 +195,8 @@
 <dl class="method">
 <dt id="squanch.errors.QError.apply">
 <code class="descname">apply</code><span class="sig-paren">(</span><em>qubit</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/errors.html#QError.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.errors.QError.apply" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generic apply method; overwrite in child methods while maintaining the Qubit-&gt;(Qubit | None) signature</p>
+<dd><p>Applies the error to the transmitted qubit. Overwrite this method in child classes while maintaining the
+Qubit-&gt;(Qubit | None) signature</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -242,11 +233,6 @@
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="squanch.errors.AttenuationError.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.errors'</em><a class="headerlink" href="#squanch.errors.AttenuationError.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="squanch.errors.AttenuationError.apply">
@@ -289,11 +275,6 @@
 </table>
 </dd></dl>
 
-<dl class="attribute">
-<dt id="squanch.errors.RandomUnitaryError.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.errors'</em><a class="headerlink" href="#squanch.errors.RandomUnitaryError.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="method">
 <dt id="squanch.errors.RandomUnitaryError.apply">
 <code class="descname">apply</code><span class="sig-paren">(</span><em>qubit</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/errors.html#RandomUnitaryError.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.errors.RandomUnitaryError.apply" title="Permalink to this definition">¶</a></dt>
@@ -335,11 +316,6 @@
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="squanch.errors.SystematicUnitaryError.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.errors'</em><a class="headerlink" href="#squanch.errors.SystematicUnitaryError.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="method">
 <dt id="squanch.errors.SystematicUnitaryError.apply">
@@ -403,7 +379,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',

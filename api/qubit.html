@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Qubit – Qubits and quantum systems &mdash; SQUANCH 1.0.0 documentation</title>
+  <title>Qubit – Qubits and quantum systems &mdash; SQUANCH 1.1.0 documentation</title>
   
 
   
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                1.0.0
+                1.1.0
               </div>
             
           
@@ -93,7 +93,7 @@
 <li class="toctree-l2"><a class="reference internal" href="errors.html"><code class="docutils literal notranslate"><span class="pre">Errors</span></code> – Quantum errors in channels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="gates.html"><code class="docutils literal notranslate"><span class="pre">Gates</span></code> – Manipulating quantum states</a></li>
 <li class="toctree-l2"><a class="reference internal" href="linalg.html"><code class="docutils literal notranslate"><span class="pre">Linalg</span></code> – Useful linear algebra functions for QM</a></li>
-<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Plug-and-play agent simulation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="simulate.html"><code class="docutils literal notranslate"><span class="pre">Simulate</span></code> – Parallelized quantum network simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="qstream.html"><code class="docutils literal notranslate"><span class="pre">QStream</span></code> – Working with quantum datastreams</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">Qubit</span></code> – Qubits and quantum systems</a></li>
 </ul>
@@ -170,13 +170,8 @@
 <dt id="squanch.qubit.QSystem">
 <em class="property">class </em><code class="descclassname">squanch.qubit.</code><code class="descname">QSystem</code><span class="sig-paren">(</span><em>num_qubits</em>, <em>index=None</em>, <em>state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Represents a multi-particle Hilbert space for several qubuts comprising a single system of a quantum datastream.
-Designed to have similar syntax to QubitSytem, but instantiation is much faster</p>
-<dl class="attribute">
-<dt id="squanch.qubit.QSystem.__dict__">
-<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.qubit', '__doc__': '\n    Represents a multi-particle Hilbert space for several qubuts comprising a single system of a quantum datastream.\n    Designed to have similar syntax to QubitSytem, but instantiation is much faster\n    ', '__init__': &lt;function QSystem.__init__&gt;, 'from_stream': &lt;classmethod object&gt;, 'qubit': &lt;function QSystem.qubit&gt;, 'measure_qubit': &lt;function QSystem.measure_qubit&gt;, 'apply': &lt;function QSystem.apply&gt;, '__dict__': &lt;attribute '__dict__' of 'QSystem' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'QSystem' objects&gt;})</em><a class="headerlink" href="#squanch.qubit.QSystem.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Represents a multi-body, maximally-entangleable quantum system. Contains references to constituent qubits and
+(if applicable) its parent <code class="docutils literal notranslate"><span class="pre">QStream</span></code>. Quantum state is represented as a density matrix in the computational basis.</p>
 <dl class="method">
 <dt id="squanch.qubit.QSystem.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>num_qubits</em>, <em>index=None</em>, <em>state=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.__init__" title="Permalink to this definition">¶</a></dt>
@@ -187,6 +182,7 @@ Designed to have similar syntax to QubitSytem, but instantiation is much faster<
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>num_qubits</strong> (<em>int</em>) – number of qubits in the system, treated as maximally entangled</li>
+<li><strong>index</strong> (<em>int</em>) – index of the QSystem within the parent QStream</li>
 <li><strong>state</strong> (<em>np.array</em>) – density matrix representing the quantum state. By default, <a href="#id1"><span class="problematic" id="id2">|000...0&gt;&lt;0...000|</span></a> is used</li>
 </ul>
 </td>
@@ -194,11 +190,6 @@ Designed to have similar syntax to QubitSytem, but instantiation is much faster<
 </tbody>
 </table>
 </dd></dl>
-
-<dl class="attribute">
-<dt id="squanch.qubit.QSystem.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.qubit'</em><a class="headerlink" href="#squanch.qubit.QSystem.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="attribute">
 <dt id="squanch.qubit.QSystem.__weakref__">
@@ -209,12 +200,12 @@ Designed to have similar syntax to QubitSytem, but instantiation is much faster<
 <dl class="method">
 <dt id="squanch.qubit.QSystem.apply">
 <code class="descname">apply</code><span class="sig-paren">(</span><em>operator</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.apply" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply an n-qubit operator to this system’s n-qubit quantum state: U|psi&gt;&lt;psi|U^+ (U^+ = U for Hermitian)</p>
+<dd><p>Apply an N-qubit unitary operator to this system’s N-qubit quantum state</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operator</strong> (<em>np.array</em>) – the <em>Hermitian</em> n-qubit operator to apply</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>operator</strong> (<em>np.array</em>) – the unitary N-qubit operator to apply</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">nothing, the qsystem state is mutated</td>
 </tr>
@@ -225,7 +216,7 @@ Designed to have similar syntax to QubitSytem, but instantiation is much faster<
 <dl class="classmethod">
 <dt id="squanch.qubit.QSystem.from_stream">
 <em class="property">classmethod </em><code class="descname">from_stream</code><span class="sig-paren">(</span><em>qstream</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#QSystem.from_stream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.QSystem.from_stream" title="Permalink to this definition">¶</a></dt>
-<dd><p>Instantiate a QSystem from a given point in a parent QStream</p>
+<dd><p>Instantiate a QSystem from a given index in a parent QStream</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -283,12 +274,7 @@ function to access a single qubit of a given index.</p>
 <dt id="squanch.qubit.Qubit">
 <em class="property">class </em><code class="descclassname">squanch.qubit.</code><code class="descname">Qubit</code><span class="sig-paren">(</span><em>qsystem</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Represents a single physical qubit, which is a wrapper for part of a pre-allocated nonlocal QSystem</p>
-<dl class="attribute">
-<dt id="squanch.qubit.Qubit.__dict__">
-<code class="descname">__dict__</code><em class="property"> = mappingproxy({'__module__': 'squanch.qubit', '__doc__': '\n    Represents a single physical qubit, which is a wrapper for part of a pre-allocated nonlocal QSystem\n    ', '__init__': &lt;function Qubit.__init__&gt;, 'from_stream': &lt;classmethod object&gt;, 'measure': &lt;function Qubit.measure&gt;, 'getState': &lt;function Qubit.getState&gt;, 'apply': &lt;function Qubit.apply&gt;, 'serialize': &lt;function Qubit.serialize&gt;, '__dict__': &lt;attribute '__dict__' of 'Qubit' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Qubit' objects&gt;})</em><a class="headerlink" href="#squanch.qubit.Qubit.__dict__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>A wrapper class representing a single qubit in an existing quantum system.</p>
 <dl class="method">
 <dt id="squanch.qubit.Qubit.__init__">
 <code class="descname">__init__</code><span class="sig-paren">(</span><em>qsystem</em>, <em>index</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.__init__" title="Permalink to this definition">¶</a></dt>
@@ -308,11 +294,6 @@ function to access a single qubit of a given index.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="squanch.qubit.Qubit.__module__">
-<code class="descname">__module__</code><em class="property"> = 'squanch.qubit'</em><a class="headerlink" href="#squanch.qubit.Qubit.__module__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
 <dt id="squanch.qubit.Qubit.__weakref__">
 <code class="descname">__weakref__</code><a class="headerlink" href="#squanch.qubit.Qubit.__weakref__" title="Permalink to this definition">¶</a></dt>
 <dd><p>list of weak references to the object (if defined)</p>
@@ -320,7 +301,7 @@ function to access a single qubit of a given index.</p>
 
 <dl class="method">
 <dt id="squanch.qubit.Qubit.apply">
-<code class="descname">apply</code><span class="sig-paren">(</span><em>operator</em>, <em>cacheID=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.apply" title="Permalink to this definition">¶</a></dt>
+<code class="descname">apply</code><span class="sig-paren">(</span><em>operator</em>, <em>id=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.apply"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.apply" title="Permalink to this definition">¶</a></dt>
 <dd><p>Apply a single-qubit operator to this qubit, tensoring with I and passing to the qsystem.apply() method</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -359,23 +340,9 @@ function to access a single qubit of a given index.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="squanch.qubit.Qubit.getState">
-<code class="descname">getState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.getState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.getState" title="Permalink to this definition">¶</a></dt>
-<dd><p>Traces over the remaining portions of the qsystem to return this qubit’s state expressed as a density matrix.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The (mixed) density matrix describing this qubit’s state</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="squanch.qubit.Qubit.measure">
 <code class="descname">measure</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/squanch/qubit.html#Qubit.measure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#squanch.qubit.Qubit.measure" title="Permalink to this definition">¶</a></dt>
-<dd><p>Measure a qubit, mutating its state in-place</p>
+<dd><p>Measure a qubit, modifying the density matrix of its parent <code class="docutils literal notranslate"><span class="pre">QSystem</span></code> in-place</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -444,7 +411,7 @@ function to access a single qubit of a given index.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'../',
-            VERSION:'1.0.0',
+            VERSION:'1.1.0',
             LANGUAGE:'None',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
