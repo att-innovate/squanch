@@ -150,9 +150,10 @@
            <div itemprop="articleBody">
             
   <h1>Source code for squanch.simulate</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">tqdm</span>
+<span></span><span class="kn">import</span> <span class="nn">threading</span>
 <span class="kn">import</span> <span class="nn">time</span>
-<span class="kn">import</span> <span class="nn">threading</span>
+
+<span class="kn">import</span> <span class="nn">tqdm</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Simulation&quot;</span><span class="p">]</span>
 
@@ -161,13 +162,13 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">shell</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
         <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s1">&#39;ZMQInteractiveShell&#39;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>   <span class="c1"># Jupyter notebook or qtconsole</span>
+            <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># Jupyter notebook or qtconsole</span>
         <span class="k">elif</span> <span class="n">shell</span> <span class="o">==</span> <span class="s1">&#39;TerminalInteractiveShell&#39;</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Terminal running IPython</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Other type (?)</span>
     <span class="k">except</span> <span class="ne">NameError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span>      <span class="c1"># Probably standard Python interpreter</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Probably standard Python interpreter</span>
 
 
 <div class="viewcode-block" id="Simulation"><a class="viewcode-back" href="../../api/simulate.html#squanch.simulate.Simulation">[docs]</a><span class="k">class</span> <span class="nc">Simulation</span><span class="p">:</span>
