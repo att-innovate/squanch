@@ -4,7 +4,7 @@
 
 The _Simulator for Quantum Networks and Channels_ (`SQUANCH`) is an open-source Python library for creating parallelized simulations of distributed quantum information processing. The framework includes many features of a general-purpose quantum computing simulator, but it is optimized specifically for simulating quantum networks. It includes functionality to allow users to easily design complex multi-party quantum networks, extensible classes for modeling noisy quantum channels, and a multiprocessed NumPy backend for performant simulations.
 
-A schematic overview of the modules available in `SQUANCH` is shown below. (Refer to the [documentation](https://att-innovate.github.io/squanch/) or the [whitepaper](link) for more details.)
+A schematic overview of the modules available in `SQUANCH` is shown below. (Refer to the [documentation](https://att-innovate.github.io/squanch/) or the [whitepaper](https://arxiv.org/abs/1808.07047) for more details.)
 
 ![Overview of SQUANCH framework structure](https://raw.githubusercontent.com/att-innovate/squanch/master/docs/source/img/moduleOverview.png)
 
@@ -12,7 +12,7 @@ A schematic overview of the modules available in `SQUANCH` is shown below. (Refe
 
 ## Documentation
 
-Documentation for this package is available at the [documentation website](https://att-innovate.github.io/squanch/) or as a [pdf manual](/docs/SQUANCH.pdf). We encourage interested users to read the whitepaper for the `SQUANCH` platform, "A distributed simulation framework for quantum networks and channels" (arXiv: [LINK HERE](https://arxiv.org/abs/BLAH)), which provides an overview of the framework and a primer on quantum information.
+Documentation for this package is available at the [documentation website](https://att-innovate.github.io/squanch/) or as a [pdf manual](/docs/SQUANCH.pdf). We encourage interested users to read the whitepaper for the `SQUANCH` platform, "A distributed simulation framework for quantum networks and channels" (arXiv: [1808.07047](https://arxiv.org/abs/1808.07047)), which provides an overview of the framework and a primer on quantum information.
 
 ## Installation 
 
@@ -129,4 +129,4 @@ Simulation(alice, eve, bob, charlie).run()
 
 If you are doing research using `SQUANCH`, please cite our whitepaper:
 
-> B. Bartlett, "A distributed simulation framework for quantum networks and channels," arXiv: ####.##### [quant-ph], Aug. 2018.
+> B. Bartlett, "A distributed simulation framework for quantum networks and channels," arXiv: 1808.07047 [quant-ph], Aug. 2018.

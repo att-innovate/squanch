@@ -13,7 +13,7 @@ SQUANCH is developed as part of the Intelligent Quantum Networks and Technologie
 SQUANCH Whitepaper
 ^^^^^^^^^^^^^^^^^^
 
-We encourage interested users to read the whitepaper for the SQUANCH platform, "A distributed simulation framework for quantum networks and channels" (`arXiv: LINK HERE <https://arxiv.org/abs/BLAH>`_), which provides an overview of the framework and a primer on quantum information.
+We encourage interested users to read the whitepaper for the SQUANCH platform, "A distributed simulation framework for quantum networks and channels" (`arXiv: 1808.07047 <https://arxiv.org/abs/1808.07047>`_), which provides an overview of the framework and a primer on quantum information.
 
 SQUANCH Manual
 ^^^^^^^^^^^^^^
