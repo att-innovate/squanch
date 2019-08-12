@@ -17,7 +17,7 @@ class QSystem:
     (if applicable) its parent ``QStream``. Quantum state is represented as a density matrix in the computational basis.
     '''
 
-    def __init__(self, num_qubits, index = None, state = None):
+    def __init__(self, num_qubits, index = None, state = None, use_density_matrix = True):
         '''
         Instatiate the quantum state for an n-qubit system
 
@@ -28,13 +28,18 @@ class QSystem:
         self.num_qubits = num_qubits
         self.qubits = (Qubit(self, i) for i in range(num_qubits))  # this is a generator, not a list
         self.index = index
+        self.use_density_matrix = use_density_matrix
         # Register the state or generate a new one
         if state is not None:
             self.state = state  # density matrix should be passed by reference and will modify the QStream.state
         else:
             # Initialize each qubit state
-            initial_qubit_state = np.outer(_0, _0)  # each qubit is initialized as |0><0|
-            initial_system_state = np.array([], dtype = np.complex64)
+            if use_density_matrix:
+                initial_qubit_state = np.outer(_0, _0)  # each qubit is initialized as |0><0|
+                initial_system_state = np.array([], dtype = np.complex64)
+            else:
+                initial_qubit_state = np.copy(_0)  # each qubit is initialized as |0>
+                initial_system_state = np.array([], dtype = np.complex64)
             # Generate the matrix representation of the initial state of the n-qubit system
             for _ in range(self.num_qubits):
                 initial_system_state = linalg.tensor_product(initial_system_state, initial_qubit_state)
@@ -42,7 +47,7 @@ class QSystem:
             self.state = initial_system_state
 
     @classmethod
-    def from_stream(cls, qstream, index):
+    def from_stream(cls, qstream, index, use_density_matrix = True):
         '''
         Instantiate a QSystem from a given index in a parent QStream
 
@@ -50,7 +55,8 @@ class QSystem:
         :param int index: the index in the parent stream corresponding to this system
         :return: the QSystem object
         '''
-        return cls(qstream.system_size, index = index, state = qstream.state[index])
+        return cls(qstream.system_size, index = index, state = qstream.state[index],
+                   use_density_matrix = use_density_matrix)
 
     def qubit(self, index):
         '''
@@ -70,17 +76,24 @@ class QSystem:
         :param int index: the qubit to measure
         :return: the measured qubit value
         '''
+        state = self.state if self.use_density_matrix else np.outer(self.state, self.state.conj())
         measure0 = gates.expand(_M0, index, self.num_qubits, "0" + str(index) + str(self.num_qubits))
-        prob0 = np.trace(np.dot(measure0, self.state))
+        prob0 = np.trace(np.dot(measure0, state))
         # Determine if qubit collapses to |0> or |1>
         if np.random.rand() <= prob0:
             # qubit collapses to |0>
-            self.state[...] = np.linalg.multi_dot([measure0, self.state, measure0.conj().T]) / prob0
+            if self.use_density_matrix:
+                self.state[...] = np.linalg.multi_dot([measure0, self.state, measure0.conj().T]) / prob0
+            else:
+                self.state[...] = np.dot(measure0, self.state) / np.sqrt(prob0)
             return 0
         else:
             # qubit collapses to |1>
             measure1 = gates.expand(_M1, index, self.num_qubits, "1" + str(self.num_qubits))
-            self.state[...] = np.linalg.multi_dot([measure1, self.state, measure1]) / (1.0 - prob0)
+            if self.use_density_matrix:
+                self.state[...] = np.linalg.multi_dot([measure1, self.state, measure1.conj().T]) / (1.0 - prob0)
+            else:
+                self.state[...] = np.dot(measure1, self.state) / np.sqrt(1.0 - prob0)
             return 1
 
     def apply(self, operator):
@@ -92,7 +105,10 @@ class QSystem:
         '''
         # Apply the operator
         # assert linalg.isHermitian(operator), "Qubit operators must be Hermitian"
-        self.state[...] = np.linalg.multi_dot([operator, self.state, operator.conj().T])
+        if self.use_density_matrix:
+            self.state[...] = np.linalg.multi_dot([operator, self.state, operator.conj().T])
+        else:
+            self.state[...] = np.dot(operator, self.state)
         # self.state[...] = np.linalg.multi_dot([operator, self.state, operator])
 
 
